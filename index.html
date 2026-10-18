@@ -27,7 +27,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;min-height:100vh;display:flex;justify-content:center}
 main{width:100%;max-width:480px;padding:24px 16px 40px}
 h1{font-size:18px;font-weight:600;margin:0 0 14px;color:var(--muted)}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
 .tabs button{font-size:14px;font-weight:600;min-height:40px;padding:8px 2px;border:0;border-radius:10px;background:transparent;color:var(--muted)}
 .tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
 .display{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px 12px 24px;margin:14px 0;text-align:center;overflow:hidden}
@@ -77,7 +77,7 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
 .side.flip{transform:rotate(180deg)}
 .side.on{background:var(--go);color:var(--go-ink);border-color:var(--go)}
 .side.flag{background:var(--stop);color:var(--stop-ink);border-color:var(--stop);font-size:clamp(32px,10vw,48px)}
-.addrow{display:grid;grid-template-columns:1fr 80px auto;gap:8px}
+.addrow{display:grid;grid-template-columns:1fr 64px 64px auto;gap:8px}
 .addrow input{font:inherit;font-size:16px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0}
 .addrow button{min-height:48px;padding:10px 16px;font-size:16px}
 .chips2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
@@ -97,6 +97,28 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
 #bgo{width:100%}
 #bgo.go{background:var(--go);color:var(--go-ink);border-color:var(--go)}
 #bgo.stop{background:var(--stop);color:var(--stop-ink);border-color:var(--stop)}
+.addrow2{display:grid;grid-template-columns:1fr auto;gap:8px}
+.addrow2 input{font:inherit;font-size:16px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0}
+.addrow2 #dn{grid-column:1/3}
+.addrow2 button{min-height:48px;padding:10px 16px;font-size:16px}
+.grp{flex-basis:100%;display:flex;gap:10px;align-items:flex-end}
+.grp b{flex:0 0 92px;font-size:15px;padding-bottom:12px}
+.grp label{flex:1}
+.presets{margin:-4px 0 14px}
+.presets .pre{display:flex;gap:8px;margin-bottom:8px}
+.presets input{flex:1;font:inherit;font-size:15px;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0}
+.presets .pre button{font-size:14px;min-height:44px;padding:8px 14px}
+.pchips{display:flex;flex-wrap:wrap;gap:8px}
+.pchip{display:flex}
+.pchip button{font-size:14px;min-height:40px;padding:6px 12px;border-radius:12px}
+.pchip button:not(:last-child){border-radius:12px 0 0 12px}
+.pchip button:not(:first-child){border-radius:0 12px 12px 0;padding:6px 10px;border-left:0}
+#alertbox{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px));z-index:50}
+.abox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:24px;max-width:360px;width:100%;text-align:center;max-height:100%;overflow:auto}
+.at{font-size:16px;color:var(--muted);margin-bottom:8px}
+#alist div{font-size:28px;font-weight:600;margin:10px 0;line-height:1.25;word-break:break-word}
+#alist small{display:block;font-size:14px;font-weight:400;color:var(--muted);margin-top:2px}
+#aok{margin-top:16px;width:100%;background:var(--go);color:var(--go-ink);border-color:var(--go)}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -108,10 +130,11 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
     <button role="tab" data-m="cd" aria-selected="false">Đếm ngược</button>
     <button role="tab" data-m="pomo" aria-selected="false">Pomodoro</button>
     <button role="tab" data-m="iv" aria-selected="false">Tập luyện</button>
-    <button role="tab" data-m="pres" aria-selected="false">Thuyết trình</button>
+    <button role="tab" data-m="days" aria-selected="false">Đếm ngày</button>
     <button role="tab" data-m="chess" aria-selected="false">Cờ vua</button>
     <button role="tab" data-m="cook" aria-selected="false">Nấu ăn</button>
     <button role="tab" data-m="breath" aria-selected="false">Hít thở</button>
+    <button role="tab" data-m="rem" aria-selected="false">Nhắc nhở</button>
   </div>
   <div class="display" id="disp" role="timer">
     <div class="phase" id="phase"></div>
@@ -120,6 +143,7 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
     <div class="bar" id="bar" hidden><i id="fill"></i></div>
   </div>
   <div class="settings" id="settings" hidden></div>
+  <div class="presets" id="presets" hidden></div>
   <div class="controls" id="ctl">
     <button id="side" disabled>Vòng</button>
     <button id="main" class="go">Bắt đầu</button>
@@ -134,6 +158,9 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
   <div class="foot"><label>Tiếng báo <select id="snd" aria-label="Tiếng báo"></select></label></div>
   <section class="stats"><h2>Thống kê</h2><div id="st-today"></div><div id="st-week"></div><button id="st-clear">Xóa thống kê</button></section>
 </main>
+<div id="alertbox" role="alertdialog" aria-modal="true" aria-labelledby="atitle" hidden>
+  <div class="abox"><div id="atitle" class="at">Đến giờ!</div><div id="alist"></div><button id="aok">Đã biết</button></div>
+</div>
 <script>
 (function(){
   var $=function(id){return document.getElementById(id)};
@@ -144,25 +171,27 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
   var started=false,done=false,idx=0,acc=0,cfg=null;
 
   var HINTS={
-    sw:'Phím tắt: Space bắt đầu hoặc dừng, L ghi vòng, R đặt lại.',
-    cd:'Hết giờ sẽ có tiếng bíp. Hãy bật âm thanh và giữ tab này mở.',
-    pomo:'Làm việc tập trung rồi nghỉ ngắn. Sau 4 phiên là nghỉ dài. Tự chuyển giai đoạn.',
-    iv:'Dùng cho tập gym, chạy ngắt quãng, plank. Có tiếng bíp mỗi khi đổi giai đoạn.',
-    pres:'Chữ chuyển vàng khi gần hết giờ và đỏ khi còn 1 phút, giúp bạn biết lúc cần kết thúc.',
-    chess:'Sau khi đi, chạm nút bên mình để chuyển lượt cho đối thủ. Nút phía trên xoay ngược cho người ngồi đối diện.',
-    cook:'Có thể chạy nhiều món cùng lúc. Đừng tắt trang khi đang nấu.',
-    breath:'To ra là hít vào, nhỏ lại là thở ra. Thở theo vòng tròn.'
+    sw:'Phím tắt trên máy tính: Space bắt đầu hoặc dừng, L ghi vòng, R đặt lại (khi đang dừng). Mỗi lần dừng cũng được tính là một vòng.',
+    cd:'Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Hết giờ sẽ có tiếng bíp. Hãy bật âm thanh và giữ tab này mở.',
+    pomo:'Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Làm việc tập trung rồi nghỉ ngắn, sau 4 phiên là nghỉ dài, tự chuyển giai đoạn.',
+    iv:'Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Dùng cho tập gym, chạy ngắt quãng, plank, có tiếng bíp mỗi khi đổi giai đoạn.',
+    days:'Đếm ngược đến một ngày quan trọng như thi, sinh nhật, du lịch. Gõ tên, chọn ngày rồi bấm Enter hoặc nút Thêm. Dữ liệu lưu trên trình duyệt của bạn.',
+    chess:'Phím tắt: Space kết thúc nước đi của người đang đi (lần đầu tính là người bên dưới), P tạm dừng, R đặt lại. Trên điện thoại, chạm nút bên mình sau khi đi. Nút phía trên xoay ngược cho người ngồi đối diện.',
+    cook:'Có thể chạy nhiều món cùng lúc. Gõ tên và số phút rồi bấm Enter để thêm. Đừng tắt trang khi đang nấu.',
+    breath:'Phím tắt: Space bắt đầu hoặc dừng. To ra là hít vào, nhỏ lại là thở ra.',
+    rem:'Nhắc lặp lại theo chu kỳ, ví dụ cứ 20 phút nghỉ mắt. Cần để trang mở, màn hình được giữ sáng khi có nhắc nhở đang chạy. Enter để thêm.'
   };
-  function field(id,label,v,max){return '<label>'+label+'<input id="'+id+'" type="number" inputmode="numeric" min="0" max="'+max+'" value="'+v+'"></label>'}
+  function field(id,label,v,max){return '<label>'+label+'<input id="'+id+'" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="'+String(max).length+'" value="'+v+'" autocomplete="off"></label>'}
+  function grp(t,a,b){return '<div class="grp"><b>'+t+'</b>'+a+b+'</div>'}
   var SETTINGS={
     sw:'',
     cd:field('s1','Phút',5,999)+field('s2','Giây',0,59)+
        '<div class="chips"><button data-p="1">1 phút</button><button data-p="5">5 phút</button><button data-p="10">10 phút</button><button data-p="30">30 phút</button></div>',
-    pomo:field('s1','Làm việc (phút)',25,180)+field('s2','Nghỉ ngắn (phút)',5,60)+field('s3','Nghỉ dài (phút)',15,120),
+    pomo:grp('Làm việc',field('s1','Phút',25,999),field('s2','Giây',0,59))+grp('Nghỉ ngắn',field('s3','Phút',5,999),field('s4','Giây',0,59))+grp('Nghỉ dài',field('s5','Phút',15,999),field('s6','Giây',0,59)),
     iv:field('s1','Tập (giây)',30,3600)+field('s2','Nghỉ (giây)',10,3600)+field('s3','Số vòng',8,99),
     pres:field('s1','Thời lượng (phút)',20,300)+field('s2','Báo vàng khi còn (phút)',5,60),
-    chess:field('s1','Phút mỗi bên',10,180)+field('s2','Cộng thêm mỗi nước (giây)',0,60),
-    cook:'',breath:''
+    chess:grp('Mỗi bên',field('s1','Phút',10,999),field('s3','Giây',0,59))+field('s2','Cộng thêm mỗi nước (giây)',0,60),
+    cook:'',breath:'',days:'',rem:''
   };
 
   function pad(n,l){n=String(n);while(n.length<l)n='0'+n;return n}
@@ -175,11 +204,11 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
     var t=Math.ceil(ms/1000),h=Math.floor(t/3600),m=Math.floor(t/60)%60,s=t%60;
     return (h?pad(h,2)+':':'')+pad(m,2)+':'+pad(s,2);
   }
-  function val(id,d){var e=$(id);var v=e?parseInt(e.value,10):NaN;return isNaN(v)||v<0?d:v}
+  function val(id,d){var e=$(id);var v=e?parseInt(e.value,10):NaN;return e?(isNaN(v)||v<0?0:v):d}
   function readCfg(){
     if(mode==='cd')return {m:val('s1',5),s:val('s2',0)};
     if(mode==='pres')return {m:val('s1',20),w:val('s2',5)};
-    if(mode==='pomo')return {w:val('s1',25),b:val('s2',5),l:val('s3',15)};
+    if(mode==='pomo')return {w:val('s1',25)*60+val('s2',0),b:val('s3',5)*60+val('s4',0),l:val('s5',15)*60+val('s6',0)};
     return {w:val('s1',30),r:val('s2',10),n:Math.max(1,val('s3',8))};
   }
   function phase(i,c){
@@ -187,9 +216,9 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
     if(mode==='cd'||mode==='pres')return i>0?null:{name:mode==='pres'?'Thuyết trình':'Đếm ngược',ms:X((c.m*60+(c.s||0))*1000)};
     if(mode==='pomo'){
       var k=(i>>1)+1;
-      if(i%2===0)return {name:'Làm việc, phiên '+k,ms:X(c.w*60000)};
+      if(i%2===0)return {name:'Làm việc, phiên '+k,ms:X(c.w*1000)};
       var lg=k%4===0;
-      return {name:lg?'Nghỉ dài':'Nghỉ ngắn',ms:X((lg?c.l:c.b)*60000)};
+      return {name:lg?'Nghỉ dài':'Nghỉ ngắn',ms:X((lg?c.l:c.b)*1000)};
     }
     if(i>2*c.n-2)return null;
     return i%2===0?{name:'Tập, vòng '+(i/2+1)+' trên '+c.n,ms:X(c.w*1000)}:{name:'Nghỉ',ms:X(c.r*1000)};
@@ -212,7 +241,7 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
   }
 
   function render(){
-    if(mode==='chess'||mode==='cook'||mode==='breath')return;timeEl.style.color='';bar.hidden=mode==='sw';
+    if(mode==='chess'||mode==='cook'||mode==='breath'||mode==='days'||mode==='rem')return;timeEl.style.color='';bar.hidden=mode==='sw';
     if(mode==='sw'){
       var t=now(),f=fmt(t);
       timeEl.innerHTML=f.main+'<span class="cs">'+f.cs+'</span>';
@@ -260,7 +289,7 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
     tick();
   }
   function stop(){
-    if(mode==='sw')elapsed=now();else acc=engE();
+    if(mode==='sw'){elapsed=now();if(elapsed-lapBase>=50){laps.push({total:elapsed,split:elapsed-lapBase});lapBase=elapsed;drawLaps()}}else acc=engE();
     running=false;cancelAnimationFrame(raf);
     mainBtn.textContent='Tiếp tục';mainBtn.className='go';
     sideBtn.textContent='Đặt lại';sideBtn.disabled=false;
@@ -317,10 +346,15 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
   });
   document.addEventListener('keydown',function(e){
     var tg=e.target.tagName;
-    if(tg==='INPUT'||tg==='BUTTON')return;
+    if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA'||e.ctrlKey||e.metaKey||e.altKey||window.alertOpen)return;
+    if(mode==='chess'||mode==='cook'||mode==='breath'||mode==='days'||mode==='rem')return;
     if(e.code==='Space'){e.preventDefault();toggle()}
     else if(e.key==='l'||e.key==='L'){if(mode==='sw'&&running)lap()}
-    else if(e.key==='r'||e.key==='R'){if(!running&&(elapsed>0||started||done))reset()}
+    else if(e.key==='r'||e.key==='R'){if(mode==='sw'?(!running&&elapsed>0):(started||done))reset()}
+  });
+  document.addEventListener('keyup',function(e){
+    var t=e.target.tagName;
+    if(e.code==='Space'&&t!=='INPUT'&&t!=='SELECT'&&t!=='TEXTAREA')e.preventDefault();
   });
   window.beepFn=beep;window.isActive=function(){return running};window.unlockAudio=function(){try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();if(ac.resume)ac.resume()}catch(e){}};setMode('sw');
 })();
@@ -330,12 +364,14 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
   var $=function(id){return document.getElementById(id)};
   var panel=$('panel'),setBox=$('settings'),disp=$('disp'),ctl=$('ctl'),cur='sw',raf=0;
   function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}return null}
-  function val(id,d){var e=$(id);var v=e?parseInt(e.value,10):NaN;return isNaN(v)||v<0?d:v}
+  function val(id,d){var e=$(id);var v=e?parseInt(e.value,10):NaN;return e?(isNaN(v)||v<0?0:v):d}
   function pad(n){return n<10?'0'+n:''+n}
   function mmss(ms){var t=Math.ceil(Math.max(0,ms)/1000),h=Math.floor(t/3600),m=Math.floor(t/60)%60,s=t%60;return (h?h+':'+pad(m):pad(m))+':'+pad(s)}
   function bp(n,d){if(window.beepFn)window.beepFn(n,d)}
   function un(){if(window.unlockAudio)window.unlockAudio()}
   function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+  document.addEventListener('beforeinput',function(e){var t=e.target;if(t&&t.matches&&t.matches('input[inputmode="numeric"]')&&e.data&&/\D/.test(e.data))e.preventDefault()},true);
+  document.addEventListener('input',function(e){var t=e.target;if(t&&t.matches&&t.matches('input[inputmode="numeric"]')){var c=t.value.replace(/\D/g,'');if(c!==t.value)t.value=c}},true);
 
   var vol=$('vol'),sv=ls('bg-vol');
   if(sv!==null)vol.value=sv;
@@ -350,7 +386,7 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
   var ch=null;
   function chess(){
     cancelAnimationFrame(raf);
-    var base=Math.max(1,val('s1',10))*60000;
+    var base=Math.max(1000,(val('s1',10)*60+val('s3',0))*1000);
     ch={t:[base,base],inc:val('s2',0)*1000,a:-1,last:0,over:-1,pause:false};
     panel.innerHTML='<div class="chess"><button class="side flip" data-i="1"></button><div class="mid"><button data-a="p">Dừng</button><button data-a="r">Đặt lại</button></div><button class="side" data-i="0"></button></div>';
     panel.onclick=function(e){
@@ -395,15 +431,15 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
   }
   function cook(){
     cancelAnimationFrame(raf);
-    panel.innerHTML='<div class="addrow"><input id="cn" placeholder="Tên món" maxlength="20"><input id="cm" type="number" inputmode="decimal" min="0.5" value="5" aria-label="Số phút"><button data-a="add">Thêm</button></div><div class="chips2"><button data-p="Trứng luộc|8">Trứng luộc 8 phút</button><button data-p="Mì gói|3">Mì gói 3 phút</button><button data-p="Cơm|20">Cơm 20 phút</button><button data-p="Trà|5">Trà 5 phút</button></div><div id="cl"></div>';
+    panel.innerHTML='<div class="addrow"><input id="cn" placeholder="Tên món" maxlength="20"><input id="cm" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="5" aria-label="Phút" placeholder="phút"><input id="cs" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" value="0" aria-label="Giây" placeholder="giây"><button data-a="add">Thêm</button></div><div class="chips2"><button data-p="Trứng luộc|8">Trứng luộc 8 phút</button><button data-p="Mì gói|3">Mì gói 3 phút</button><button data-p="Cơm|20">Cơm 20 phút</button><button data-p="Trà|5">Trà 5 phút</button></div><div id="cl"></div>';
     panel.onclick=function(e){
       var b=e.target.closest('button');if(!b)return;
       var a=b.getAttribute('data-a'),p=b.getAttribute('data-p'),i=+b.getAttribute('data-i'),n=performance.now();
       un();
-      if(p){var q=p.split('|');$('cn').value=q[0];$('cm').value=q[1];return}
+      if(p){var q=p.split('|');$('cn').value=q[0];$('cm').value=q[1];$('cs').value=0;return}
       if(a==='add'){
-        var m=parseFloat($('cm').value);if(!(m>0))return;
-        var ms=Math.round(m*60000);
+        var m=parseInt($('cm').value,10)||0,sc=parseInt($('cs').value,10)||0;
+        var ms=(m*60+sc)*1000;if(ms<=0)return;
         timers.push({name:$('cn').value.trim()||'Món '+(timers.length+1),total:ms,left:ms,run:true,start:n,done:false});
         $('cn').value='';
       }else if(a==='t'){
@@ -419,7 +455,7 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
   setInterval(function(){
     var changed=false;
     timers.forEach(function(t,i){
-      if(t.run&&!t.done&&rem(t)<=0){t.run=false;t.left=0;t.done=true;changed=true;bp(4,0.6)}
+      if(t.run&&!t.done&&rem(t)<=0){t.run=false;t.left=0;t.done=true;changed=true;bp(4,0.6);showAlert('Xong rồi: '+t.name,'')}
       else if(cur==='cook'&&t.run){var el=$('ct'+i);if(el)el.textContent=mmss(rem(t))}
     });
     if(changed&&cur==='cook')drawCook();
@@ -473,19 +509,189 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
   window.panelMode=function(m){
     cancelAnimationFrame(raf);
     cur=m;bOn=false;
-    var isP=m==='chess'||m==='cook'||m==='breath';
+    var isP=m==='chess'||m==='cook'||m==='breath'||m==='days'||m==='rem';
     disp.hidden=isP;ctl.hidden=isP;panel.hidden=!isP;
     if(!isP)panel.innerHTML='';
     var ins=setBox.querySelectorAll('input');
-    for(var k=0;k<ins.length;k++){var sv2=ls('bg-'+m+'-'+ins[k].id);if(sv2!==null)ins[k].value=sv2}
+    for(var k=0;k<ins.length;k++){var sv2=ls('bg2-'+m+'-'+ins[k].id);if(sv2!==null)ins[k].value=String(sv2).replace(/\D/g,'')}
     if(ins.length)setBox.dispatchEvent(new Event('input',{bubbles:true}));
     ls('bg-mode',m);
-    if(m==='chess')chess();else if(m==='cook')cook();else if(m==='breath')breath();
+    if(m==='chess')chess();else if(m==='cook')cook();else if(m==='breath')breath();else if(m==='days')days();else if(m==='rem')rem2();
+    drawPre();
   };
   setBox.addEventListener('input',function(e){
-    if(e.target.id)ls('bg-'+cur+'-'+e.target.id,e.target.value);
+    if(e.target.id)ls('bg2-'+cur+'-'+e.target.id,e.target.value);
     if(cur==='chess'&&e.target.id)chess();
   });
+  /* Đếm ngày */
+  var DAYS=[];
+  try{DAYS=JSON.parse(ls('bg-days')||'[]')}catch(x){DAYS=[]}
+  if(!Array.isArray(DAYS))DAYS=[];
+  function saveDays(){ls('bg-days',JSON.stringify(DAYS))}
+  function tgt(s){var a=s.split('-');return new Date(+a[0],+a[1]-1,+a[2]).getTime()}
+  function fdate(s){var a=s.split('-');return a[2]+'/'+a[1]+'/'+a[0]}
+  function nextDate(m,d){var n=new Date(),y=n.getFullYear();if(new Date(y,m-1,d).getTime()+86400000<=n.getTime())y++;return y+'-'+pad(m)+'-'+pad(d)}
+  function dtxt(s){
+    var d=tgt(s)-Date.now();
+    if(d<=0){var q=Math.floor(-d/86400000);return [q===0?'Hôm nay!':'Đã qua '+q+' ngày','']}
+    return [Math.floor(d/86400000)+' ngày',(Math.floor(d/3600000)%24)+' giờ '+pad(Math.floor(d/60000)%60)+' phút '+pad(Math.floor(d/1000)%60)+' giây'];
+  }
+  function drawDays(){
+    var cl=$('dl');if(!cl)return;
+    DAYS.sort(function(a,b){return tgt(a.date)-tgt(b.date)});
+    cl.innerHTML=DAYS.length?DAYS.map(function(x,i){
+      var t=dtxt(x.date);
+      return '<div class="card"><div><div class="nm">'+esc(x.name)+' ('+fdate(x.date)+')</div><div class="tm" id="dt'+i+'">'+t[0]+'</div><div class="nm" id="ds'+i+'">'+t[1]+'</div></div><div class="bt"><button data-a="x" data-i="'+i+'">Xóa</button></div></div>';
+    }).join(''):'<p class="hint">Chưa có ngày nào. Nhập tên, chọn ngày rồi bấm Thêm.</p>';
+  }
+  function addDay(){
+    var dt=$('dd').value;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(dt))return;
+    DAYS.push({name:$('dn').value.trim()||'Sự kiện '+(DAYS.length+1),date:dt});
+    saveDays();$('dn').value='';drawDays();
+  }
+  function days(){
+    cancelAnimationFrame(raf);
+    panel.innerHTML='<div class="addrow2"><input id="dn" placeholder="Tên sự kiện" maxlength="30"><input id="dd" type="date" aria-label="Ngày"><button data-a="add">Thêm</button></div><div class="chips2"><button data-p="tet">Tết Dương lịch</button><button data-p="noel">Giáng sinh</button></div><div id="dl"></div>';
+    panel.onclick=function(e){
+      var b=e.target.closest('button');if(!b)return;
+      var a=b.getAttribute('data-a'),p=b.getAttribute('data-p'),i=+b.getAttribute('data-i');
+      if(p==='tet'){$('dn').value='Tết Dương lịch';$('dd').value=nextDate(1,1);return}
+      if(p==='noel'){$('dn').value='Giáng sinh';$('dd').value=nextDate(12,25);return}
+      if(a==='add')addDay();
+      else if(a==='x'){DAYS.splice(i,1);saveDays();drawDays()}
+    };
+    drawDays();
+  }
+  setInterval(function(){
+    if(cur!=='days')return;
+    DAYS.forEach(function(x,i){var t=dtxt(x.date),a=$('dt'+i),b=$('ds'+i);if(a)a.textContent=t[0];if(b)b.textContent=t[1]});
+  },1000);
+
+  /* Thông báo to giữa màn hình */
+  var ALERTS=[];
+  function showAlert(t,sub){
+    ALERTS.push({t:t,s:sub||''});
+    $('alist').innerHTML=ALERTS.map(function(a){return '<div>'+esc(a.t)+(a.s?'<small>'+esc(a.s)+'</small>':'')+'</div>'}).join('');
+    $('alertbox').hidden=false;window.alertOpen=true;
+    document.title='Đến giờ: '+ALERTS[0].t;
+    $('aok').focus();
+  }
+  function closeAlert(){ALERTS=[];window.alertOpen=false;$('alertbox').hidden=true;$('alist').innerHTML='';document.title='Bấm giờ'}
+  $('aok').addEventListener('click',closeAlert);
+
+  /* Nhắc nhở lặp lại */
+  var REMS=[];
+  try{REMS=JSON.parse(ls('bg2-rems')||'[]')}catch(x){REMS=[]}
+  if(!Array.isArray(REMS))REMS=[];
+  REMS=REMS.filter(function(r){return r&&typeof r.name==='string'&&r.period>=1000}).map(function(r){return {name:r.name,period:r.period,run:false,next:0,left:r.period,count:0,flash:0}});
+  function saveRems(){ls('bg2-rems',JSON.stringify(REMS.map(function(r){return {name:r.name,period:r.period}})))}
+  function rleft(r){return r.run?Math.max(0,r.next-Date.now()):r.left}
+  function ptxt(ms){var m=Math.floor(ms/60000),sc=Math.round(ms/1000)%60;return (m?m+' phút':'')+(m&&sc?' ':'')+(sc?sc+' giây':'')}
+  function drawRems(){
+    var cl=$('rl');if(!cl)return;
+    cl.innerHTML=REMS.length?REMS.map(function(r,i){
+      return '<div class="card" id="rc'+i+'"><div><div class="nm">'+esc(r.name)+', mỗi '+ptxt(r.period)+'</div><div class="tm" id="rt'+i+'">'+mmss(rleft(r))+'</div><div class="nm" id="rn'+i+'">Đã nhắc '+r.count+' lần</div></div><div class="bt"><button data-a="t" data-i="'+i+'">'+(r.run?'Dừng':'Bắt đầu')+'</button><button data-a="x" data-i="'+i+'">Xóa</button></div></div>';
+    }).join(''):'<p class="hint">Chưa có nhắc nhở nào. Nhập tên và thời gian lặp lại rồi bấm Thêm.</p>';
+  }
+  function rem2(){
+    cancelAnimationFrame(raf);
+    panel.innerHTML='<div class="addrow"><input id="rnm" placeholder="Tên nhắc nhở" maxlength="20"><input id="rm" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="20" aria-label="Phút" placeholder="phút"><input id="rs" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" value="0" aria-label="Giây" placeholder="giây"><button data-a="add">Thêm</button></div><div class="chips2"><button data-p="Nghỉ mắt|20">Nghỉ mắt 20 phút</button><button data-p="Uống nước|60">Uống nước 60 phút</button><button data-p="Đứng dậy|45">Đứng dậy 45 phút</button><button data-p="Vươn vai|30">Vươn vai 30 phút</button></div><div id="rl"></div>';
+    panel.onclick=function(e){
+      var b=e.target.closest('button');if(!b)return;
+      var a=b.getAttribute('data-a'),p=b.getAttribute('data-p'),i=+b.getAttribute('data-i'),n=Date.now();
+      un();
+      if(p){var q=p.split('|');$('rnm').value=q[0];$('rm').value=q[1];$('rs').value=0;return}
+      if(a==='add'){
+        var ms=((parseInt($('rm').value,10)||0)*60+(parseInt($('rs').value,10)||0))*1000;
+        if(ms<1000)return;
+        REMS.push({name:$('rnm').value.trim()||'Nhắc nhở '+(REMS.length+1),period:ms,run:true,next:n+ms,left:ms,count:0,flash:0});
+        $('rnm').value='';saveRems();
+      }else if(a==='t'){
+        var r=REMS[i];
+        if(r.run){r.left=rleft(r);r.run=false}else{r.run=true;r.next=n+r.left}
+      }else if(a==='x'){REMS.splice(i,1);saveRems()}
+      drawRems();
+    };
+    drawRems();
+  }
+  setInterval(function(){
+    var now=Date.now();
+    if(window.alertOpen&&ALERTS.length)document.title='Đến giờ: '+ALERTS[0].t;
+    REMS.forEach(function(r,i){
+      if(r.run&&now>=r.next){
+        r.count++;r.next+=r.period;if(r.next<=now)r.next=now+r.period;
+        r.flash=now+3000;bp(2,0.5);showAlert(r.name,'Nhắc mỗi '+ptxt(r.period));
+      }
+      if(cur==='rem'){
+        var t=$('rt'+i),c=$('rn'+i),k=$('rc'+i);
+        if(t)t.textContent=r.flash>now?'Đến giờ!':mmss(rleft(r));
+        if(c)c.textContent='Đã nhắc '+r.count+' lần';
+        if(k)k.className='card'+(r.flash>now?' fin':'');
+      }
+    });
+  },250);
+
+  /* Mẫu cài sẵn */
+  var PM={cd:1,pomo:1,iv:1,chess:1},preBox=$('presets');
+  var BUILT={
+    iv:[{name:'Tabata 20/10',v:{s1:'20',s2:'10',s3:'8'}},{name:'Plank 30/15',v:{s1:'30',s2:'15',s3:'5'}}],
+    pomo:[{name:'Pomodoro 25/5',v:{s1:'25',s2:'0',s3:'5',s4:'0',s5:'15',s6:'0'}},{name:'Học 50/10',v:{s1:'50',s2:'0',s3:'10',s4:'0',s5:'20',s6:'0'}}],
+    chess:[{name:'Blitz 3+2',v:{s1:'3',s3:'0',s2:'2'}},{name:'Rapid 10+0',v:{s1:'10',s3:'0',s2:'0'}}],
+    cd:[]
+  };
+  function getP(m){try{var a=JSON.parse(ls('bg2-presets-'+m)||'[]');return Array.isArray(a)?a:[]}catch(x){return []}}
+  function drawPre(){
+    if(!PM[cur]){preBox.hidden=true;preBox.innerHTML='';return}
+    preBox.hidden=false;
+    var u=getP(cur),b=BUILT[cur]||[],h='<div class="pre"><input id="pn" placeholder="Tên mẫu mới" maxlength="20"><button data-a="save">Lưu mẫu</button></div><div class="pchips">';
+    b.forEach(function(x,i){h+='<span class="pchip"><button data-a="lb" data-i="'+i+'">'+esc(x.name)+'</button></span>'});
+    u.forEach(function(x,i){h+='<span class="pchip"><button data-a="lu" data-i="'+i+'">'+esc(x.name)+'</button><button data-a="du" data-i="'+i+'" aria-label="Xóa mẫu">×</button></span>'});
+    preBox.innerHTML=h+'</div>';
+  }
+  function applyP(v){
+    Object.keys(v).forEach(function(id){
+      var el=$(id);
+      if(el&&setBox.contains(el)){el.value=String(v[id]).replace(/\D/g,'');el.dispatchEvent(new Event('input',{bubbles:true}))}
+    });
+  }
+  preBox.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    var a=b.getAttribute('data-a'),i=+b.getAttribute('data-i'),u=getP(cur);
+    if(a==='save'){
+      var v={};
+      setBox.querySelectorAll('input').forEach(function(el){v[el.id]=el.value});
+      if(u.length>=10)u.shift();
+      u.push({name:$('pn').value.trim()||'Mẫu '+(u.length+1),v:v});
+      ls('bg2-presets-'+cur,JSON.stringify(u));
+    }else if(a==='lb'){applyP(BUILT[cur][i].v);return}
+    else if(a==='lu'){if(u[i])applyP(u[i].v);return}
+    else if(a==='du'){u.splice(i,1);ls('bg2-presets-'+cur,JSON.stringify(u))}
+    drawPre();
+  });
+
+  /* Phím tắt cho các tab riêng */
+  function hit(sel){var b=panel.querySelector(sel);if(b)b.click()}
+  document.addEventListener('keydown',function(e){
+    if(window.alertOpen){if(e.code==='Space'||e.key==='Enter'||e.key==='Escape'){e.preventDefault();closeAlert()}return}
+    if(e.ctrlKey||e.metaKey||e.altKey)return;
+    var tg=e.target.tagName;
+    if(tg==='INPUT'){
+      if(e.key==='Enter'&&e.target.id==='pn'){var sb=preBox.querySelector('[data-a="save"]');if(sb)sb.click()}
+      else if(e.key==='Enter'&&(cur==='cook'||cur==='days'||cur==='rem'))hit('[data-a="add"]');
+      return;
+    }
+    if(tg==='SELECT'||tg==='TEXTAREA')return;
+    var k=e.key.toLowerCase();
+    if(cur==='chess'){
+      if(e.code==='Space'){e.preventDefault();hit('[data-i="'+((ch&&ch.a>=0)?ch.a:0)+'"]')}
+      else if(k==='p')hit('[data-a="p"]');
+      else if(k==='r')hit('[data-a="r"]');
+    }else if(cur==='breath'){
+      if(e.code==='Space'){e.preventDefault();hit('#bgo')}
+    }
+  });
+
   /* Tiếng báo */
   var SND=[{n:'Bíp',t:'square',f:880},{n:'Chuông',t:'sine',f:660},{n:'Còi',t:'sawtooth',f:520},{n:'Nhẹ',t:'triangle',f:784}];
   var ss=$('snd');
@@ -498,7 +704,7 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
   var wl=null;
   function wlTick(){
     if(!navigator.wakeLock)return;
-    var on=(window.isActive&&window.isActive())||bOn||(cur==='chess'&&ch&&ch.a>=0&&!ch.pause&&ch.over<0)||timers.some(function(t){return t.run});
+    var on=(window.isActive&&window.isActive())||bOn||(cur==='chess'&&ch&&ch.a>=0&&!ch.pause&&ch.over<0)||timers.some(function(t){return t.run})||REMS.some(function(r){return r.run});
     if(on&&!wl){wl='pending';navigator.wakeLock.request('screen').then(function(l){wl=l;l.addEventListener('release',function(){wl=null})}).catch(function(){wl=null})}
     else if(!on&&wl&&wl!=='pending'){wl.release();wl=null}
   }
