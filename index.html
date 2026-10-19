@@ -189,6 +189,10 @@ html.big .lapnow{font-size:18px}
 .wadd{display:flex;gap:8px;margin-bottom:6px}
 .wadd select{flex:1;font:inherit;font-size:16px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0}
 .wadd button{min-height:48px;padding:10px 18px;font-size:16px}
+.help{margin-top:22px;max-width:620px}
+.help summary{cursor:pointer;font-weight:600;color:var(--muted);padding:8px 0}
+.help div{font-size:14px;line-height:1.6;color:var(--muted)}
+.help b{color:var(--ink)}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -237,6 +241,18 @@ html.big .lapnow{font-size:18px}
   <div class="foot"><button id="inst" hidden>Cài ứng dụng</button></div>
   <p class="hint" id="insthint" hidden>Trên iPhone: bấm nút Chia sẻ của Safari, chọn "Thêm vào Màn hình chính" để cài như một ứng dụng.</p>
   <section class="stats"><h2>Thống kê</h2><div id="st-today"></div><div id="st-sum" class="sum"></div><div id="st-week"></div><button id="st-clear">Xóa thống kê</button></section>
+  <details class="help"><summary>Hướng dẫn nhanh</summary><div>
+    <p><b>Bấm giờ:</b> đếm lên, ghi vòng (mỗi lần dừng cũng thành một vòng).<br>
+    <b>Đếm ngược, Pomodoro, Tập luyện:</b> đặt thời gian rồi bấm Bắt đầu, có thể chạy ngầm khi bạn sang tab khác.<br>
+    <b>Chuỗi bước:</b> nối nhiều bước thành một quy trình.<br>
+    <b>Đồng hồ thi:</b> tổng thời gian và các mốc báo.<br>
+    <b>Đếm ngày:</b> đếm ngược đến một ngày quan trọng.<br>
+    <b>Cờ vua:</b> hai người, chạm nút bên mình sau khi đi.<br>
+    <b>Nấu ăn, Nhắc nhở:</b> nhiều bộ đếm cùng lúc.<br>
+    <b>Hít thở:</b> theo vòng tròn to nhỏ.<br>
+    <b>Giờ thế giới:</b> xem giờ nhiều thành phố.</p>
+    <p><b>Mẹo:</b> bấm Lưu mẫu để dùng lại cài đặt, bấm Chia sẻ để gửi link cho bạn bè. Trên máy tính dùng phím Space (bắt đầu hoặc dừng), L (ghi vòng), R (đặt lại). Cần để trang mở thì đồng hồ mới kêu đúng giờ, mở lại trang trong 24 giờ vẫn giữ đồng hồ đang chạy.</p>
+  </div></details>
 </main>
 <div id="alertbox" role="alertdialog" aria-modal="true" aria-labelledby="atitle" hidden>
   <div class="abox"><div id="atitle" class="at">Đến giờ!</div><div id="alist"></div><button id="aok">Đã biết</button></div>
