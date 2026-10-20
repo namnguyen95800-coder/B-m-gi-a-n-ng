@@ -3,7 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bấm giờ</title>
+<title>Bấm giờ - đếm ngược, Pomodoro, đồng hồ cờ vua online</title>
+<meta name="description" content="Bấm giờ miễn phí: đếm ngược, Pomodoro, tập luyện, đồng hồ thi, đồng hồ cờ vua, nhắc nhở, đếm ngày đến Tết và giờ thế giới. Dùng được cả khi không có mạng.">
+<link rel="canonical" href="https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="vi_VN">
+<meta property="og:site_name" content="Bấm giờ">
+<meta property="og:title" content="Bấm giờ: đếm ngược, Pomodoro, cờ vua và hơn thế nữa">
+<meta property="og:description" content="Nhiều loại đồng hồ trong một trang, miễn phí, dùng được cả khi mất mạng.">
+<meta property="og:url" content="https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/">
+<meta property="og:image" content="https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <script>try{var _t=localStorage.getItem('bg2-theme');if(_t&&_t!=='auto')document.documentElement.setAttribute('data-theme',_t);if(localStorage.getItem('bg2-big')==='1')document.documentElement.className='big'}catch(e){}</script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0d1a20">
@@ -195,14 +207,16 @@ html.big .lapnow{font-size:18px}
 .help b{color:var(--ink)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
 .top h1{margin:0}
-#inst{font-size:14px;min-height:40px;padding:6px 14px;background:var(--go);color:var(--go-ink);border-color:var(--go)}
+.tb{display:flex;gap:8px}
+#shr,#inst{font-size:14px;min-height:40px;padding:6px 12px}
+#inst{background:var(--go);color:var(--go-ink);border-color:var(--go)}
 .hsel{width:100%;margin:10px 0 4px;font:inherit;font-size:16px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
 <main>
-  <div class="top"><h1>Bấm giờ</h1><button id="inst">Cài về màn hình</button></div>
+  <div class="top"><h1>Bấm giờ</h1><div class="tb"><button id="shr">Chia sẻ</button><button id="inst">Cài về màn hình</button></div></div>
   <div class="tabs" role="tablist" id="tabs">
     <button role="tab" data-m="sw" aria-selected="true">Bấm giờ</button>
     <button role="tab" data-m="cd" aria-selected="false">Đếm ngược</button>
@@ -244,6 +258,7 @@ html.big .lapnow{font-size:18px}
   <div class="foot"><label>Giao diện <select id="thm" aria-label="Giao diện"><option value="auto">Tự động</option><option value="light">Sáng</option><option value="dark">Tối</option><option value="ocean">Biển</option><option value="forest">Rừng</option><option value="rose">Hồng</option></select></label><label class="chk"><input type="checkbox" id="big"> Chữ to</label></div>
   <section class="stats"><h2>Thống kê</h2><div id="st-today"></div><div id="st-sum" class="sum"></div><div id="st-week"></div><button id="st-clear">Xóa thống kê</button></section>
   <details class="help"><summary>Hướng dẫn nhanh</summary><div>
+    <p><b>Bấm giờ</b> là trang web miễn phí gồm nhiều loại đồng hồ: bấm giờ, đếm ngược, Pomodoro, tập luyện, đồng hồ thi, đồng hồ cờ vua, nhắc nhở lặp lại, đếm ngược đến Tết và các ngày lễ, giờ thế giới. Không cần đăng ký, dùng được cả khi không có mạng.</p>
     <p><b>Bấm giờ:</b> đếm lên, ghi vòng (mỗi lần dừng cũng thành một vòng).<br>
     <b>Đếm ngược, Pomodoro, Tập luyện:</b> đặt thời gian rồi bấm Bắt đầu, có thể chạy ngầm khi bạn sang tab khác.<br>
     <b>Chuỗi bước:</b> nối nhiều bước thành một quy trình.<br>
@@ -259,6 +274,7 @@ html.big .lapnow{font-size:18px}
 <div id="alertbox" role="alertdialog" aria-modal="true" aria-labelledby="atitle" hidden>
   <div class="abox"><div id="atitle" class="at">Đến giờ!</div><div id="alist"></div><button id="aok">Đã biết</button></div>
 </div>
+<script>window.TT=document.title;</script>
 <script>
 (function(){
   var $=function(id){return document.getElementById(id)};
@@ -365,7 +381,7 @@ html.big .lapnow{font-size:18px}
       timeEl.innerHTML=f.main+'<span class="cs">'+f.cs+'</span>';
       phaseEl.textContent='';
       lapNow.textContent=(laps.length||(running&&t>0))?'Vòng hiện tại: '+text(t-lapBase):'';
-      document.title='Bấm giờ';
+      document.title=window.TT;
       return;
     }
     var p,e=0;
@@ -376,8 +392,8 @@ html.big .lapnow{font-size:18px}
     phaseEl.textContent=started?p.name:'Sẵn sàng';
     fill.style.width=(started?Math.min(100,e/p.ms*100):0)+'%';
     lapNow.textContent=(mode==='pomo'&&started)?'Đã xong '+(idx>>1)+' phiên':'';
-    if(mode==='exam'){var sg=segs(started?cfg:readCfg()),T=0,pre=0,k;for(k=0;k<sg.length;k++){T+=Math.max(1000,sg[k].ms);if(started&&k<idx)pre+=Math.max(1000,sg[k].ms)}var left=T-(started?pre+e:0);timeEl.textContent=fmtS(left);fill.style.width=(started?Math.min(100,(pre+e)/T*100):0)+'%';lapNow.textContent=(started&&phase(idx+1,cfg))?'Mốc báo tiếp theo sau '+fmtS(p.ms-e):'';document.title=started?fmtS(left)+' - Bấm giờ':'Bấm giờ'}
-    document.title=started?fmtS(p.ms-e)+' - Bấm giờ':'Bấm giờ';
+    if(mode==='exam'){var sg=segs(started?cfg:readCfg()),T=0,pre=0,k;for(k=0;k<sg.length;k++){T+=Math.max(1000,sg[k].ms);if(started&&k<idx)pre+=Math.max(1000,sg[k].ms)}var left=T-(started?pre+e:0);timeEl.textContent=fmtS(left);fill.style.width=(started?Math.min(100,(pre+e)/T*100):0)+'%';lapNow.textContent=(started&&phase(idx+1,cfg))?'Mốc báo tiếp theo sau '+fmtS(p.ms-e):'';document.title=started?fmtS(left)+' - Bấm giờ':window.TT}
+    document.title=started?fmtS(p.ms-e)+' - Bấm giờ':window.TT;
   }
 
   function logPhase(p){
@@ -844,7 +860,7 @@ html.big .lapnow{font-size:18px}
     if(!head)document.title='Đến giờ: '+ALERTS[0].t;
     $('aok').focus();
   }
-  function closeAlert(){ALERTS=[];window.alertOpen=false;$('alertbox').hidden=true;$('alist').innerHTML='';document.title='Bấm giờ'}
+  function closeAlert(){ALERTS=[];window.alertOpen=false;$('alertbox').hidden=true;$('alist').innerHTML='';document.title=window.TT}
   $('aok').addEventListener('click',closeAlert);window.showAlert=showAlert;
 
   /* Nhắc nhở lặp lại */
@@ -1185,6 +1201,14 @@ html.big .lapnow{font-size:18px}
       window.__mainLoad(sv.m,gap);window.__panelLoad(sv.p,gap);
     }
   }catch(x){ls('bg2-state','')}
+
+  /* Chia sẻ trang */
+  $('shr').addEventListener('click',function(){
+    var url=baseUrl();
+    if(navigator.share){
+      navigator.share({title:'Bấm giờ',text:'Bấm giờ, đếm ngược, Pomodoro, cờ vua, nhắc nhở và nhiều đồng hồ khác',url:url}).catch(function(){});
+    }else copyText(url,$('shr'));
+  });
 
   /* Cài như ứng dụng */
   var deferred=null,inst=$('inst');
