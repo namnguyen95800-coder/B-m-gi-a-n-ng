@@ -193,12 +193,16 @@ html.big .lapnow{font-size:18px}
 .help summary{cursor:pointer;font-weight:600;color:var(--muted);padding:8px 0}
 .help div{font-size:14px;line-height:1.6;color:var(--muted)}
 .help b{color:var(--ink)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.top h1{margin:0}
+#inst{font-size:14px;min-height:40px;padding:6px 14px;background:var(--go);color:var(--go-ink);border-color:var(--go)}
+.hsel{width:100%;margin:10px 0 4px;font:inherit;font-size:16px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
 <main>
-  <h1>Bấm giờ</h1>
+  <div class="top"><h1>Bấm giờ</h1><button id="inst">Cài về màn hình</button></div>
   <div class="tabs" role="tablist" id="tabs">
     <button role="tab" data-m="sw" aria-selected="true">Bấm giờ</button>
     <button role="tab" data-m="cd" aria-selected="false">Đếm ngược</button>
@@ -238,8 +242,6 @@ html.big .lapnow{font-size:18px}
   <div class="foot"><label>Tiếng báo <select id="snd" aria-label="Tiếng báo"></select></label></div>
   <div class="foot"><label>Âm nền <select id="amb" aria-label="Âm nền"><option value="off">Tắt</option><option value="rain">Tiếng mưa</option><option value="white">Ồn trắng</option><option value="brown">Ồn nâu</option></select></label></div>
   <div class="foot"><label>Giao diện <select id="thm" aria-label="Giao diện"><option value="auto">Tự động</option><option value="light">Sáng</option><option value="dark">Tối</option><option value="ocean">Biển</option><option value="forest">Rừng</option><option value="rose">Hồng</option></select></label><label class="chk"><input type="checkbox" id="big"> Chữ to</label></div>
-  <div class="foot"><button id="inst" hidden>Cài ứng dụng</button></div>
-  <p class="hint" id="insthint" hidden>Trên iPhone: bấm nút Chia sẻ của Safari, chọn "Thêm vào Màn hình chính" để cài như một ứng dụng.</p>
   <section class="stats"><h2>Thống kê</h2><div id="st-today"></div><div id="st-sum" class="sum"></div><div id="st-week"></div><button id="st-clear">Xóa thống kê</button></section>
   <details class="help"><summary>Hướng dẫn nhanh</summary><div>
     <p><b>Bấm giờ:</b> đếm lên, ghi vòng (mỗi lần dừng cũng thành một vòng).<br>
@@ -408,7 +410,7 @@ html.big .lapnow{font-size:18px}
     syncUI();render();
   }
   function syncUI(){
-    if(!ENG[mode]){setBox.style.opacity='';return}
+    if(!ENG[mode]){setBox.style.opacity='';lapsBox.hidden=true;return}
     var sw=mode==='sw';
     if(running){
       mainBtn.textContent='Dừng';mainBtn.className='stop';
@@ -750,9 +752,74 @@ html.big .lapnow{font-size:18px}
     DAYS.push({name:$('dn').value.trim()||'Sự kiện '+(DAYS.length+1),date:dt});
     saveDays();$('dn').value='';drawDays();
   }
+  /* Ngày lễ, kể cả âm lịch */
+  function jdFromDate(dd,mm,yy){var a=Math.floor((14-mm)/12),y=yy+4800-a,m=mm+12*a-3;var jd=dd+Math.floor((153*m+2)/5)+365*y+Math.floor(y/4)-Math.floor(y/100)+Math.floor(y/400)-32045;if(jd<2299161)jd=dd+Math.floor((153*m+2)/5)+365*y+Math.floor(y/4)-32083;return jd}
+  function jdToDate(jd){var a,b,c;if(jd>2299160){a=jd+32044;b=Math.floor((4*a+3)/146097);c=a-Math.floor(b*146097/4)}else{b=0;c=jd+32082}var d=Math.floor((4*c+3)/1461),e=c-Math.floor(1461*d/4),m=Math.floor((5*e+2)/153);return [e-Math.floor((153*m+2)/5)+1,m+3-12*Math.floor(m/10),b*100+d-4800+Math.floor(m/10)]}
+  function newMoon(k){
+    var T=k/1236.85,T2=T*T,T3=T2*T,dr=Math.PI/180;
+    var Jd1=2415020.75933+29.53058868*k+0.0001178*T2-0.000000155*T3;
+    Jd1=Jd1+0.00033*Math.sin((166.56+132.87*T-0.009173*T2)*dr);
+    var M=359.2242+29.10535608*k-0.0000333*T2-0.00000347*T3,Mpr=306.0253+385.81691806*k+0.0107306*T2+0.00001236*T3,F=21.2964+390.67050646*k-0.0016528*T2-0.00000239*T3;
+    var C1=(0.1734-0.000393*T)*Math.sin(M*dr)+0.0021*Math.sin(2*dr*M);
+    C1=C1-0.4068*Math.sin(Mpr*dr)+0.0161*Math.sin(dr*2*Mpr)-0.0004*Math.sin(dr*3*Mpr);
+    C1=C1+0.0104*Math.sin(dr*2*F)-0.0051*Math.sin(dr*(M+Mpr))-0.0074*Math.sin(dr*(M-Mpr))+0.0004*Math.sin(dr*(2*F+M));
+    C1=C1-0.0004*Math.sin(dr*(2*F-M))-0.0006*Math.sin(dr*(2*F+Mpr))+0.0010*Math.sin(dr*(2*F-Mpr))+0.0005*Math.sin(dr*(2*Mpr+M));
+    var dt=T<-11?0.001+0.000839*T+0.0002261*T2-0.00000845*T3-0.000000081*T*T3:-0.000278+0.000265*T+0.000262*T2;
+    return Jd1+C1-dt;
+  }
+  function sunLong(jdn){
+    var T=(jdn-2451545.0)/36525,T2=T*T,dr=Math.PI/180;
+    var M=357.52910+35999.05030*T-0.0001559*T2-0.00000048*T*T2,L0=280.46645+36000.76983*T+0.0003032*T2;
+    var DL=(1.914600-0.004817*T-0.000014*T2)*Math.sin(dr*M)+(0.019993-0.000101*T)*Math.sin(dr*2*M)+0.000290*Math.sin(dr*3*M);
+    var L=(L0+DL)*dr;return L-Math.PI*2*Math.floor(L/(Math.PI*2));
+  }
+  function nmDay(k,tz){return Math.floor(newMoon(k)+0.5+tz/24)}
+  function slDay(d,tz){return Math.floor(sunLong(d-0.5-tz/24)/Math.PI*6)}
+  function lm11(yy,tz){var off=jdFromDate(31,12,yy)-2415021,k=Math.floor(off/29.530588853),nm=nmDay(k,tz);if(slDay(nm,tz)>=9)nm=nmDay(k-1,tz);return nm}
+  function leapOff(a11,tz){var k=Math.floor((a11-2415021.076998695)/29.530588853+0.5),last=0,i=1,arc=slDay(nmDay(k+i,tz),tz);do{last=arc;i++;arc=slDay(nmDay(k+i,tz),tz)}while(arc!==last&&i<14);return i-1}
+  function lunar2solar(ld,lm,ly,leap,tz){
+    var a11,b11;
+    if(lm<11){a11=lm11(ly-1,tz);b11=lm11(ly,tz)}else{a11=lm11(ly,tz);b11=lm11(ly+1,tz)}
+    var k=Math.floor(0.5+(a11-2415021.076998695)/29.530588853),off=lm-11;if(off<0)off+=12;
+    if(b11-a11>365){
+      var lo=leapOff(a11,tz),lmo=lo-2;if(lmo<0)lmo+=12;
+      if(leap!==0&&lm!==lmo)return [0,0,0];
+      else if(leap!==0||off>=lo)off+=1;
+    }
+    return jdToDate(nmDay(k+off,tz)+ld-1);
+  }
+  window.__l2s=function(d,m,y){return lunar2solar(d,m,y,0,7)};
+  var HOL=[
+    ['Âm lịch','l',[['Tết Nguyên Đán',1,1],['Rằm tháng Giêng',15,1],['Giỗ Tổ Hùng Vương',10,3],['Tết Đoan Ngọ',5,5],['Lễ Vu Lan',15,7],['Tết Trung thu',15,8],['Ông Công, Ông Táo',23,12]]],
+    ['Dương lịch','s',[['Tết Dương lịch',1,1],['Valentine',14,2],['Quốc tế Phụ nữ',8,3],['Giải phóng miền Nam',30,4],['Quốc tế Lao động',1,5],['Quốc khánh',2,9],['Ngày Phụ nữ Việt Nam',20,10],['Halloween',31,10],['Ngày Nhà giáo Việt Nam',20,11],['Giáng sinh',25,12]]]
+  ];
+  function holOpts(){
+    var h='<option value="">Thêm ngày lễ có sẵn...</option>';
+    HOL.forEach(function(g,gi){
+      h+='<optgroup label="'+g[0]+'">'+g[2].map(function(x,i){return '<option value="'+gi+':'+i+'">'+esc(x[0])+'</option>'}).join('')+'</optgroup>';
+    });
+    return h;
+  }
+  function holDate(kind,d,m){
+    var now=new Date(),y=now.getFullYear(),today=new Date(y,now.getMonth(),now.getDate()).getTime(),best=null;
+    for(var yy=y-1;yy<=y+1;yy++){
+      var dt;
+      if(kind==='s')dt=new Date(yy,m-1,d);
+      else{var r=lunar2solar(d,m,yy,0,7);if(!r[0])continue;dt=new Date(r[2],r[1]-1,r[0])}
+      if(dt.getTime()>=today&&(!best||dt<best))best=dt;
+    }
+    return best?best.getFullYear()+'-'+pad(best.getMonth()+1)+'-'+pad(best.getDate()):null;
+  }
+  function addHol(v){
+    var a=v.split(':'),g=HOL[+a[0]],x=g&&g[2][+a[1]];if(!x)return;
+    var dt=holDate(g[1],x[1],x[2]);if(!dt)return;
+    if(!DAYS.some(function(e){return e.name===x[0]&&e.date===dt}))DAYS.push({name:x[0],date:dt});
+    saveDays();drawDays();
+  }
   function days(){
     cancelAnimationFrame(raf);
-    panel.innerHTML='<div class="addrow2"><input id="dn" placeholder="Tên sự kiện" maxlength="30"><input id="dd" type="date" aria-label="Ngày"><button data-a="add">Thêm</button></div><div class="chips2"><button data-p="tet">Tết Dương lịch</button><button data-p="noel">Giáng sinh</button></div><div id="dl"></div>';
+    panel.innerHTML='<div class="addrow2"><input id="dn" placeholder="Tên sự kiện" maxlength="30"><input id="dd" type="date" aria-label="Ngày"><button data-a="add">Thêm</button></div><select id="dh" class="hsel" aria-label="Ngày lễ có sẵn">'+holOpts()+'</select><div id="dl"></div>';
+    panel.onchange=function(e){if(e.target&&e.target.id==='dh'&&e.target.value){addHol(e.target.value);e.target.value=''}};
     panel.onclick=function(e){
       var b=e.target.closest('button');if(!b)return;
       var a=b.getAttribute('data-a'),p=b.getAttribute('data-p'),i=+b.getAttribute('data-i');
@@ -770,11 +837,11 @@ html.big .lapnow{font-size:18px}
 
   /* Thông báo to giữa màn hình */
   var ALERTS=[];
-  function showAlert(t,sub){
-    ALERTS.push({t:t,s:sub||''});
+  function showAlert(t,sub,head){$('atitle').textContent=head||'Đến giờ!';
+    ALERTS.push({t:t,s:sub||'',h:head||''});
     $('alist').innerHTML=ALERTS.map(function(a){return '<div>'+esc(a.t)+(a.s?'<small>'+esc(a.s)+'</small>':'')+'</div>'}).join('');
     $('alertbox').hidden=false;window.alertOpen=true;
-    document.title='Đến giờ: '+ALERTS[0].t;
+    if(!head)document.title='Đến giờ: '+ALERTS[0].t;
     $('aok').focus();
   }
   function closeAlert(){ALERTS=[];window.alertOpen=false;$('alertbox').hidden=true;$('alist').innerHTML='';document.title='Bấm giờ'}
@@ -817,7 +884,7 @@ html.big .lapnow{font-size:18px}
   }
   setInterval(function(){
     var now=Date.now();
-    if(window.alertOpen&&ALERTS.length)document.title='Đến giờ: '+ALERTS[0].t;
+    if(window.alertOpen&&ALERTS.length&&!ALERTS[0].h)document.title='Đến giờ: '+ALERTS[0].t;
     REMS.forEach(function(r,i){
       if(r.run&&now>=r.next){
         r.count++;r.next+=r.period;if(r.next<=now)r.next=now+r.period;
@@ -1028,12 +1095,18 @@ html.big .lapnow{font-size:18px}
   $('st-clear').addEventListener('click',function(){ls('bg-stats','{}');drawStats()});
   drawStats();
   /* Giờ thế giới */
-  var CITIES=[['Hà Nội','Asia/Ho_Chi_Minh'],['Bangkok','Asia/Bangkok'],['Singapore','Asia/Singapore'],['Bắc Kinh','Asia/Shanghai'],['Seoul','Asia/Seoul'],['Tokyo','Asia/Tokyo'],['Sydney','Australia/Sydney'],['Auckland','Pacific/Auckland'],['Delhi','Asia/Kolkata'],['Dubai','Asia/Dubai'],['Moscow','Europe/Moscow'],['Cairo','Africa/Cairo'],['Paris','Europe/Paris'],['London','Europe/London'],['São Paulo','America/Sao_Paulo'],['New York','America/New_York'],['Chicago','America/Chicago'],['Los Angeles','America/Los_Angeles']];
+  var CITIES=[
+    ['Hà Nội','Việt Nam','Asia/Ho_Chi_Minh','Châu Á'],['Bangkok','Thái Lan','Asia/Bangkok','Châu Á'],['Phnom Penh','Campuchia','Asia/Phnom_Penh','Châu Á'],['Viêng Chăn','Lào','Asia/Vientiane','Châu Á'],['Yangon','Myanmar','Asia/Yangon','Châu Á'],['Singapore','Singapore','Asia/Singapore','Châu Á'],['Kuala Lumpur','Malaysia','Asia/Kuala_Lumpur','Châu Á'],['Jakarta','Indonesia','Asia/Jakarta','Châu Á'],['Manila','Philippines','Asia/Manila','Châu Á'],['Bắc Kinh','Trung Quốc','Asia/Shanghai','Châu Á'],['Hồng Kông','Trung Quốc','Asia/Hong_Kong','Châu Á'],['Đài Bắc','Đài Loan','Asia/Taipei','Châu Á'],['Tokyo','Nhật Bản','Asia/Tokyo','Châu Á'],['Seoul','Hàn Quốc','Asia/Seoul','Châu Á'],['Ulaanbaatar','Mông Cổ','Asia/Ulaanbaatar','Châu Á'],['New Delhi','Ấn Độ','Asia/Kolkata','Châu Á'],['Kathmandu','Nepal','Asia/Kathmandu','Châu Á'],['Dhaka','Bangladesh','Asia/Dhaka','Châu Á'],['Karachi','Pakistan','Asia/Karachi','Châu Á'],['Colombo','Sri Lanka','Asia/Colombo','Châu Á'],['Dubai','Các Tiểu vương quốc Ả Rập (UAE)','Asia/Dubai','Châu Á'],['Riyadh','Ả Rập Xê Út','Asia/Riyadh','Châu Á'],['Doha','Qatar','Asia/Qatar','Châu Á'],['Tehran','Iran','Asia/Tehran','Châu Á'],['Jerusalem','Israel','Asia/Jerusalem','Châu Á'],['Istanbul','Thổ Nhĩ Kỳ','Europe/Istanbul','Châu Á'],['Vladivostok','Nga','Asia/Vladivostok','Châu Á'],
+    ['Moscow','Nga','Europe/Moscow','Châu Âu'],['Kyiv','Ukraine','Europe/Kiev','Châu Âu'],['Warsaw','Ba Lan','Europe/Warsaw','Châu Âu'],['Prague','Séc','Europe/Prague','Châu Âu'],['Vienna','Áo','Europe/Vienna','Châu Âu'],['Berlin','Đức','Europe/Berlin','Châu Âu'],['Paris','Pháp','Europe/Paris','Châu Âu'],['Zurich','Thụy Sĩ','Europe/Zurich','Châu Âu'],['Rome','Ý','Europe/Rome','Châu Âu'],['Madrid','Tây Ban Nha','Europe/Madrid','Châu Âu'],['Lisbon','Bồ Đào Nha','Europe/Lisbon','Châu Âu'],['Amsterdam','Hà Lan','Europe/Amsterdam','Châu Âu'],['Brussels','Bỉ','Europe/Brussels','Châu Âu'],['London','Anh','Europe/London','Châu Âu'],['Dublin','Ireland','Europe/Dublin','Châu Âu'],['Stockholm','Thụy Điển','Europe/Stockholm','Châu Âu'],['Oslo','Na Uy','Europe/Oslo','Châu Âu'],['Copenhagen','Đan Mạch','Europe/Copenhagen','Châu Âu'],['Helsinki','Phần Lan','Europe/Helsinki','Châu Âu'],['Athens','Hy Lạp','Europe/Athens','Châu Âu'],
+    ['Cairo','Ai Cập','Africa/Cairo','Châu Phi'],['Casablanca','Ma-rốc','Africa/Casablanca','Châu Phi'],['Lagos','Nigeria','Africa/Lagos','Châu Phi'],['Nairobi','Kenya','Africa/Nairobi','Châu Phi'],['Johannesburg','Nam Phi','Africa/Johannesburg','Châu Phi'],
+    ['New York','Hoa Kỳ (Mỹ)','America/New_York','Châu Mỹ'],['Chicago','Hoa Kỳ (Mỹ)','America/Chicago','Châu Mỹ'],['Denver','Hoa Kỳ (Mỹ)','America/Denver','Châu Mỹ'],['Los Angeles','Hoa Kỳ (Mỹ)','America/Los_Angeles','Châu Mỹ'],['Anchorage','Hoa Kỳ (Mỹ)','America/Anchorage','Châu Mỹ'],['Honolulu','Hoa Kỳ (Mỹ)','Pacific/Honolulu','Châu Mỹ'],['Toronto','Canada','America/Toronto','Châu Mỹ'],['Vancouver','Canada','America/Vancouver','Châu Mỹ'],['Mexico City','Mexico','America/Mexico_City','Châu Mỹ'],['Havana','Cuba','America/Havana','Châu Mỹ'],['Bogotá','Colombia','America/Bogota','Châu Mỹ'],['Lima','Peru','America/Lima','Châu Mỹ'],['Santiago','Chile','America/Santiago','Châu Mỹ'],['Buenos Aires','Argentina','America/Argentina/Buenos_Aires','Châu Mỹ'],['São Paulo','Brazil','America/Sao_Paulo','Châu Mỹ'],
+    ['Sydney','Úc','Australia/Sydney','Châu Đại Dương'],['Perth','Úc','Australia/Perth','Châu Đại Dương'],['Auckland','New Zealand','Pacific/Auckland','Châu Đại Dương'],['Suva','Fiji','Pacific/Fiji','Châu Đại Dương']
+  ];
   var WZ=null;
   try{WZ=JSON.parse(ls('bg2-world')||'null')}catch(x){WZ=null}
   if(!Array.isArray(WZ))WZ=['Asia/Ho_Chi_Minh','Asia/Tokyo','Europe/London','America/New_York'];
-  WZ=WZ.filter(function(z){return CITIES.some(function(c){return c[1]===z})});
-  function cityName(z){for(var i=0;i<CITIES.length;i++)if(CITIES[i][1]===z)return CITIES[i][0];return z}
+  WZ=WZ.filter(function(z){return CITIES.some(function(c){return c[2]===z})});
+  function cityName(z){for(var i=0;i<CITIES.length;i++)if(CITIES[i][2]===z)return CITIES[i][0]+', '+CITIES[i][1];return z}
   function tzOff(z,d){
     var f=new Intl.DateTimeFormat('en-US',{timeZone:z,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}),q={};
     f.formatToParts(d).forEach(function(x){q[x.type]=x.value});
@@ -1058,7 +1131,8 @@ html.big .lapnow{font-size:18px}
   }
   function world(){
     cancelAnimationFrame(raf);
-    var opts=CITIES.filter(function(c){return WZ.indexOf(c[1])<0}).map(function(c){return '<option value="'+c[1]+'">'+esc(c[0])+'</option>'}).join('');
+    var opts='';
+    ['Châu Á','Châu Âu','Châu Phi','Châu Mỹ','Châu Đại Dương'].forEach(function(r){var o=CITIES.filter(function(c){return c[3]===r&&WZ.indexOf(c[2])<0}).map(function(c){return '<option value="'+c[2]+'">'+esc(c[0]+', '+c[1])+'</option>'}).join('');if(o)opts+='<optgroup label="'+r+'">'+o+'</optgroup>'});
     panel.innerHTML='<div class="wadd"><select id="wz" aria-label="Thành phố">'+opts+'</select><button data-a="add">Thêm</button></div><div id="wl"></div>';
     panel.onclick=function(e){
       var b=e.target.closest('button');if(!b)return;
@@ -1114,15 +1188,19 @@ html.big .lapnow{font-size:18px}
 
   /* Cài như ứng dụng */
   var deferred=null,inst=$('inst');
-  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;inst.hidden=false});
+  var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone;
+  if(standalone)inst.hidden=true;
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e});
+  window.addEventListener('appinstalled',function(){inst.hidden=true;deferred=null});
   inst.addEventListener('click',function(){
-    if(!deferred)return;
-    deferred.prompt();
-    deferred.userChoice.then(function(){deferred=null;inst.hidden=true},function(){});
+    if(deferred){deferred.prompt();deferred.userChoice.then(function(){deferred=null},function(){});return}
+    var ua=navigator.userAgent,msg;
+    if(/zalo|fban|fbav|messenger|instagram|line\//i.test(ua))msg='Bạn đang mở trang trong ứng dụng khác (Zalo, Messenger...). Hãy bấm menu ba chấm, chọn "Mở bằng trình duyệt", rồi bấm lại nút này trong Chrome hoặc Safari.';
+    else if(/iphone|ipad|ipod/i.test(ua))msg='Bấm nút Chia sẻ của Safari (hình ô vuông có mũi tên), kéo xuống và chọn "Thêm vào Màn hình chính".';
+    else msg='Bấm menu ba chấm của Chrome, chọn "Cài đặt ứng dụng" hoặc "Thêm vào Màn hình chính". Nếu không thấy, hãy mở trang bằng Chrome.';
+    showAlert('Cài về màn hình',msg,'Hướng dẫn');
   });
-  window.addEventListener('appinstalled',function(){inst.hidden=true});
-  if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.navigator.standalone)$('insthint').hidden=false;
-  if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){
+    if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){
     window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
   }
 
