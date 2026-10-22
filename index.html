@@ -1034,6 +1034,29 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
 :root[data-theme="glass"] .hero-action{color:#172746;background:rgba(255,255,255,.7);border-color:rgba(23,39,70,.16)}
 :root[data-theme="glass"] .hero-note{color:#53647d;background:rgba(23,39,70,.07)}
 :root[data-theme="glass"] .hero-note span{color:#2f8f78}
+
+/* Time Replay */
+.replay{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:12px}
+.rp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rp-head span{color:var(--muted);font-size:13px}
+.rp-nav{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.rp-nav button{font-size:13px;min-height:34px;padding:6px 10px;border-radius:10px}
+.rp-nav .rp-active{background:var(--go);color:var(--go-ink);border-color:transparent}
+.rp-track{position:relative;height:58px;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.rp-hours{position:absolute;inset:0;display:flex;justify-content:space-between;padding:0 4px;font-size:9px;color:var(--muted);pointer-events:none}
+.rp-blocks{position:absolute;inset:8px 0 14px}
+.rp-block{position:absolute;top:0;height:100%;min-width:3px;border-radius:4px;opacity:.9;cursor:pointer}
+.rp-week{display:grid;gap:6px}
+.rp-week-row{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:center}
+.rp-week-label{font-size:11px;color:var(--muted)}
+.rp-week-line{position:relative;height:26px;border:1px solid var(--line);border-radius:8px;background:var(--surface);overflow:hidden}
+.rp-week-line .rp-block{height:100%}
+.rp-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:11px;color:var(--muted)}
+.rp-legend span{display:inline-flex;align-items:center;gap:4px}
+.rp-c{width:10px;height:10px;border-radius:3px;display:inline-block}
+.rp-c.pomo{background:#4f8cff}.rp-c.iv{background:#2ec99d}.rp-c.cd{background:#ffb84d}.rp-c.seq{background:#a78bfa}.rp-c.exam{background:#ff7a5f}.rp-c.cook{background:#f472b6}.rp-c.chess{background:#94a3b8}
+.rp-empty{color:var(--muted);font-size:13px;margin-top:8px}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -1129,7 +1152,24 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
   <div class="foot"><label>Âm nền <select id="amb" aria-label="Âm nền"><option value="off">Tắt</option><option value="rain">Tiếng mưa</option><option value="white">Ồn trắng</option><option value="brown">Ồn nâu</option></select></label></div>
   <div class="foot notify-tools"><label class="chk"><input type="checkbox" id="notifyToggle"> Thông báo khi hết giờ</label><button type="button" id="notifyPermission">Bật thông báo</button></div><p class="notify-note" id="notifyStatus" role="status">Thông báo trình duyệt đang tắt.</p>
   <div class="foot"><label>Giao diện <select id="thm" aria-label="Giao diện"><option value="auto">Tự động</option><option value="light">Sáng</option><option value="dark">Tối</option><option value="ocean">Biển</option><option value="forest">Rừng</option><option value="rose">Hồng</option><option value="mint">Mint Studio</option><option value="midnight">Midnight Luxe</option><option value="aurora">Aurora Pop</option><option value="glass">Glass Luxe</option></select></label><label class="chk"><input type="checkbox" id="big"> Chữ to</label><label class="chk"><input type="checkbox" id="hap"> Rung nhẹ</label></div>
-  <section class="stats"><h2>Thống kê</h2><div id="st-goal"></div><div id="st-today"></div><div id="st-sum" class="sum"></div><div id="st-heat" class="heat" role="img" aria-label="Lịch hoạt động 15 tuần gần nhất"></div><div class="hlg"><span>Ít</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>Nhiều</span></div><div class="goalset"><label for="st-goal-in">Mục tiêu mỗi ngày</label><input id="st-goal-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="30" autocomplete="off"><span>phút</span></div><button id="st-clear">Xóa thống kê</button><select id="st-csv-range" aria-label="Chọn khoảng thời gian xuất CSV"><option value="all">Tất cả</option><option value="7">7 ngày gần nhất</option><option value="30">30 ngày gần nhất</option></select><button id="st-csv" type="button">Xuất CSV</button></section>
+  <section class="stats"><h2>Thống kê</h2><div id="st-goal"></div><div id="st-today"></div><div id="st-sum" class="sum"></div>
+      <div class="replay">
+        <div class="rp-head"><b>Time Replay</b><span id="rp-date"></span></div>
+        <div class="rp-nav">
+          <button id="rp-prev" type="button">‹ Trước</button>
+          <button id="rp-next" type="button" disabled>Sau ›</button>
+          <button id="rp-view-day" type="button" class="rp-active">Ngày</button>
+          <button id="rp-view-week" type="button">Tuần</button>
+        </div>
+        <div id="rp-day-wrap">
+          <div id="rp-track" class="rp-track" role="img" aria-label="Trục thời gian các phiên trong ngày"><div class="rp-hours"></div><div id="rp-blocks" class="rp-blocks"></div></div>
+        </div>
+        <div id="rp-week-wrap" class="hidden">
+          <div id="rp-week" class="rp-week"></div>
+        </div>
+        <div class="rp-legend"><span><i class="rp-c pomo"></i>Pomodoro</span><span><i class="rp-c iv"></i>Tập luyện</span><span><i class="rp-c cd"></i>Đếm ngược</span><span><i class="rp-c seq"></i>Quy trình</span><span><i class="rp-c exam"></i>Đồng hồ thi</span><span><i class="rp-c cook"></i>Nấu ăn</span><span><i class="rp-c chess"></i>Cờ vua</span></div>
+        <div id="rp-empty" class="rp-empty">Chưa có phiên nào được ghi trong khoảng này.</div>
+      </div><div id="st-heat" class="heat" role="img" aria-label="Lịch hoạt động 15 tuần gần nhất"></div><div class="hlg"><span>Ít</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>Nhiều</span></div><div class="goalset"><label for="st-goal-in">Mục tiêu mỗi ngày</label><input id="st-goal-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="30" autocomplete="off"><span>phút</span></div><button id="st-clear">Xóa thống kê</button></section>
     </div>
   </details>
   <details class="help"><summary>Hướng dẫn nhanh</summary><div>
@@ -2056,6 +2096,18 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
   }
   window.celebrate=function(big){confetti(big?46:16)};
   window.logStat=function(m,ms){
+    try{
+      var end=Date.now(),start=Math.max(0,end-ms),arr=[];
+      try{arr=JSON.parse(ls('bg2-replay')||'[]')}catch(e){}
+      var live=null;
+      for(var i=arr.length-1;i>=0;i--){if(arr[i].open&&arr[i].m===m&&Math.abs(arr[i].s-start)<60000){live=arr[i];break}}
+      if(live){live.e=end;live.open=false}
+      else arr.push({m:m,s:start,e:end,open:false});
+      if(arr.length>1000)arr=arr.slice(arr.length-1000);
+      ls('bg2-replay',JSON.stringify(arr));
+      if(typeof drawReplay==='function')drawReplay();
+    }catch(e){}
+
     var d=load(),k=dk(new Date());
     d[k]=d[k]||{};var r=d[k][m]||[0,0];r[0]+=ms;r[1]+=1;d[k][m]=r;
     var keys=Object.keys(d).sort();while(keys.length>140)delete d[keys.shift()];
@@ -2065,29 +2117,81 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
   var gin=$('st-goal-in');gin.value=goalMin();
   gin.addEventListener('input',function(){var v=parseInt(gin.value,10);if(v>=1){ls('bg2-goal',String(v));drawStats()}});
   $('st-clear').addEventListener('click',function(){ls('bg-stats','{}');drawStats()});
-  $('st-csv').addEventListener('click',function(){
-    try{
-      var range=$('st-csv-range').value,limit=range==='all'?0:parseInt(range,10),cutoff='';
-      if(limit){var dt=new Date();dt.setDate(dt.getDate()-(limit-1));cutoff=dk(dt);}
-      var d=load()||{},rows=[['Ngay','Cong cu','Phut','So lan']],count=0;
-      Object.keys(d).sort().forEach(function(k){
-        if(cutoff&&k<cutoff)return;
-        Object.keys(NM).forEach(function(m){
-          var v=d[k][m];
-          if(v&&v[0]){rows.push([k,NM[m],(v[0]/60000).toFixed(2),v[1]||0]);count++;}
-        });
-      });
-      if(!count){toast('Chưa có dữ liệu trong khoảng thời gian này.');return;}
-      var csv=rows.map(function(r){return r.map(function(x){return '"'+String(x).replace(/"/g,'""')+'"'}).join(',')}).join('\r\n');
-      var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
-      var url=URL.createObjectURL(blob),a=document.createElement('a');
-      a.href=url;a.download='thong-ke-bam-gio'+(limit?'-'+limit+'-ngay':'')+'.csv';
-      document.body.appendChild(a);a.click();a.remove();
-      setTimeout(function(){URL.revokeObjectURL(url)},1000);
-      toast('Đã xuất '+count+' dòng thống kê.');
-    }catch(e){toast('Không xuất được CSV.');}
-  });
   drawStats();
+  /* Time Replay */
+  var RP_COLORS={pomo:'#4f8cff',iv:'#2ec99d',cd:'#ffb84d',seq:'#a78bfa',exam:'#ff7a5f',cook:'#f472b6',chess:'#94a3b8'};
+  var rpOffset=0,rpView='day';
+  function rpDate(){var d=new Date();d.setDate(d.getDate()-rpOffset);return d}
+  function rpAll(){try{return JSON.parse(ls('bg2-replay')||'[]')}catch(e){return[]}}
+  function rpSave(a){try{ls('bg2-replay',JSON.stringify(a.slice(-1000)))}catch(e){}}
+  function rpUpsertLive(){
+    try{
+      if(typeof running==='undefined'||!running||typeof mode==='undefined')return;
+      if(mode==='chess'||mode==='cook'||mode==='breath'||mode==='days'||mode==='rem'||mode==='world')return;
+      var now=Date.now(),start=(typeof startAt!=='undefined'&&startAt)?startAt:now;
+      var arr=rpAll(),found=null;
+      for(var i=arr.length-1;i>=0;i--){if(arr[i].open&&arr[i].m===mode&&Math.abs(arr[i].s-start)<60000){found=arr[i];break}}
+      if(found){found.e=now}
+      else arr.push({m:mode,s:start,e:now,open:true});
+      rpSave(arr);
+      if(typeof drawReplay==='function')drawReplay();
+    }catch(e){}
+  }
+  function rpCloseOpen(){
+    try{
+      var arr=rpAll(),changed=false;
+      for(var i=arr.length-1;i>=0;i--){if(arr[i].open){arr[i].open=false;changed=true}}
+      if(changed){rpSave(arr);if(typeof drawReplay==='function')drawReplay()}
+    }catch(e){}
+  }
+  function rpMakeBlock(x){
+    var st=new Date(x.s),en=new Date(x.e),b=document.createElement('i');
+    b.className='rp-block';
+    var left=Math.max(0,(st.getHours()*60+st.getMinutes()+st.getSeconds()/60)/1440*100);
+    var width=Math.max(.35,Math.min(((en-st)/86400000)*100,100-left));
+    b.style.left=left+'%';b.style.width=width+'%';
+    b.style.background=RP_COLORS[x.m]||'#94a3b8';
+    b.title=(NM[x.m]||x.m)+(x.open?' (đang chạy)':'')+' · '+pad(st.getHours())+':'+pad(st.getMinutes())+'–'+pad(en.getHours())+':'+pad(en.getMinutes())+' · '+dur(Math.max(0,x.e-x.s));
+    return b;
+  }
+  function drawReplay(){
+    var track=$('rp-track'),blocks=$('rp-blocks'),empty=$('rp-empty');if(!track)return;
+    var d=rpDate(),key=dk(d),all=rpAll();
+    $('rp-date').textContent=rpView==='day'?(rpOffset===0?'Hôm nay':rpOffset===1?'Hôm qua':pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()):('Tuần từ '+pad(d.getDate())+'/'+pad(d.getMonth()+1));
+    $('rp-next').disabled=rpOffset<=0;
+    $('rp-day-wrap').classList.toggle('hidden',rpView!=='day');
+    $('rp-week-wrap').classList.toggle('hidden',rpView!=='week');
+    var shown=[];
+    if(rpView==='day'){
+      var hours='';for(var h=0;h<24;h+=3)hours+='<span>'+pad(h)+'</span>';
+      track.querySelector('.rp-hours').innerHTML=hours;
+      shown=all.filter(function(x){return dk(new Date(x.s))===key&&x.e>x.s});
+      var bc=$('rp-blocks');bc.innerHTML='';
+      shown.forEach(function(x){bc.appendChild(rpMakeBlock(x))});
+      empty.hidden=shown.length>0;
+    }else{
+      var week=$('rp-week');week.innerHTML='';var names=['CN','T2','T3','T4','T5','T6','T7'];
+      for(var i=6;i>=0;i--){
+        var dd=new Date();dd.setDate(dd.getDate()-rpOffset-i);
+        var k=dk(dd),row=document.createElement('div');row.className='rp-week-row';
+        var line=document.createElement('div');line.className='rp-week-line';
+        var dayItems=all.filter(function(x){return dk(new Date(x.s))===k&&x.e>x.s});
+        dayItems.forEach(function(x){line.appendChild(rpMakeBlock(x))});
+        row.innerHTML='<span class="rp-week-label">'+names[dd.getDay()]+' '+pad(dd.getDate())+'/'+pad(dd.getMonth()+1)+'</span>';
+        row.appendChild(line);week.appendChild(row);
+        if(dayItems.length)shown.push(1);
+      }
+      empty.hidden=shown.length>0;
+    }
+  }
+  $('rp-prev').addEventListener('click',function(){rpOffset++;drawReplay()});
+  $('rp-next').addEventListener('click',function(){if(rpOffset>0){rpOffset--;drawReplay()}});
+  $('rp-view-day').addEventListener('click',function(){rpView='day';$('rp-view-day').classList.add('rp-active');$('rp-view-week').classList.remove('rp-active');drawReplay()});
+  $('rp-view-week').addEventListener('click',function(){rpView='week';$('rp-view-week').classList.add('rp-active');$('rp-view-day').classList.remove('rp-active');drawReplay()});
+  setInterval(rpUpsertLive,15000);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')rpUpsertLive()});
+  window.addEventListener('beforeunload',rpUpsertLive);
+  drawReplay();
   /* Giờ thế giới */
   var CITIES=[
     ['Hà Nội','Việt Nam','Asia/Ho_Chi_Minh','Châu Á'],['Bangkok','Thái Lan','Asia/Bangkok','Châu Á'],['Phnom Penh','Campuchia','Asia/Phnom_Penh','Châu Á'],['Viêng Chăn','Lào','Asia/Vientiane','Châu Á'],['Yangon','Myanmar','Asia/Yangon','Châu Á'],['Singapore','Singapore','Asia/Singapore','Châu Á'],['Kuala Lumpur','Malaysia','Asia/Kuala_Lumpur','Châu Á'],['Jakarta','Indonesia','Asia/Jakarta','Châu Á'],['Manila','Philippines','Asia/Manila','Châu Á'],['Bắc Kinh','Trung Quốc','Asia/Shanghai','Châu Á'],['Hồng Kông','Trung Quốc','Asia/Hong_Kong','Châu Á'],['Đài Bắc','Đài Loan','Asia/Taipei','Châu Á'],['Tokyo','Nhật Bản','Asia/Tokyo','Châu Á'],['Seoul','Hàn Quốc','Asia/Seoul','Châu Á'],['Ulaanbaatar','Mông Cổ','Asia/Ulaanbaatar','Châu Á'],['New Delhi','Ấn Độ','Asia/Kolkata','Châu Á'],['Kathmandu','Nepal','Asia/Kathmandu','Châu Á'],['Dhaka','Bangladesh','Asia/Dhaka','Châu Á'],['Karachi','Pakistan','Asia/Karachi','Châu Á'],['Colombo','Sri Lanka','Asia/Colombo','Châu Á'],['Dubai','Các Tiểu vương quốc Ả Rập (UAE)','Asia/Dubai','Châu Á'],['Riyadh','Ả Rập Xê Út','Asia/Riyadh','Châu Á'],['Doha','Qatar','Asia/Qatar','Châu Á'],['Tehran','Iran','Asia/Tehran','Châu Á'],['Jerusalem','Israel','Asia/Jerusalem','Châu Á'],['Istanbul','Thổ Nhĩ Kỳ','Europe/Istanbul','Châu Á'],['Vladivostok','Nga','Asia/Vladivostok','Châu Á'],
