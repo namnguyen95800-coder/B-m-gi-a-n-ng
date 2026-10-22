@@ -213,6 +213,31 @@ html.big .lapnow{font-size:18px}
 #shr,#inst{font-size:14px;min-height:40px;padding:6px 12px}
 #inst{background:var(--go);color:var(--go-ink);border-color:var(--go)}
 .hsel{width:100%;margin:10px 0 4px;font:inherit;font-size:16px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+
+/* Bộ tìm công cụ: giúp người mới không phải nhớ tên từng chế độ */
+.sheet-card{max-height:min(84vh,760px);overflow:auto}
+.tool-search{position:sticky;top:0;z-index:2;background:var(--surface);padding:0 0 10px}
+.tool-search input{width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:16px;outline-offset:3px}
+.tool-search-hint{font-size:12px;color:var(--muted);margin:6px 2px 0}
+.tool-filters{display:flex;gap:7px;overflow-x:auto;padding:9px 0 4px;scrollbar-width:thin}
+.tool-filters button{flex:0 0 auto;min-height:36px;padding:7px 12px;border-radius:999px;font-size:13px;font-weight:650;background:var(--bg);box-shadow:none}
+.tool-filters button[aria-pressed="true"]{background:var(--go);color:var(--go-ink);border-color:var(--go)}
+.tool-card small{display:block;margin-top:4px;font-size:11px;line-height:1.35;color:var(--muted);font-weight:400}
+.tool-card>button:first-child.on small{color:inherit;opacity:.8}
+.tool-section-label{letter-spacing:.04em;text-transform:none;font-size:13px}
+.tool-intro{font-size:13px;line-height:1.45;color:var(--muted);margin:2px 0 8px}
+.tool-section-label{display:flex;align-items:center;justify-content:space-between;margin:14px 0 8px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sheet-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tool-card{display:grid;grid-template-columns:minmax(0,1fr) 38px;gap:4px;min-width:0}
+.tool-card>button:first-child{min-width:0;min-height:68px;padding:10px;border-radius:14px;display:flex;flex-direction:row;justify-content:flex-start;align-items:center;gap:9px;text-align:left;font-size:13px;box-shadow:none}
+.tool-card .ni{flex:0 0 28px;width:28px;text-align:center;font-size:23px}
+.tool-card .tool-name{min-width:0;overflow-wrap:anywhere;line-height:1.25}
+.tool-card .tool-fav{min-height:44px;min-width:38px;height:100%;padding:4px;border-radius:12px;font-size:19px;color:var(--muted);box-shadow:none}
+.tool-card .tool-fav[aria-pressed="true"]{color:#e3a008;background:color-mix(in srgb,#e3a008 12%,var(--surface));border-color:color-mix(in srgb,#e3a008 35%,var(--line))}
+.tool-card>button:first-child.on{background:var(--ink);color:var(--bg)}
+.tool-empty{padding:18px 10px;text-align:center;color:var(--muted);font-size:14px;grid-column:1/-1}
+.tool-results[hidden],.tool-section[hidden]{display:none!important}
+@media(max-width:360px){.sheet-grid{grid-template-columns:1fr}.tool-card>button:first-child{min-height:58px}}
 [hidden]{display:none!important}
 
 /* ===== BẤM GIỜ V2: giao diện mới ===== */
@@ -302,6 +327,51 @@ main{max-width:1080px;padding:clamp(18px,4vw,42px) clamp(14px,3vw,30px) 52px}
 .help summary{color:var(--ink);font-size:15px}
 button,input,select{max-width:100%;-webkit-tap-highlight-color:transparent}
 button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--go);outline-offset:3px}
+
+/* Bảng khởi động theo mục tiêu: lối vào rõ ràng cho người chưa biết tên công cụ */
+.goal-launch{margin:0 0 26px;padding:19px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(135deg,color-mix(in srgb,var(--surface) 95%,var(--go) 5%),var(--surface));box-shadow:0 8px 28px rgba(16,47,57,.035)}
+.goal-launch-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}
+.goal-eyebrow{display:block;font-size:10px;font-weight:850;letter-spacing:.14em;color:var(--go);margin-bottom:5px}
+.goal-launch h2{font-size:clamp(19px,3vw,25px);letter-spacing:-.035em;margin:0}
+.goal-launch-head p{font-size:13px;color:var(--muted);margin:5px 0 0}
+.goal-reset{font-size:12px;min-height:34px;padding:6px 10px;white-space:nowrap}
+.goal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.goal-card{display:flex;align-items:center;gap:10px;min-width:0;min-height:82px;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface);text-align:left;box-shadow:none;transition:transform .15s,border-color .15s,background .15s}
+.goal-card:active{transform:scale(.985)}.goal-card[aria-pressed="true"]{border-color:var(--go);background:color-mix(in srgb,var(--go) 10%,var(--surface));box-shadow:inset 0 0 0 1px var(--go)}
+.goal-icon{display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;border-radius:13px;background:color-mix(in srgb,var(--go) 12%,var(--surface));font-size:21px}
+.goal-card>span:nth-child(2){min-width:0;flex:1}.goal-card b,.goal-card small{display:block}.goal-card b{font-size:13px;line-height:1.3}.goal-card small{font-size:11px;color:var(--muted);line-height:1.35;margin-top:4px}.goal-arrow{color:var(--muted);font-size:17px;align-self:flex-start}
+.goal-foot{font-size:11px;color:var(--muted);margin-top:12px}.goal-foot:empty{display:none}
+@media(max-width:760px){.goal-launch{padding:14px;border-radius:18px;margin-bottom:21px}.goal-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.goal-card{min-height:78px;padding:10px;gap:8px}.goal-icon{flex-basis:34px;width:34px;height:34px;font-size:19px}.goal-card b{font-size:12px}.goal-card small{font-size:10px}}
+@media(max-width:360px){.goal-launch-head{align-items:flex-start;flex-direction:column}.goal-grid{grid-template-columns:1fr}.goal-card{min-height:66px}}
+@media(prefers-reduced-motion:reduce){.goal-card{transition:none}}
+
+/* Hướng dẫn cho người mới: ngắn gọn, không chen vào bộ đếm */
+.start-guide{display:grid;grid-template-columns:minmax(160px,.75fr) minmax(0,1.5fr);gap:18px;align-items:center;margin:-8px 0 25px;padding:15px 18px;border:1px solid var(--line);border-radius:18px;background:color-mix(in srgb,var(--surface) 88%,var(--go) 12%)}
+.guide-heading{display:flex;align-items:center;gap:11px;min-width:0}
+.guide-mark{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:13px;background:var(--surface);color:var(--go);font-size:20px}
+.guide-heading strong,.guide-heading small{display:block}
+.guide-heading strong{font-size:14px}
+.guide-heading small{margin-top:3px;color:var(--muted);font-size:12px}
+.guide-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.guide-steps>div{display:flex;align-items:center;gap:8px;min-width:0}
+.guide-steps>div>span{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800}
+.guide-steps p{margin:0;min-width:0}
+.guide-steps b,.guide-steps small{display:block}
+.guide-steps b{font-size:12px}
+.guide-steps small{margin-top:3px;color:var(--muted);font-size:11px;line-height:1.35}
+.extras{margin:20px 0 0;border:1px solid var(--line);border-radius:18px;background:var(--surface);overflow:hidden}
+.extras>summary{display:flex;align-items:center;gap:12px;list-style:none;cursor:pointer;padding:15px 17px}
+.extras>summary::-webkit-details-marker{display:none}
+.extras-icon{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:12px;background:color-mix(in srgb,var(--go) 13%,var(--surface));color:var(--go);font-size:20px}
+.extras>summary b,.extras>summary small{display:block}
+.extras>summary b{font-size:14px;color:var(--ink)}
+.extras>summary small{margin-top:3px;font-size:12px;color:var(--muted);font-weight:400}
+.extras-chevron{margin-left:auto;color:var(--muted);font-size:20px;transition:transform .2s ease}
+.extras[open] .extras-chevron{transform:rotate(180deg)}
+.extras-content{padding:0 14px 14px;border-top:1px solid var(--line)}
+.extras-content .foot:first-child{margin-top:12px}
+@media(max-width:620px){.start-guide{grid-template-columns:1fr;gap:12px;margin:-8px 0 21px;padding:13px}.guide-steps{gap:5px}.guide-steps>div{align-items:flex-start;gap:6px}.guide-steps>div>span{flex-basis:23px;width:23px;height:23px}.guide-steps b{font-size:11px}.guide-steps small{font-size:10px}.extras>summary{padding:13px}.extras-content{padding:0 10px 10px}}
+@media(max-width:360px){.guide-steps{grid-template-columns:1fr}.guide-steps>div{align-items:center}.guide-steps b,.guide-steps small{display:inline}.guide-steps small{margin-left:5px}}
 @media(min-width:760px){
   .tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr))}
   .tabs button{min-height:46px}
@@ -460,6 +530,510 @@ body.focus .controls{width:100%;max-width:520px;margin:0 auto}
 .wrap.enter #disp,.wrap.enter #ctl,.wrap.enter #settings,.wrap.enter #presets,.wrap.enter #panel,.wrap.enter #laps{animation:pin .3s cubic-bezier(.2,.8,.2,1) both}
 button{transition:transform .12s ease,filter .12s ease}
 button:active:not(:disabled){transform:scale(.97)}
+
+/* FIX: danh sách công cụ phải là danh sách dễ đọc, không phải lưới biểu tượng */
+.sheet-card{box-sizing:border-box;width:100%;max-height:84dvh;overflow-y:auto;overscroll-behavior:contain}
+.sheet-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important;align-items:stretch}
+.tool-card{width:100%;grid-template-columns:minmax(0,1fr) 42px!important;align-items:stretch}
+.tool-card>button:first-child{width:100%;min-height:68px;flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;gap:12px!important;padding:12px!important;font-size:14px!important;text-align:left!important;white-space:normal!important}
+.tool-card .ni{flex:0 0 32px!important;width:32px!important;font-size:25px!important}
+.tool-card .tool-name{display:block!important;min-width:0;flex:1;overflow-wrap:anywhere;line-height:1.35}
+.tool-card .tool-name b{display:inline!important;font-size:14px!important}
+.tool-card .tool-name small{display:inline!important;font-size:12px!important;line-height:1.4;white-space:normal!important;color:inherit;opacity:.78}
+.tool-card .tool-fav{min-width:42px!important;min-height:48px!important;align-self:center}
+.tool-section-label{font-size:12px;letter-spacing:.04em}
+@media(min-width:700px){.sheet-card{max-width:640px}.sheet-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+
+/* ===== VISUAL REFINEMENT: accessible, calm, responsive ===== */
+:root{
+  --bg:#f3f6f4;--surface:#ffffff;--ink:#172d32;--muted:#526a70;--line:#d8e3df;
+  --go:#18a889;--go-ink:#062c25;--stop:#c84f42;--stop-ink:#ffffff;
+  --card:var(--surface);--text:var(--ink);--accent:var(--go);
+  --go-text:color-mix(in srgb,var(--go) 60%,#000);
+  --elev:0 10px 32px rgba(18,47,57,.065);--radius-lg:24px;
+  color-scheme:light;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme]){
+  --bg:#0d1b20;--surface:#14272d;--ink:#eaf4f1;--muted:#a4bbb7;--line:#294147;
+  --go:#48d6b0;--go-ink:#062c25;--stop:#ff8875;--stop-ink:#2b100b;--elev:0 12px 36px rgba(0,0,0,.18);color-scheme:dark
+}}
+:root[data-theme="dark"]{--bg:#0b171d;--surface:#12242c;--ink:#edf5f6;--muted:#afc1c7;--line:#29414b;--go:#40d5ad;--go-ink:#06251d;--stop:#ff8976;--stop-ink:#2b0b05;--elev:0 12px 36px rgba(0,0,0,.18);color-scheme:dark}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(ellipse at 50% -12%,color-mix(in srgb,var(--go) 9%,var(--bg)),transparent 55%),var(--bg);line-height:1.5;letter-spacing:.005em}
+main{max-width:920px;padding:clamp(16px,3.2vw,32px) clamp(14px,3vw,28px) 56px}
+button,input,select{transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+button{font-size:15px;line-height:1.35;border-radius:14px;min-height:46px;padding:12px 15px;touch-action:manipulation}
+button:hover:not(:disabled){border-color:color-mix(in srgb,var(--go) 55%,var(--line));}
+button:active:not(:disabled){transform:translateY(1px)}
+input,select{border-radius:12px}
+.top{margin-bottom:16px;gap:12px}
+.top h1{font-size:clamp(19px,2.5vw,24px);letter-spacing:-.035em;color:var(--ink);font-weight:800}
+.tb{display:flex;gap:8px}.tb button{min-height:40px;padding:9px 12px;font-size:13px;border-radius:12px}
+.hero{border-radius:28px;box-shadow:var(--elev);overflow:hidden}
+.hero h2{letter-spacing:-.055em;line-height:1.05}
+.hero p{max-width:52ch;line-height:1.7}
+.hero-kicker{letter-spacing:.13em}
+.hero-actions{gap:9px}
+.hero-action{border-radius:16px;min-height:72px}
+.hero-action b{font-size:14px}.hero-action small{font-size:12px}
+.hero-side{border-radius:22px}
+.start-guide,.goal-launch,.stats,.settings-panel,.tool-panel,.panel,.card,.display,.tabs,.laps,.hint,.section-label{scroll-margin-top:18px}
+.start-guide,.goal-launch{border-radius:22px;box-shadow:0 6px 22px rgba(18,47,57,.035)}
+.start-guide{padding:clamp(14px,2.5vw,22px)}
+.goal-launch{padding:clamp(15px,2.5vw,22px)}
+.goal-card{border-radius:17px;min-height:88px;padding:13px;box-shadow:0 2px 8px rgba(18,47,57,.025)}
+.goal-card b{font-size:14px}.goal-card small{font-size:12px;line-height:1.45}
+.goal-icon{border-radius:14px}
+.section-label{margin:25px 2px 11px;font-size:11px;font-weight:800;letter-spacing:.12em}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;scroll-snap-type:x proximity;padding:6px;border-radius:16px;box-shadow:0 3px 12px rgba(18,47,57,.025)}
+.tabs button{flex:0 0 auto;min-height:42px;padding:9px 13px;border-radius:11px;scroll-snap-align:start;font-size:13px;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--go);color:var(--go-ink);box-shadow:0 3px 10px color-mix(in srgb,var(--go) 24%,transparent)}
+.display{border-radius:26px;padding:clamp(24px,5vw,42px) 16px 30px;box-shadow:var(--elev);margin:16px 0}
+.time{font-weight:350;letter-spacing:-.055em;font-size:clamp(54px,12vw,92px)}
+.phase{font-weight:650;letter-spacing:.015em}
+.bar{height:7px;border-radius:10px}.bar i{border-radius:10px}
+.controls{gap:10px}.controls button{min-height:58px;border-radius:16px}
+#main.go,#main.stop{box-shadow:0 7px 18px color-mix(in srgb,var(--go) 16%,transparent)}
+.settings{gap:12px}.settings label{font-size:13px;font-weight:650}.settings input{min-height:48px;font-size:16px}
+.chips button,.chips2 button{border-radius:12px}
+.card{border-radius:18px;padding:15px;box-shadow:0 3px 12px rgba(18,47,57,.035)}
+.card .tm{font-size:clamp(28px,5vw,38px)}
+.stats{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 5px 18px rgba(18,47,57,.035)}
+.stats h2{font-size:18px;color:var(--ink);margin-bottom:14px}
+#st-clear{border-radius:12px}
+.hint{font-size:13px;line-height:1.7;padding:0 2px}
+:focus-visible{outline:3px solid var(--go)!important;outline-offset:3px!important}
+button:disabled{filter:grayscale(.1)}
+@media(min-width:700px){
+  .hero{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(220px,.8fr);gap:24px;padding:clamp(24px,4vw,42px)}
+  .hero-copy,.hero-side{min-width:0}
+  .goal-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .goal-card{min-height:96px}
+  .display{padding-top:38px;padding-bottom:34px}
+  .settings{gap:14px}
+}
+@media(max-width:480px){
+  main{padding:14px 12px 36px}
+  .top{align-items:center}.top .tb{gap:6px}.tb button{font-size:12px;padding:8px 9px}
+  .hero{border-radius:22px}
+  .hero h2{font-size:clamp(30px,9vw,42px)}
+  .hero-actions{display:grid;grid-template-columns:1fr}
+  .hero-action{min-height:58px}
+  .goal-launch-head{align-items:flex-start}
+  .goal-card{min-height:82px;gap:8px;padding:10px}
+  .goal-card b{font-size:12px}.goal-card small{font-size:11px}
+  .tabs{margin-left:-1px;margin-right:-1px}
+  .display{border-radius:21px;padding-top:27px}
+  .controls button{padding:12px 8px}
+}
+@media(max-width:350px){.goal-grid{grid-template-columns:1fr}.goal-card{min-height:68px}.top{align-items:flex-start}.tb{flex-wrap:wrap;justify-content:flex-end}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+
+/* ===== Visual refinement: clearer hierarchy, calmer surfaces, better touch targets ===== */
+:root{--ui-radius:22px;--ui-shadow:0 14px 38px rgba(20,40,70,.075);--ui-line:color-mix(in srgb,var(--line,#dce5ef) 82%,transparent)}
+html{scroll-behavior:smooth;scroll-padding-top:18px}
+body{letter-spacing:-.012em;text-rendering:optimizeLegibility}
+main{max-width:1160px}
+.top{gap:12px;margin-bottom:18px}
+.top h1{font-size:clamp(22px,4vw,29px);letter-spacing:-.045em}
+.tb button,.goal-reset,.controls button,.foot button,.stats button{min-height:42px;border-radius:13px;font-weight:650;transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease}
+button{ -webkit-tap-highlight-color:transparent }
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid color-mix(in srgb,var(--accent,#13b8a6) 65%,white);outline-offset:3px}
+.hero{position:relative;isolation:isolate;overflow:hidden;border:1px solid color-mix(in srgb,var(--accent,#13b8a6) 20%,var(--line,#dce5ef));box-shadow:var(--ui-shadow);background:linear-gradient(125deg,color-mix(in srgb,var(--card,#fff) 92%,var(--accent,#13b8a6) 8%),var(--card,#fff))}
+.hero:after{content:"";position:absolute;z-index:-1;width:270px;height:270px;border-radius:50%;right:-100px;top:-130px;background:radial-gradient(circle,color-mix(in srgb,var(--accent,#13b8a6) 20%,transparent),transparent 70%);pointer-events:none}
+.hero-kicker{letter-spacing:.14em;font-size:10px;font-weight:800}
+.hero h2{letter-spacing:-.055em;line-height:1.08}
+.hero-copy>p,.hero-copy .hero-desc{max-width:48ch;line-height:1.7}
+.hero-action{border-radius:16px;min-height:68px;box-shadow:0 4px 14px rgba(10,30,50,.035)}
+.hero-action:hover,.goal-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,35,55,.09)}
+.hero-action:active,.goal-card:active,button:active{transform:scale(.985)}
+.goal-launch{margin-top:22px;padding:clamp(17px,3vw,26px);border-radius:var(--ui-radius);border:1px solid var(--ui-line);box-shadow:var(--ui-shadow);background:var(--card,#fff)}
+.goal-launch-head h2{letter-spacing:-.04em}
+.goal-grid{gap:12px;margin-top:18px}
+.goal-card{position:relative;border-radius:17px;min-height:94px;border:1px solid var(--ui-line);background:linear-gradient(145deg,var(--card,#fff),color-mix(in srgb,var(--accent,#13b8a6) 4%,var(--card,#fff)));transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.goal-card:focus-visible,.hero-action:focus-visible{outline:3px solid color-mix(in srgb,var(--accent,#13b8a6) 65%,white);outline-offset:3px}
+.goal-icon{width:42px;height:42px;display:grid;place-items:center;flex:0 0 42px;border-radius:13px;background:color-mix(in srgb,var(--accent,#13b8a6) 11%,var(--card,#fff));font-size:21px}
+.goal-card b{font-size:14px;letter-spacing:-.02em}.goal-card small{line-height:1.45}
+.goal-card .goal-arrow{opacity:.55;transition:transform .18s ease,opacity .18s ease}.goal-card:hover .goal-arrow{transform:translate(2px,-2px);opacity:1}
+.tabs{gap:8px;padding:8px 2px 12px;scrollbar-width:thin}
+.tabs button,[role=tab]{border-radius:13px;min-height:42px;padding:10px 14px;font-weight:650;white-space:nowrap;transition:background .18s ease,color .18s ease,transform .18s ease}
+.wrap{gap:20px;align-items:start}
+.left,.right{min-width:0}
+.display{position:relative;border-radius:26px;border:1px solid var(--ui-line);box-shadow:var(--ui-shadow);background:linear-gradient(160deg,var(--card,#fff),color-mix(in srgb,var(--accent,#13b8a6) 3%,var(--card,#fff)));overflow:hidden}
+.display:before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--accent,#13b8a6),color-mix(in srgb,var(--accent,#13b8a6) 20%,#8b9cff));opacity:.8}
+.dial{filter:drop-shadow(0 6px 12px color-mix(in srgb,var(--accent,#13b8a6) 10%,transparent))}
+.time{font-variant-numeric:tabular-nums;letter-spacing:-.065em;font-feature-settings:"tnum"}
+.controls{gap:10px;margin-top:12px}
+.controls button{min-height:52px;border-radius:16px;font-size:15px}
+.controls .go{box-shadow:0 8px 20px color-mix(in srgb,var(--accent,#13b8a6) 22%,transparent)}
+.settings,.presets,#panel,.laps,.stats,.extras,.help{border:1px solid var(--ui-line);border-radius:18px;box-shadow:0 8px 24px rgba(20,40,70,.04);background:var(--card,#fff)}
+.settings,.presets,#panel,.laps{padding:16px}
+.extras,.help{overflow:hidden}
+.extras>summary,.help>summary{padding:16px 18px;min-height:62px;display:flex;align-items:center;gap:12px;cursor:pointer;font-weight:750;list-style:none}
+.extras>summary::-webkit-details-marker,.help>summary::-webkit-details-marker{display:none}
+.extras>summary:after,.help>summary:after{content:"＋";margin-left:auto;font-size:18px;color:var(--muted,#667085)}
+.extras[open]>summary:after,.help[open]>summary:after{content:"−"}
+.extras-content,.help>div{padding:0 18px 18px}
+.foot{gap:12px;padding:12px 0;border-bottom:1px solid var(--ui-line)}
+.foot label{gap:8px;font-weight:600}
+select,input[type=text],input[type=number]{min-height:42px;border-radius:12px;border:1px solid var(--ui-line);padding:8px 11px;max-width:100%;background:var(--card,#fff);color:var(--text,inherit)}
+.stats{padding:16px;margin-top:16px}
+.stats h2,.laps h2{letter-spacing:-.035em}
+.hint{line-height:1.65}
+:where(.tabs,.goal-grid,.hero-actions) button{touch-action:manipulation}
+@media(min-width:850px){.hero{min-height:320px}.goal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.display{min-height:330px}.right{position:relative}}
+@media(max-width:620px){
+  main{padding-left:14px;padding-right:14px}
+  .top{margin-bottom:13px}
+  .hero{gap:18px;padding:22px 18px;border-radius:23px}
+  .hero-side{min-width:0}
+  .hero h2{font-size:clamp(29px,8.4vw,40px)}
+  .hero-action{min-height:60px}
+  .goal-launch{margin-top:16px;padding:17px 14px;border-radius:21px}
+  .goal-grid{gap:9px}
+  .goal-card{min-width:0;min-height:88px;padding:11px 10px;border-radius:15px}
+  .goal-icon{width:36px;height:36px;flex-basis:36px;border-radius:11px;font-size:19px}
+  .goal-card b{font-size:12.5px}.goal-card small{font-size:11px;overflow-wrap:anywhere}
+  .display{border-radius:23px}
+  .controls button{min-height:50px}
+  .extras>summary,.help>summary{padding:14px}
+}
+@media(prefers-color-scheme:dark){.hero,.goal-card,.display{box-shadow:0 12px 32px rgba(0,0,0,.16)}}
+
+
+/* ===== Bản thiết kế lại: màu có chủ đích, bố cục gọn, tương phản rõ ===== */
+/* Mặc định dùng bảng màu sáng ổn định; chế độ tối chỉ bật khi người dùng chọn. */
+body{background:var(--bg);color:var(--ink)}
+main{padding-top:20px;padding-bottom:34px}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.top h1{margin:0 auto 0 0;font-size:20px;letter-spacing:-.4px}
+.top h1::before{width:35px;height:35px;border-radius:11px;box-shadow:none}
+#shr,#inst{min-height:40px;border-radius:12px;padding:9px 13px}
+.hero{
+  grid-template-columns:minmax(0,1fr) 150px;
+  gap:16px;padding:24px 25px;margin-bottom:18px;border-radius:23px;
+  background:linear-gradient(125deg,#123a3e 0%,#15534e 58%,#1a7061 100%);
+  box-shadow:0 10px 26px rgba(20,70,64,.10)
+}
+.hero h2{font-size:clamp(27px,4.2vw,43px);line-height:1.08;letter-spacing:-1.1px;margin:12px 0 9px}
+.hero-kicker{font-size:10px;letter-spacing:1.5px}
+.hero p{font-size:14px;line-height:1.55}
+.hero-actions{gap:7px;margin-top:17px}
+.hero-action{min-height:52px;padding:8px;border-radius:12px;gap:7px;font-size:12px}
+.hero-action b{font-size:12px}.hero-action small{font-size:11px}
+.hero-action .qa-icon{flex-basis:29px;width:29px;height:29px;border-radius:9px;font-size:17px}
+.hero-side{padding:0}
+.hero-orbit{width:112px;height:112px;margin-bottom:8px}
+.orbit-core{width:57px;height:57px;border-radius:19px;font-size:32px}
+.orbit-ring{inset:7px}.ring-two{inset:19px}
+.hero-clock{font-size:25px}.hero-date{font-size:11px}
+.hero-note{margin-top:10px;font-size:11px}
+.goal-launch{margin-bottom:17px;padding:15px;border-radius:18px;background:var(--surface);box-shadow:0 3px 12px rgba(24,55,48,.035)}
+.goal-launch-head{margin-bottom:11px}
+.goal-launch h2{font-size:20px}
+.goal-launch-head p{font-size:12px;line-height:1.4}
+.goal-grid{gap:8px}
+.goal-card{min-height:67px;padding:9px 10px;border-radius:13px;gap:9px}
+.goal-icon{flex-basis:33px;width:33px;height:33px;border-radius:10px;font-size:18px}
+.goal-card b{font-size:12px;color:var(--ink)}
+.goal-card small{font-size:10px;color:var(--muted)}
+.start-guide{margin:0 0 17px;padding:12px 14px;border-radius:15px;background:color-mix(in srgb,var(--surface) 94%,var(--go) 6%)}
+.guide-steps{gap:6px}
+.tabs{gap:5px;padding:5px;border-radius:15px;box-shadow:none;background:var(--surface)}
+.tabs button{min-height:42px;border-radius:10px;font-size:12px}
+.tabs button[aria-selected="true"]{background:var(--go);color:var(--go-ink);box-shadow:none}
+.wrap{margin-top:13px}
+.display{
+  margin:0 0 12px;padding:35px 14px 23px;border-radius:21px;
+  background:linear-gradient(145deg,#123a3e,#16554e 70%,#1c7060);
+  box-shadow:0 9px 22px rgba(20,70,64,.10)
+}
+.display::before{left:16px;top:14px;font-size:9px;letter-spacing:1.5px;color:#a7ead8}
+.display .phase{font-size:13px;color:#c8e7df;margin-bottom:9px}
+.display .time{font-size:clamp(45px,12vw,76px);font-weight:650;letter-spacing:-1.6px}
+.display .time .cs{color:#a7ead8}
+.display .lapnow{font-size:13px;color:#c8e7df}
+.bar{margin-top:14px;height:5px}
+.controls{gap:8px;margin-top:10px}
+.controls button{min-height:48px;border-radius:12px;font-size:14px;box-shadow:none}
+#main.go,#bgo.go{background:var(--go);color:var(--go-ink)}
+.settings,.presets,#panel,.laps,.stats,.help{padding:13px;border-radius:15px;box-shadow:none}
+.settings,.presets,#panel,.laps{margin-top:10px}
+.card{border-radius:12px;box-shadow:none}
+.foot{border-radius:12px;box-shadow:none}
+.extras{border-radius:15px;box-shadow:none}
+button{transition:background-color .15s ease,border-color .15s ease,transform .15s ease}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #168c73;outline-offset:2px}
+@media(max-width:620px){
+  main{padding:14px 12px 30px}
+  .top{gap:8px;margin-bottom:13px}
+  .top h1{font-size:18px}
+  #shr,#inst{font-size:12px;min-height:38px;padding:8px 10px}
+  .hero{grid-template-columns:1fr;gap:12px;padding:19px 16px 15px;margin-bottom:14px;border-radius:19px}
+  .hero h2{font-size:clamp(27px,7.4vw,34px);letter-spacing:-.8px;margin:11px 0 8px}
+  .hero p{font-size:13px}
+  .hero-actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:14px}
+  .hero-action{display:grid;grid-template-columns:27px minmax(0,1fr);min-height:62px;padding:8px 6px;gap:5px}
+  .hero-action .qa-icon{grid-row:1;width:27px;height:27px;flex-basis:27px;font-size:16px}
+  .hero-action b{font-size:11px;line-height:1.2}
+  .hero-action small{font-size:10px;line-height:1.2}
+  .hero-action .qa-arrow{display:none}
+  .hero-side{display:grid;grid-template-columns:48px 1fr;grid-template-rows:auto auto auto;align-items:center;column-gap:10px;row-gap:0;padding:10px 0 0;border-top:1px solid rgba(255,255,255,.15);margin-top:1px}
+  .hero-orbit{grid-column:1;grid-row:1/4;width:45px;height:45px;margin:0}
+  .orbit-ring{inset:2px}.ring-two{inset:7px}.orbit-core{width:29px;height:29px;border-radius:10px;font-size:18px}
+  .dot-one{top:4px;right:5px;width:5px;height:5px}.dot-two{bottom:4px;left:4px;width:4px;height:4px}
+  .hero-time-label{font-size:9px;letter-spacing:1.4px;align-self:end}
+  .hero-clock{font-size:22px;margin:0;line-height:1.2}
+  .hero-date{font-size:10px;margin:0;text-align:left}
+  .hero-note{display:none}
+  .goal-launch{padding:12px;margin-bottom:13px;border-radius:15px}
+  .goal-launch h2{font-size:18px}
+  .goal-launch-head{align-items:flex-start}
+  .goal-launch-head p{font-size:11px}
+  .goal-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .goal-card{min-height:63px;padding:8px;gap:7px}
+  .goal-card b{font-size:11px}.goal-card small{font-size:10px}
+  .goal-icon{flex-basis:30px;width:30px;height:30px;font-size:17px}
+  .start-guide{grid-template-columns:1fr;gap:9px;margin:0 0 13px;padding:11px}
+  .guide-steps{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .guide-steps>div{align-items:flex-start;gap:5px}
+  .guide-steps b{font-size:10px}.guide-steps small{font-size:9px}
+  .tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:13px}
+  .tabs button{font-size:11px;min-height:40px;padding:6px 2px}
+  .display{margin:10px 0 0;padding:34px 10px 19px;border-radius:18px}
+  .display .time{font-size:clamp(40px,12vw,61px);letter-spacing:-1.2px}
+  .settings,.presets,#panel,.laps,.stats,.help{padding:11px;border-radius:13px}
+  .controls button{min-height:46px;font-size:13px}
+}
+@media(max-width:370px){
+  .hero-actions{grid-template-columns:1fr}
+  .hero-action{display:flex;min-height:47px;padding:7px 9px}
+  .hero-action .qa-icon{width:29px;height:29px;flex-basis:29px}
+  .hero-action b{font-size:12px}.hero-action small{font-size:10px}
+  .hero-action .qa-arrow{display:block}
+  .guide-steps{grid-template-columns:1fr}
+  .guide-steps>div{align-items:center}
+}
+:root[data-theme="dark"]{
+  --bg:#0d1b20;--surface:#14272d;--ink:#eaf4f1;--muted:#a4bbb7;--line:#294147;
+  --go:#48d6b0;--go-ink:#062c25;--stop:#ff8875;--stop-ink:#2b100b;color-scheme:dark;
+}
+:root[data-theme="dark"] .hero,:root[data-theme="dark"] .display{background:linear-gradient(135deg,#102d34,#16473f 65%,#1c5a4d)}
+:root[data-theme="ocean"] .hero,:root[data-theme="ocean"] .display{background:linear-gradient(135deg,#122c48,#17496b 65%,#1b6678)}
+:root[data-theme="forest"] .hero,:root[data-theme="forest"] .display{background:linear-gradient(135deg,#1b3825,#2a5935 65%,#39734a)}
+:root[data-theme="rose"] .hero,:root[data-theme="rose"] .display{background:linear-gradient(135deg,#452238,#75304d 65%,#98516b)}
+
+
+/* ===== Sửa lỗi theo phản hồi: đồng hồ rộng, bố cục mobile, đủ bảng màu ===== */
+/* Bảng màu chỉ áp dụng cho giao diện Tự động/Sáng; không ghi đè các chủ đề khác. */
+:root[data-theme="light"]{--bg:#f4f7f8;--surface:#fff;--ink:#1b3038;--muted:#536b73;--line:#dbe5e8;--go:#2878d0;--go-ink:#fff;--stop:#c94c45;--stop-ink:#fff;color-scheme:light}
+:root[data-theme="ocean"]{--bg:#0a1628;--surface:#11233d;--ink:#e6f0fb;--muted:#a4bad2;--line:#294765;--go:#38bdf8;--go-ink:#04263a;--stop:#fb923c;--stop-ink:#2b1100;color-scheme:dark}
+:root[data-theme="forest"]{--bg:#edf5e9;--surface:#fbfdf9;--ink:#20331f;--muted:#52694f;--line:#d2e1ca;--go:#398344;--go-ink:#fff;--stop:#b8431f;--stop-ink:#fff;color-scheme:light}
+:root[data-theme="rose"]{--bg:#fff0f4;--surface:#fffafb;--ink:#3a1a29;--muted:#805a69;--line:#efd3dd;--go:#cf3976;--go-ink:#fff;--stop:#7045a2;--stop-ink:#fff;color-scheme:light}
+:root[data-theme="dark"]{--bg:#0d1b20;--surface:#14272d;--ink:#eaf4f1;--muted:#a4bbb7;--line:#294147;--go:#48d6b0;--go-ink:#062c25;--stop:#ff8875;--stop-ink:#2b100b;color-scheme:dark}
+/* Timer is the main tool: use the full available width and a genuinely large dial. */
+.wrap{width:100%;min-width:0}
+.left,.right{min-width:0}
+#disp{width:100%;min-width:0;max-width:none;min-height:0}
+.dial{width:min(100%,430px);max-width:100%;aspect-ratio:1;margin-inline:auto}
+.dialin{width:86%}
+.dial .time{font-size:clamp(42px,13vw,76px);letter-spacing:-1.4px}
+.dial .time.long{font-size:clamp(30px,8.8vw,48px)}
+.display{padding:48px 14px 28px}
+/* Keep quick help available at the bottom, with clear separation from settings. */
+.help{display:block;margin:22px 0 20px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.help summary{padding:6px 0;font-size:16px;color:var(--ink)}
+.help[open] div{padding-top:8px}
+/* On phones the timer and its controls must stack at full width, never form a narrow column. */
+@media(max-width:759px){
+  main{width:100%;max-width:100%;padding:14px 14px 34px}
+  .wrap{display:flex;flex-direction:column;gap:0;margin-top:14px}
+  .left,.right{display:contents}
+  #disp{order:1;width:100%;margin:0 0 14px;padding:45px 12px 24px;border-radius:22px}
+  .dial{width:min(100%,min(84vw,390px));}
+  .dial .time{font-size:clamp(48px,14vw,72px)}
+  .dial .time.long{font-size:clamp(30px,9vw,46px)}
+  #settings{order:2;width:100%} #presets{order:3;width:100%} #ctl{order:4;width:100%}
+  #panel{order:5;width:100%} #laps{order:6;width:100%}
+  .controls{width:100%;grid-template-columns:minmax(90px,.8fr) minmax(0,1.8fr)}
+  .controls button{min-width:0;padding:13px 8px;font-size:15px;min-height:52px}
+  .tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;gap:5px}
+  .tabs button{flex:0 0 auto;min-width:max-content;padding:8px 12px;font-size:13px}
+  .goal-card b{font-size:12px}.goal-card small{font-size:11px;line-height:1.35}
+  .help{margin-top:20px}
+}
+@media(min-width:760px){
+  #disp{width:100%}
+  .dial{width:min(100%,430px)}
+}
+
+
+/* ===== Theme system v4: four curated premium palettes + reliable dark contrast ===== */
+:root[data-theme="mint"]{--bg:#eef7f4;--surface:#fbfffd;--ink:#163b36;--muted:#547a72;--line:#d0e6df;--go:#2cc7a4;--go-ink:#06382f;--stop:#df6d5d;--stop-ink:#fff;color-scheme:light}
+:root[data-theme="midnight"]{--bg:#080f1b;--surface:#111d2e;--ink:#edf3ff;--muted:#a5b4cc;--line:#2a3b53;--go:#a78bfa;--go-ink:#180e35;--stop:#fb7185;--stop-ink:#350610;color-scheme:dark}
+:root[data-theme="aurora"]{--bg:#101325;--surface:#1b2038;--ink:#f4f2ff;--muted:#b8b8d4;--line:#393957;--go:#67e8c4;--go-ink:#092e2b;--stop:#f9a86b;--stop-ink:#3b1a05;color-scheme:dark}
+:root[data-theme="glass"]{--bg:#edf2fa;--surface:rgba(255,255,255,.82);--ink:#1b2b48;--muted:#5e6d89;--line:#cbd8ec;--go:#637ff0;--go-ink:#fff;--stop:#e66e9b;--stop-ink:#fff;color-scheme:light}
+:root[data-theme="mint"] .hero,:root[data-theme="mint"] .display{background:linear-gradient(135deg,#164b46,#197765 65%,#38a88a)}
+:root[data-theme="midnight"] .hero,:root[data-theme="midnight"] .display{background:linear-gradient(135deg,#17172e,#29264b 60%,#44336b)}
+:root[data-theme="aurora"] .hero,:root[data-theme="aurora"] .display{background:linear-gradient(130deg,#122e39,#23415a 52%,#49386a)}
+:root[data-theme="glass"] .hero,:root[data-theme="glass"] .display{background:linear-gradient(135deg,#dbe8ff,#d9d7ff 55%,#c9f2e8);color:#172746}
+:root[data-theme="glass"] .hero h2,:root[data-theme="glass"] .hero p,:root[data-theme="glass"] .hero-time-label,:root[data-theme="glass"] .hero-clock,:root[data-theme="glass"] .hero-date{color:#172746}
+:root[data-theme="glass"] .display .time,:root[data-theme="glass"] .display .phase,:root[data-theme="glass"] .display .lapnow{color:#172746}
+/* Fix mixed light/dark cards: every surface inherits the selected palette. */
+:root[data-theme="dark"] .settings,:root[data-theme="dark"] .presets,:root[data-theme="dark"] #panel,:root[data-theme="dark"] .laps,:root[data-theme="dark"] .stats,:root[data-theme="dark"] .help,:root[data-theme="dark"] .extras,
+:root[data-theme="ocean"] .settings,:root[data-theme="ocean"] .presets,:root[data-theme="ocean"] #panel,:root[data-theme="ocean"] .laps,:root[data-theme="ocean"] .stats,:root[data-theme="ocean"] .help,:root[data-theme="ocean"] .extras,
+:root[data-theme="midnight"] .settings,:root[data-theme="midnight"] .presets,:root[data-theme="midnight"] #panel,:root[data-theme="midnight"] .laps,:root[data-theme="midnight"] .stats,:root[data-theme="midnight"] .help,:root[data-theme="midnight"] .extras,
+:root[data-theme="aurora"] .settings,:root[data-theme="aurora"] .presets,:root[data-theme="aurora"] #panel,:root[data-theme="aurora"] .laps,:root[data-theme="aurora"] .stats,:root[data-theme="aurora"] .help,:root[data-theme="aurora"] .extras{background:var(--surface);color:var(--ink);border-color:var(--line)}
+:root[data-theme="dark"] .card,:root[data-theme="ocean"] .card,:root[data-theme="midnight"] .card,:root[data-theme="aurora"] .card,
+:root[data-theme="dark"] .foot,:root[data-theme="ocean"] .foot,:root[data-theme="midnight"] .foot,:root[data-theme="aurora"] .foot{background:color-mix(in srgb,var(--surface) 90%,var(--go) 10%);color:var(--ink);border-color:var(--line)}
+:root[data-theme="dark"] .settings h2,:root[data-theme="dark"] .stats h2,:root[data-theme="dark"] .extras summary,:root[data-theme="ocean"] .settings h2,:root[data-theme="ocean"] .stats h2,:root[data-theme="ocean"] .extras summary,:root[data-theme="midnight"] .settings h2,:root[data-theme="midnight"] .stats h2,:root[data-theme="midnight"] .extras summary,:root[data-theme="aurora"] .settings h2,:root[data-theme="aurora"] .stats h2,:root[data-theme="aurora"] .extras summary{color:var(--ink)}
+:root[data-theme="dark"] .start-guide,:root[data-theme="ocean"] .start-guide,:root[data-theme="midnight"] .start-guide,:root[data-theme="aurora"] .start-guide{background:var(--surface);color:var(--ink);border-color:var(--line)}
+:root[data-theme="dark"] .goal-launch,:root[data-theme="ocean"] .goal-launch,:root[data-theme="midnight"] .goal-launch,:root[data-theme="aurora"] .goal-launch{background:var(--surface);color:var(--ink)}
+:root[data-theme="glass"] .goal-launch,:root[data-theme="glass"] .start-guide,:root[data-theme="glass"] .settings,:root[data-theme="glass"] .presets,:root[data-theme="glass"] #panel,:root[data-theme="glass"] .laps,:root[data-theme="glass"] .stats,:root[data-theme="glass"] .help,:root[data-theme="glass"] .extras{background:var(--surface);color:var(--ink);border-color:var(--line);backdrop-filter:blur(14px)}
+:root[data-theme="midnight"] .tabs button[aria-selected="true"],:root[data-theme="aurora"] .tabs button[aria-selected="true"]{color:var(--go-ink)}
+:root[data-theme="glass"] .tabs button[aria-selected="true"]{color:#fff}
+@media(max-width:620px){.display .time{font-size:clamp(44px,13vw,68px)}.dial{width:min(100%,390px)}}
+
+/* ===== V5: each premium theme has its own visual language, not just recolored surfaces ===== */
+/* Shared transition */
+body, .hero, .display, .card, .goal-launch, .start-guide, .settings, .presets, #panel, .laps, .stats, .help, .extras, .foot, .tabs, button, input, select { transition: background .28s ease, color .2s ease, border-color .2s ease, box-shadow .28s ease, transform .2s ease; }
+/* Mint Studio — botanical, soft paper, jade accent */
+:root[data-theme="mint"] body{background:radial-gradient(ellipse at 8% 0%,#d4f1e7 0,transparent 38%),radial-gradient(ellipse at 100% 35%,#dcefe4 0,transparent 35%),#edf7f2}
+:root[data-theme="mint"] main{background:transparent}
+:root[data-theme="mint"] .hero{border:1px solid #8dcdb9;border-radius:30px;box-shadow:0 18px 45px #1b80631a;position:relative;overflow:hidden}
+:root[data-theme="mint"] .hero:after{content:"";position:absolute;width:230px;height:230px;border:1px solid #b5f2df55;border-radius:48% 52% 65% 35%;right:-105px;top:-80px;transform:rotate(28deg);pointer-events:none}
+:root[data-theme="mint"] .display{border:1px solid #5cc9ad;border-radius:28px;box-shadow:0 14px 34px #1d79651c;}
+:root[data-theme="mint"] .settings,:root[data-theme="mint"] .presets,:root[data-theme="mint"] #panel,:root[data-theme="mint"] .laps,:root[data-theme="mint"] .stats,:root[data-theme="mint"] .help,:root[data-theme="mint"] .extras,:root[data-theme="mint"] .start-guide,:root[data-theme="mint"] .goal-launch{border-radius:20px;border-color:#cce7dc;box-shadow:0 7px 22px #1b80630b}
+:root[data-theme="mint"] button{border-radius:14px}
+:root[data-theme="mint"] .tabs button[aria-selected="true"]{background:#1b9d80;color:white;box-shadow:0 5px 14px #14896c38}
+/* Midnight Luxe — midnight velvet, violet + champagne, editorial typography */
+:root[data-theme="midnight"] body{background:radial-gradient(ellipse at 50% -12%,#30274d 0,transparent 42%),radial-gradient(ellipse at 100% 70%,#171d38 0,transparent 42%),#080d18}
+:root[data-theme="midnight"] main{background:transparent}
+:root[data-theme="midnight"] h1,:root[data-theme="midnight"] .hero h2,:root[data-theme="midnight"] .stats h2{letter-spacing:-.035em}
+:root[data-theme="midnight"] .hero{background:linear-gradient(145deg,#19172e 0%,#292342 52%,#49324c 100%);border:1px solid #76618b;border-radius:12px 28px 12px 28px;box-shadow:0 18px 48px #0008;position:relative;overflow:hidden}
+:root[data-theme="midnight"] .hero:after{content:"✦   ·      ✧        ·   ✦";position:absolute;right:10px;top:14px;color:#e7c98b99;font-size:18px;letter-spacing:10px;pointer-events:none}
+:root[data-theme="midnight"] .display{background:radial-gradient(circle at 50% 42%,#302746,#17192c 68%);border:1px solid #a58b66;border-radius:12px 28px 12px 28px;box-shadow:inset 0 0 0 5px #d5bd8b0b,0 16px 38px #0007}
+:root[data-theme="midnight"] .display .time{font-family:Georgia,"Times New Roman",serif;font-weight:400;letter-spacing:.015em;color:#f3e8d1}
+:root[data-theme="midnight"] .phase,:root[data-theme="midnight"] .lapnow{color:#c6b4d7}
+:root[data-theme="midnight"] .settings,:root[data-theme="midnight"] .presets,:root[data-theme="midnight"] #panel,:root[data-theme="midnight"] .laps,:root[data-theme="midnight"] .stats,:root[data-theme="midnight"] .help,:root[data-theme="midnight"] .extras,:root[data-theme="midnight"] .start-guide{background:linear-gradient(145deg,#141c2b,#17182b);border:1px solid #34334d;border-radius:12px 22px 12px 22px;box-shadow:0 10px 28px #0003}
+:root[data-theme="midnight"] .goal-launch{background:linear-gradient(110deg,#1a2031,#211d34);border:1px solid #4a3c59;border-radius:12px 20px 12px 20px}
+:root[data-theme="midnight"] button{border-radius:10px 16px 10px 16px;border-color:#40364f}
+:root[data-theme="midnight"] #main.go,:root[data-theme="midnight"] .tabs button[aria-selected="true"]{background:linear-gradient(110deg,#d7bd85,#a88ad2);color:#171326;border-color:transparent;box-shadow:0 5px 20px #bca0e333}
+:root[data-theme="midnight"] .bar{background:#303047}
+/* Aurora Pop — luminous northern lights, colored ambient glow, playful pill controls */
+:root[data-theme="aurora"] body{background:radial-gradient(ellipse at 0% 5%,#164f5b 0,transparent 35%),radial-gradient(ellipse at 100% 18%,#49346b 0,transparent 36%),radial-gradient(ellipse at 55% 100%,#17443f 0,transparent 38%),#101325}
+:root[data-theme="aurora"] main{background:transparent}
+:root[data-theme="aurora"] .hero{background:linear-gradient(125deg,#133e4a,#24415f 48%,#4b3268);border:1px solid #4c7587;border-radius:28px;box-shadow:0 0 0 1px #67e8c422,0 18px 50px #0004;position:relative;overflow:hidden}
+:root[data-theme="aurora"] .hero:after{content:"";position:absolute;left:35%;bottom:-115px;width:280px;height:190px;border-radius:50%;background:#67e8c42b;filter:blur(28px);pointer-events:none}
+:root[data-theme="aurora"] .display{background:radial-gradient(ellipse at 50% 100%,#285f67 0,#1d2a48 60%,#1a2038 100%);border:1px solid #507b88;border-radius:50px 20px 50px 20px;box-shadow:0 0 32px #67e8c414,inset 0 1px #ffffff14}
+:root[data-theme="aurora"] .display .time{font-weight:650;text-shadow:0 0 26px #67e8c42b}
+:root[data-theme="aurora"] .settings,:root[data-theme="aurora"] .presets,:root[data-theme="aurora"] #panel,:root[data-theme="aurora"] .laps,:root[data-theme="aurora"] .stats,:root[data-theme="aurora"] .help,:root[data-theme="aurora"] .extras,:root[data-theme="aurora"] .start-guide{background:linear-gradient(135deg,#1b243b,#202039);border:1px solid #3c506b;border-radius:22px;box-shadow:0 9px 28px #0002}
+:root[data-theme="aurora"] .goal-launch{background:linear-gradient(110deg,#1a3543,#272b49);border:1px solid #3d6471;border-radius:18px}
+:root[data-theme="aurora"] button{border-radius:999px;border-color:#40536b}
+:root[data-theme="aurora"] #main.go,:root[data-theme="aurora"] .tabs button[aria-selected="true"]{background:linear-gradient(100deg,#67e8c4,#7dd3fc 55%,#c4b5fd);color:#122238;border:0;box-shadow:0 6px 22px #67e8c42a}
+:root[data-theme="aurora"] .bar i{background:linear-gradient(90deg,#67e8c4,#7dd3fc,#c4b5fd)}
+/* Glass Luxe — airy glassmorphism, lavender/ice/mint gradient, translucent layered panels */
+:root[data-theme="glass"] body{background:radial-gradient(ellipse at 10% 0%,#b9d7ff 0,transparent 38%),radial-gradient(ellipse at 100% 28%,#e0caff 0,transparent 35%),radial-gradient(ellipse at 40% 100%,#bcefe1 0,transparent 40%),#edf2fa;background-attachment:fixed}
+:root[data-theme="glass"] main{background:transparent}
+:root[data-theme="glass"] .hero{background:linear-gradient(135deg,#ffffffb8,#e3e8ffb8 50%,#d1f7edbd);border:1px solid #ffffffd9;border-radius:32px;box-shadow:0 20px 48px #526b9630,inset 0 1px #fff;backdrop-filter:blur(22px);position:relative;overflow:hidden}
+:root[data-theme="glass"] .hero:after{content:"";position:absolute;width:210px;height:210px;right:-95px;top:-90px;border:1px solid #ffffffb8;border-radius:50%;box-shadow:0 0 0 24px #ffffff24,0 0 0 50px #ffffff1a;pointer-events:none}
+:root[data-theme="glass"] .display{background:linear-gradient(145deg,#ffffffcc,#e5eaffad 58%,#d7fff0bd);border:1px solid #ffffffed;border-radius:28px;box-shadow:0 18px 40px #61759b29,inset 0 1px #fff;backdrop-filter:blur(22px)}
+:root[data-theme="glass"] .settings,:root[data-theme="glass"] .presets,:root[data-theme="glass"] #panel,:root[data-theme="glass"] .laps,:root[data-theme="glass"] .stats,:root[data-theme="glass"] .help,:root[data-theme="glass"] .extras,:root[data-theme="glass"] .start-guide,:root[data-theme="glass"] .goal-launch,:root[data-theme="glass"] .tabs{background:#ffffffa8;border:1px solid #ffffffd9;border-radius:22px;box-shadow:0 12px 30px #61759b18,inset 0 1px #fff;backdrop-filter:blur(18px)}
+:root[data-theme="glass"] button{background:#ffffff9c;border-color:#cbd8ec;border-radius:16px;box-shadow:0 3px 9px #536d9512}
+:root[data-theme="glass"] #main.go,:root[data-theme="glass"] .tabs button[aria-selected="true"]{background:linear-gradient(110deg,#637ff0,#8f8af5 55%,#48cdb1);color:#fff;border:0;box-shadow:0 7px 18px #637ff044}
+:root[data-theme="glass"] input,:root[data-theme="glass"] select{background:#ffffffb8;border-color:#cbd8ec}
+/* Theme-aware lower navigation and readable text */
+:root[data-theme="mint"] .bottom-nav,:root[data-theme="midnight"] .bottom-nav,:root[data-theme="aurora"] .bottom-nav,:root[data-theme="glass"] .bottom-nav{border-color:var(--line)}
+:root[data-theme="midnight"] .muted,:root[data-theme="aurora"] .muted{color:var(--muted)}
+@media(max-width:620px){
+ :root[data-theme="midnight"] .display{border-radius:10px 22px 10px 22px}
+ :root[data-theme="aurora"] .display{border-radius:34px 16px 34px 16px}
+ :root[data-theme="glass"] .hero,:root[data-theme="glass"] .display{backdrop-filter:blur(12px)}
+}
+
+
+/* V6 readability patch: explicit contrast tokens per premium theme; prevent OS dark-mode bleed */
+:root[data-theme="mint"]{--bg:#edf7f2;--surface:#ffffff;--ink:#163a32;--muted:#4f7168;--line:#c7e0d6;--go:#16866e;--go-ink:#ffffff;--stop:#b9382b;--stop-ink:#ffffff;color-scheme:light}
+:root[data-theme="midnight"]{--bg:#0b0e19;--surface:#171a2a;--ink:#f5f0e7;--muted:#c5bdd4;--line:#454058;--go:#d9bd83;--go-ink:#1d1726;--stop:#ff8d79;--stop-ink:#29100d;color-scheme:dark}
+:root[data-theme="aurora"]{--bg:#101526;--surface:#1c263d;--ink:#f2f7ff;--muted:#b9c8df;--line:#40516c;--go:#72e8ce;--go-ink:#102b35;--stop:#ff8e9d;--stop-ink:#301323;color-scheme:dark}
+:root[data-theme="glass"]{--bg:#edf2fa;--surface:#f9fbff;--ink:#202b45;--muted:#53647d;--line:#c7d4e8;--go:#496de0;--go-ink:#ffffff;--stop:#b9345a;--stop-ink:#ffffff;color-scheme:light}
+/* Each theme explicitly sets text and form colors, avoiding pale text on white surfaces. */
+:root[data-theme="mint"] body,:root[data-theme="midnight"] body,:root[data-theme="aurora"] body,:root[data-theme="glass"] body{color:var(--ink)}
+:root[data-theme="mint"] .settings,:root[data-theme="mint"] .presets,:root[data-theme="mint"] #panel,:root[data-theme="mint"] .laps,:root[data-theme="mint"] .stats,:root[data-theme="mint"] .help,:root[data-theme="mint"] .extras,:root[data-theme="mint"] .start-guide,:root[data-theme="mint"] .goal-launch,:root[data-theme="mint"] .tabs{color:#163a32}
+:root[data-theme="glass"] .hero,:root[data-theme="glass"] .display,:root[data-theme="glass"] .settings,:root[data-theme="glass"] .presets,:root[data-theme="glass"] #panel,:root[data-theme="glass"] .laps,:root[data-theme="glass"] .stats,:root[data-theme="glass"] .help,:root[data-theme="glass"] .extras,:root[data-theme="glass"] .start-guide,:root[data-theme="glass"] .goal-launch,:root[data-theme="glass"] .tabs{color:#202b45}
+:root[data-theme="mint"] .muted,:root[data-theme="mint"] .hint,:root[data-theme="mint"] .foot,:root[data-theme="mint"] .stats h2,:root[data-theme="mint"] .laps h2{color:#4f7168}
+:root[data-theme="glass"] .muted,:root[data-theme="glass"] .phase,:root[data-theme="glass"] .lapnow,:root[data-theme="glass"] .hint,:root[data-theme="glass"] .foot,:root[data-theme="glass"] .stats h2,:root[data-theme="glass"] .laps h2{color:#53647d}
+:root[data-theme="midnight"] .muted,:root[data-theme="midnight"] .phase,:root[data-theme="midnight"] .lapnow,:root[data-theme="midnight"] .hint,:root[data-theme="midnight"] .foot,:root[data-theme="midnight"] .stats h2,:root[data-theme="midnight"] .laps h2,:root[data-theme="aurora"] .muted,:root[data-theme="aurora"] .phase,:root[data-theme="aurora"] .lapnow,:root[data-theme="aurora"] .hint,:root[data-theme="aurora"] .foot,:root[data-theme="aurora"] .stats h2,:root[data-theme="aurora"] .laps h2{color:var(--muted)}
+:root[data-theme="midnight"] .settings label,:root[data-theme="midnight"] .settings p,:root[data-theme="midnight"] .settings span,:root[data-theme="midnight"] .stats,:root[data-theme="midnight"] .help,:root[data-theme="midnight"] .extras,:root[data-theme="midnight"] .start-guide,:root[data-theme="aurora"] .settings label,:root[data-theme="aurora"] .settings p,:root[data-theme="aurora"] .settings span,:root[data-theme="aurora"] .stats,:root[data-theme="aurora"] .help,:root[data-theme="aurora"] .extras,:root[data-theme="aurora"] .start-guide{color:var(--ink)}
+:root[data-theme="midnight"] input,:root[data-theme="midnight"] select,:root[data-theme="midnight"] textarea,:root[data-theme="aurora"] input,:root[data-theme="aurora"] select,:root[data-theme="aurora"] textarea{background:#111a2a;color:var(--ink);border-color:var(--line);color-scheme:dark}
+:root[data-theme="mint"] input,:root[data-theme="mint"] select,:root[data-theme="mint"] textarea,:root[data-theme="glass"] input,:root[data-theme="glass"] select,:root[data-theme="glass"] textarea{background:#fff;color:var(--ink);border-color:var(--line);color-scheme:light}
+:root[data-theme="mint"] button:not(#main.go):not(#main.stop),:root[data-theme="glass"] button:not(#main.go):not(#main.stop){color:var(--ink)}
+:root[data-theme="midnight"] button:not(#main.go):not(#main.stop),:root[data-theme="aurora"] button:not(#main.go):not(#main.stop){color:var(--ink)}
+:root[data-theme="midnight"] .hero{color:#f5f0e7}
+:root[data-theme="aurora"] .hero{color:#f2f7ff}
+:root[data-theme="glass"] .hero{background:linear-gradient(135deg,#ffffffef,#e6ecffed 50%,#d9f8efed)}
+:root[data-theme="glass"] .display{background:linear-gradient(145deg,#ffffff,#e8edff 58%,#e0f9f1)}
+:root[data-theme="glass"] .settings,:root[data-theme="glass"] .presets,:root[data-theme="glass"] #panel,:root[data-theme="glass"] .laps,:root[data-theme="glass"] .stats,:root[data-theme="glass"] .help,:root[data-theme="glass"] .extras,:root[data-theme="glass"] .start-guide,:root[data-theme="glass"] .goal-launch,:root[data-theme="glass"] .tabs{background:#f8faffed}
+:root[data-theme="midnight"] .display{color:#f5f0e7}
+:root[data-theme="aurora"] .display{color:#f2f7ff}
+
+
+/* ===== V7: sửa lỗi sau khi kiểm thử ===== */
+/* Nhãn LIVE TIMER bị thanh 4px đè mất; trả lại nhãn, bỏ thanh lệch trái */
+.display::before{content:"LIVE TIMER";inset:auto;left:16px;top:14px;width:auto;height:auto;background:none;opacity:1;font-size:10px;font-weight:800;letter-spacing:1.5px;color:#a7ead8}
+/* Điện thoại: thanh dưới không che nội dung cuối trang; ẩn thanh tab trùng lặp */
+@media(max-width:620px){
+  main{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+  .tabs{display:none}
+}
+/* Máy tính: 12 tab chia lưới 6 cột gọn gàng, bố cục không lệch nửa trang */
+@media(min-width:760px){
+  .tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));overflow:visible}
+  .tabs button{width:100%;min-width:0;padding:10px 6px;text-align:center}
+  .hint,.help{max-width:none}
+  .extras-content .foot,.extras-content .stats{max-width:none}
+  body[data-m="sw"] #laps[hidden]{display:block!important}
+  body[data-m="sw"] #list:empty::before{content:"Chưa có vòng nào. Bấm “Vòng” khi đồng hồ đang chạy để ghi lại.";display:block;padding:14px 4px;color:var(--muted);font-size:14px;border-bottom:1px solid var(--line)}
+  body[data-m="sw"] .laps:has(#list:empty) #copylaps{display:none}
+}
+/* Hộp "Cài đặt & thống kê" đang có 2 mũi tên/dấu cộng cùng lúc */
+.extras-chevron{display:none}
+/* Chế độ tập trung: viền thừa, nút Đặt lại trắng chói, màu chữ theo theme sáng */
+body.focus .display{background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-radius:0!important}
+body.focus .display .time,body.focus .dial .time{color:#fff!important}
+body.focus .display .time .cs{color:#8be0cb!important}
+body.focus .display .phase,body.focus .display .lapnow{color:#b9d8d4!important}
+body.focus .rt{stroke:rgba(255,255,255,.14)!important}
+body.focus .focusbtn{background:rgba(255,255,255,.1)!important;color:#e8f1f3!important;border-color:rgba(255,255,255,.28)!important}
+body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!important;border-color:rgba(255,255,255,.2)!important}
+/* Chữ nhỏ màu nhấn trên nền sáng: dùng bản đậm hơn để đủ tương phản; theme tối giữ màu sáng */
+:root[data-theme="dark"],:root[data-theme="ocean"],:root[data-theme="midnight"],:root[data-theme="aurora"]{--go-text:var(--go)}
+@media(prefers-color-scheme:dark){:root:not([data-theme]){--go-text:var(--go)}}
+.goal-eyebrow,li.best .d,.guide-mark,.extras-icon{color:var(--go-text)}
+/* Nút "Bấm giờ" nổi bật trong hero: chữ phải tối trên nền xanh mint (midnight/aurora đang ép chữ sáng) */
+.hero-action.primary,.hero-action.primary *{color:#0b2e35!important}
+:root[data-theme="glass"] .hero-action.primary{background:#4a68d9;border-color:#4a68d9}
+:root[data-theme="glass"] .hero-action.primary,:root[data-theme="glass"] .hero-action.primary *{color:#fff!important}
+:root[data-theme="mint"] .hero p{color:#e3f4f0}
+:root[data-theme="mint"] .hero-kicker{color:#d6fbf0}
+/* Glass Luxe: phần đồng hồ và hero nền sáng cần màu chữ, vòng và nút tối */
+:root[data-theme="glass"] .display::before{color:#53647d}
+:root[data-theme="glass"] .rt{stroke:rgba(23,39,70,.13)}
+:root[data-theme="glass"] .display .time .cs{color:#53647d}
+:root[data-theme="glass"] .focusbtn{background:rgba(23,39,70,.06);color:#172746;border-color:rgba(23,39,70,.22)}
+:root[data-theme="glass"] .display[data-state="idle"],:root[data-theme="glass"] .display[data-state="work"]{--ring:#4f6fe0}
+:root[data-theme="glass"] .display[data-state="pause"]{--ring:#7b8aa8}
+:root[data-theme="glass"] .display[data-state="rest"]{--ring:#d9731a}
+:root[data-theme="glass"] .display[data-state="warn"]{--ring:#d1453b}
+:root[data-theme="glass"] .display[data-state="rest"]::after{background:linear-gradient(145deg,#fff1e2,#ffddb8)}
+:root[data-theme="glass"] .display[data-state="warn"]::after{background:linear-gradient(145deg,#ffe6e3,#ffc7c0)}
+:root[data-theme="glass"] .hero-kicker{color:#2f6f66}
+:root[data-theme="glass"] .hero h2 span{color:#3b5ccc}
+:root[data-theme="glass"] .hero-action{color:#172746;background:rgba(255,255,255,.7);border-color:rgba(23,39,70,.16)}
+:root[data-theme="glass"] .hero-note{color:#53647d;background:rgba(23,39,70,.07)}
+:root[data-theme="glass"] .hero-note span{color:#2f8f78}
 </style>
 </head>
 <body>
@@ -485,6 +1059,24 @@ button:active:not(:disabled){transform:scale(.97)}
       <div class="hero-note"><span>●</span> Không cần tài khoản</div>
     </div>
   </section>
+  <section class="start-guide" aria-label="Cách sử dụng nhanh">
+    <div class="guide-heading"><span class="guide-mark">✦</span><div><strong>Lần đầu sử dụng?</strong><small>Chỉ cần 3 bước để bắt đầu</small></div></div>
+    <div class="guide-steps"><div><span>1</span><p><b>Chọn công cụ</b><small>Ví dụ: Đếm ngược</small></p></div><div><span>2</span><p><b>Đặt thời gian</b><small>Nhập phút, giây</small></p></div><div><span>3</span><p><b>Bấm Bắt đầu</b><small>Thế là xong!</small></p></div></div>
+  </section>
+
+  <section class="goal-launch" aria-labelledby="goal-launch-title">
+    <div class="goal-launch-head"><div><span class="goal-eyebrow">BẮT ĐẦU THEO MỤC TIÊU</span><h2 id="goal-launch-title">Hôm nay bạn muốn làm gì?</h2><p>Không cần nhớ tên công cụ — chọn việc bạn muốn làm.</p></div><button type="button" id="goalReset" class="goal-reset" hidden>Đổi mục tiêu</button></div>
+    <div class="goal-grid" id="goalGrid">
+      <button type="button" class="goal-card" data-goal="study" data-mode="pomo"><span class="goal-icon">📚</span><span><b>Học tập trung</b><small>Học theo phiên, có giờ nghỉ</small></span><span class="goal-arrow">↗</span></button>
+      <button type="button" class="goal-card" data-goal="cook" data-mode="cook"><span class="goal-icon">🍳</span><span><b>Nấu ăn</b><small>Canh nhiều món cùng lúc</small></span><span class="goal-arrow">↗</span></button>
+      <button type="button" class="goal-card" data-goal="workout" data-mode="iv"><span class="goal-icon">💪</span><span><b>Tập luyện</b><small>Chia thời gian tập và nghỉ</small></span><span class="goal-arrow">↗</span></button>
+      <button type="button" class="goal-card" data-goal="relax" data-mode="breath"><span class="goal-icon">🌿</span><span><b>Thư giãn</b><small>Thực hành nhịp thở chậm</small></span><span class="goal-arrow">↗</span></button>
+      <button type="button" class="goal-card" data-goal="event" data-mode="days"><span class="goal-icon">📅</span><span><b>Đếm đến sự kiện</b><small>Kỳ thi, sinh nhật, chuyến đi</small></span><span class="goal-arrow">↗</span></button>
+      <button type="button" class="goal-card" data-goal="timer" data-mode="cd"><span class="goal-icon">⏳</span><span><b>Đặt giờ bất kỳ</b><small>Đếm ngược và báo khi hết</small></span><span class="goal-arrow">↗</span></button>
+    </div>
+    <div class="goal-foot" id="goalFoot" role="status">Mẹo: mục tiêu bạn chọn gần nhất sẽ được ghi nhớ trên thiết bị này.</div>
+  </section>
+
   <div class="section-label"><span>CHỌN CÔNG CỤ</span><span class="section-line"></span><span class="section-count">12 chế độ</span></div>
 
   <div class="tabs" role="tablist" id="tabs">
@@ -528,13 +1120,18 @@ button:active:not(:disabled){transform:scale(.97)}
   </section>
   </div></div>
   <p class="hint" id="hint"></p>
+  <details class="extras">
+    <summary><span class="extras-icon">⚙</span><span><b>Cài đặt & thống kê</b><small>Âm thanh, thông báo, giao diện và tiến độ</small></span><span class="extras-chevron">⌄</span></summary>
+    <div class="extras-content">
   <div class="foot"><label>Âm lượng <input type="range" id="vol" min="0" max="100" value="90" aria-label="Âm lượng"></label><button id="fs">Toàn màn hình</button></div>
   <div class="foot"><label>Tiếng báo <select id="snd" aria-label="Tiếng báo"></select></label></div>
   <div class="foot sound-tools"><span class="sound-help">Nghe thử âm báo đang chọn</span><button type="button" id="testSound">▶ Thử âm báo</button></div>
   <div class="foot"><label>Âm nền <select id="amb" aria-label="Âm nền"><option value="off">Tắt</option><option value="rain">Tiếng mưa</option><option value="white">Ồn trắng</option><option value="brown">Ồn nâu</option></select></label></div>
   <div class="foot notify-tools"><label class="chk"><input type="checkbox" id="notifyToggle"> Thông báo khi hết giờ</label><button type="button" id="notifyPermission">Bật thông báo</button></div><p class="notify-note" id="notifyStatus" role="status">Thông báo trình duyệt đang tắt.</p>
-  <div class="foot"><label>Giao diện <select id="thm" aria-label="Giao diện"><option value="auto">Tự động</option><option value="light">Sáng</option><option value="dark">Tối</option><option value="ocean">Biển</option><option value="forest">Rừng</option><option value="rose">Hồng</option></select></label><label class="chk"><input type="checkbox" id="big"> Chữ to</label><label class="chk"><input type="checkbox" id="hap"> Rung nhẹ</label></div>
+  <div class="foot"><label>Giao diện <select id="thm" aria-label="Giao diện"><option value="auto">Tự động</option><option value="light">Sáng</option><option value="dark">Tối</option><option value="ocean">Biển</option><option value="forest">Rừng</option><option value="rose">Hồng</option><option value="mint">Mint Studio</option><option value="midnight">Midnight Luxe</option><option value="aurora">Aurora Pop</option><option value="glass">Glass Luxe</option></select></label><label class="chk"><input type="checkbox" id="big"> Chữ to</label><label class="chk"><input type="checkbox" id="hap"> Rung nhẹ</label></div>
   <section class="stats"><h2>Thống kê</h2><div id="st-goal"></div><div id="st-today"></div><div id="st-sum" class="sum"></div><div id="st-heat" class="heat" role="img" aria-label="Lịch hoạt động 15 tuần gần nhất"></div><div class="hlg"><span>Ít</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>Nhiều</span></div><div class="goalset"><label for="st-goal-in">Mục tiêu mỗi ngày</label><input id="st-goal-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="30" autocomplete="off"><span>phút</span></div><button id="st-clear">Xóa thống kê</button></section>
+    </div>
+  </details>
   <details class="help"><summary>Hướng dẫn nhanh</summary><div>
     <p><b>Bấm giờ</b> là trang web miễn phí gồm nhiều loại đồng hồ: bấm giờ, đếm ngược, Pomodoro, tập luyện, đồng hồ thi, đồng hồ cờ vua, nhắc nhở lặp lại, đếm ngược đến Tết và các ngày lễ, giờ thế giới. Không cần đăng ký, dùng được cả khi không có mạng.</p>
     <p><b>Bấm giờ:</b> đếm lên, ghi vòng (mỗi lần dừng cũng thành một vòng).<br>
@@ -558,7 +1155,20 @@ button:active:not(:disabled){transform:scale(.97)}
 </nav>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Tất cả công cụ">
   <div class="sheet-bg" id="sheetbg"></div>
-  <div class="sheet-card"><div class="sheet-grip"></div><div class="sheet-title">Thêm công cụ</div><div class="sheet-grid" id="sgrid"></div></div>
+  <div class="sheet-card"><div class="sheet-grip"></div><div class="sheet-title">Tìm công cụ phù hợp</div>
+    <div class="tool-search"><input id="toolSearch" type="search" placeholder="Thử: học bài, thi, nấu ăn…" autocomplete="off" aria-label="Tìm công cụ theo tên hoặc mục đích"><div class="tool-search-hint">12 công cụ trong một nơi. Tìm theo tên hoặc chọn nhóm bên dưới; ☆ để ghim yêu thích.</div></div>
+    <div class="tool-filters" id="toolFilters" aria-label="Lọc theo nhóm">
+      <button type="button" data-filter="all" aria-pressed="true">Tất cả</button>
+      <button type="button" data-filter="study" aria-pressed="false">📚 Học tập</button>
+      <button type="button" data-filter="timer" aria-pressed="false">⏱️ Bộ đếm giờ</button>
+      <button type="button" data-filter="daily" aria-pressed="false">🏠 Sinh hoạt</button>
+      <button type="button" data-filter="relax" aria-pressed="false">🌿 Thư giãn</button>
+      <button type="button" data-filter="games" aria-pressed="false">♟️ Trò chơi</button>
+    </div>
+    <div class="tool-section" id="favSection"><div class="tool-section-label">★ Yêu thích</div><div class="sheet-grid" id="favGrid"></div></div>
+    <div class="tool-section" id="recentSection"><div class="tool-section-label">↻ Dùng gần đây</div><div class="sheet-grid" id="recentGrid"></div></div>
+    <div class="tool-results" id="allSection"><div class="tool-section-label">Tất cả công cụ <span id="toolCount"></span></div><div class="sheet-grid" id="sgrid"></div></div>
+  </div>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <div id="alertbox" role="alertdialog" aria-modal="true" aria-labelledby="atitle" hidden>
@@ -1727,10 +2337,52 @@ button:active:not(:disabled){transform:scale(.97)}
   /* Thanh điều hướng dưới */
   var ICON={sw:'⏱️',cd:'⏳',pomo:'🍅',iv:'💪',seq:'📋',exam:'📝',days:'📅',chess:'♟️',cook:'🍳',breath:'🌬️',rem:'🔔',world:'🌍'};
   var EXTRA=['seq','exam','days','chess','cook','breath','rem','world'];
+  var ALL=['sw','cd','pomo','iv','seq','exam','days','chess','cook','breath','rem','world'];
+  var DESCR={sw:'Đo thời gian đã trôi qua, ghi vòng',cd:'Đặt phút giây và báo khi hết giờ',pomo:'Học tập trung xen kẽ thời gian nghỉ',iv:'Tập luyện theo vòng tập và nghỉ',seq:'Chia công việc thành nhiều bước',exam:'Canh giờ làm bài và mốc báo',days:'Đếm đến kỳ thi, sinh nhật, sự kiện',chess:'Đồng hồ cho hai người chơi cờ',cook:'Hẹn giờ nhiều món ăn cùng lúc',breath:'Hít thở chậm để thư giãn',rem:'Nhắc nghỉ mắt hoặc việc định kỳ',world:'Xem giờ ở nhiều thành phố'};
   var tabs=$('tabs'),nav=$('bnav'),more=$('bmore'),sheet=$('sheet'),grid=$('sgrid');
+  var search=$('toolSearch'),favGrid=$('favGrid'),recentGrid=$('recentGrid');
+  var favs=[],recent=[],activeFilter='all';
+  var CATS={sw:'timer',cd:'timer',pomo:'study',iv:'daily',seq:'study',exam:'study',days:'daily',chess:'games',cook:'daily',breath:'relax',rem:'daily',world:'daily'};
+  var ALIASES={sw:'stopwatch lap split đo thời gian bấm giờ',cd:'hẹn giờ đếm lùi báo thức đếm ngược',pomo:'học bài tập trung nghỉ pomodoro học tập',iv:'tập thể dục workout vận động nghỉ',seq:'các bước quy trình việc cần làm checklist',exam:'kiểm tra kiểm tra bài thi làm bài thời lượng',days:'sinh nhật kỳ thi tết sự kiện ngày còn lại',chess:'cờ vua cờ đồng hồ hai người chơi',cook:'nấu ăn trứng mì món ăn bếp',breath:'thở thư giãn bình tĩnh hít thở',rem:'nhắc nhở nghỉ mắt uống nước định kỳ',world:'múi giờ quốc tế giờ các nước thành phố'};
+  try{favs=JSON.parse(localStorage.getItem('bg2-favs')||'[]');if(!Array.isArray(favs))favs=[]}catch(e){favs=[]}
+  try{recent=JSON.parse(localStorage.getItem('bg2-recent')||'[]');if(!Array.isArray(recent))recent=[]}catch(e){recent=[]}
   function tabOf(m){return tabs.querySelector('button[data-m="'+m+'"]')}
+  var NAMES={sw:'Bấm giờ',cd:'Đếm ngược',pomo:'Pomodoro — học tập trung',iv:'Tập luyện',seq:'Đồng hồ theo từng bước',exam:'Đồng hồ thi',days:'Đếm ngược đến ngày',chess:'Đồng hồ cờ vua',cook:'Đồng hồ nấu ăn',breath:'Bài tập hít thở',rem:'Nhắc nhở định kỳ',world:'Giờ thế giới'};
+  function toolName(m){return NAMES[m]||(function(){var t=tabOf(m);return t?t.textContent.trim():m})()}
   function go(m){var t=tabOf(m);if(t)t.click()}
-  grid.innerHTML=EXTRA.map(function(m){var t=tabOf(m);return '<button type="button" data-go="'+m+'"><span class="ni">'+ICON[m]+'</span><span>'+(t?t.textContent:m)+'</span></button>'}).join('');
+  function card(m){var name=toolName(m),desc=DESCR[m]||'';return '<div class="tool-card" data-tool-card="'+m+'"><button type="button" data-go="'+m+'" aria-label="Mở '+name+'"><span class="ni">'+(ICON[m]||'◷')+'</span><span class="tool-name"><b>'+name+'</b><br><small>'+desc+'</small></span></button><button type="button" class="tool-fav" data-fav="'+m+'" aria-label="Ghim '+name+'" aria-pressed="'+(favs.indexOf(m)>=0?'true':'false')+'" title="Yêu thích">'+(favs.indexOf(m)>=0?'★':'☆')+'</button></div>'}
+  function renderGrid(el,items){el.innerHTML=items.map(card).join('')||'<div class="tool-empty">Chưa có công cụ ở đây.</div>'}
+  function persistLists(){try{localStorage.setItem('bg2-favs',JSON.stringify(favs));localStorage.setItem('bg2-recent',JSON.stringify(recent.slice(0,5)))}catch(e){}}
+  function renderTools(){
+    var q=(search.value||'').trim().toLocaleLowerCase('vi');
+    var filtered=ALL.filter(function(m){
+      var hay=(toolName(m)+' '+(DESCR[m]||'')+' '+(ALIASES[m]||'')).toLocaleLowerCase('vi');
+      return (!q||hay.indexOf(q)>=0)&&(activeFilter==='all'||CATS[m]===activeFilter);
+    });
+    $('toolFilters').querySelectorAll('[data-filter]').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-filter')===activeFilter?'true':'false')});
+    renderGrid(grid,filtered);
+    renderGrid(favGrid,favs.filter(function(m){return ALL.indexOf(m)>=0}));
+    renderGrid(recentGrid,recent.filter(function(m){return ALL.indexOf(m)>=0&&m!==''}).slice(0,5));
+    $('favSection').hidden=!!q||!favs.length;
+    $('recentSection').hidden=!!q||!recent.length;
+    $('allSection').hidden=false;
+    $('toolCount').textContent=filtered.length+' công cụ';
+    if(!filtered.length)grid.innerHTML='<div class="tool-empty">Không tìm thấy công cụ phù hợp. Thử từ khóa khác hoặc chọn “Tất cả”.</div>';
+    grid.querySelectorAll('[data-tool-card]').forEach(function(el){var m=el.getAttribute('data-tool-card');el.querySelector('[data-fav]').setAttribute('aria-pressed',favs.indexOf(m)>=0?'true':'false')});
+  }
+  // Khởi động theo mục tiêu: ghi nhớ lựa chọn gần nhất và mở đúng công cụ.
+  var goalGrid=$('goalGrid'),goalFoot=$('goalFoot'),goalReset=$('goalReset'),savedGoal='';
+  try{savedGoal=localStorage.getItem('bg2-goal')||''}catch(e){}
+  function markGoal(goal,mode){
+    goalGrid.querySelectorAll('[data-goal]').forEach(function(b){var active=b.getAttribute('data-goal')===goal;b.setAttribute('aria-pressed',active?'true':'false')});
+    if(goalReset)goalReset.hidden=!goal;
+    var labels={study:'Học tập trung',cook:'Nấu ăn',workout:'Tập luyện',relax:'Thư giãn',event:'Đếm đến sự kiện',timer:'Đặt giờ bất kỳ'};
+    if(goalFoot)goalFoot.textContent=goal?'Mục tiêu gần nhất: '+(labels[goal]||goal)+'. Đã ghi nhớ trên thiết bị này.':'Mẹo: mục tiêu bạn chọn gần nhất sẽ được ghi nhớ trên thiết bị này.';
+  }
+  if(savedGoal){var sb=goalGrid.querySelector('[data-goal="'+savedGoal+'"]');if(sb)markGoal(savedGoal,sb.getAttribute('data-mode'))}
+  goalGrid.addEventListener('click',function(e){var b=e.target.closest('[data-goal]');if(!b)return;var goal=b.getAttribute('data-goal'),mode=b.getAttribute('data-mode');try{localStorage.setItem('bg2-goal',goal)}catch(x){}markGoal(goal,mode);recent=[mode].concat(recent.filter(function(x){return x!==mode})).slice(0,5);persistLists();renderTools();go(mode);if(window.matchMedia&&matchMedia('(max-width:620px)').matches){var w=document.querySelector('.wrap');if(w)w.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})}});
+  goalReset.addEventListener('click',function(){try{localStorage.removeItem('bg2-goal')}catch(e){}markGoal('','');});
+  renderTools();
   function sync(){
     var sel=tabs.querySelector('[aria-selected="true"]'),m=sel?sel.getAttribute('data-m'):'sw';
     var bs=nav.querySelectorAll('button[data-go]');
@@ -1743,7 +2395,6 @@ button:active:not(:disabled){transform:scale(.97)}
     for(var j=0;j<gb.length;j++)gb[j].classList.toggle('on',gb[j].getAttribute('data-go')===m);
   }
   tabs.addEventListener('click',sync);
-  function openSheet(){sheet.hidden=false}
   function closeSheet(){sheet.hidden=true}
   function reveal(){var w=document.querySelector('.wrap');if(w&&window.matchMedia&&matchMedia('(max-width:620px)').matches)w.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})}
   nav.addEventListener('click',function(e){
@@ -1751,10 +2402,21 @@ button:active:not(:disabled){transform:scale(.97)}
     if(b===more){openSheet();return}
     var m=b.getAttribute('data-go');if(m){go(m);reveal()}
   });
-  grid.addEventListener('click',function(e){
-    var b=e.target.closest('button');if(!b)return;
-    var m=b.getAttribute('data-go');closeSheet();if(m){go(m);reveal()}
+  sheet.addEventListener('click',function(e){
+    var fav=e.target.closest('[data-fav]');
+    if(fav){
+      var fm=fav.getAttribute('data-fav'),at=favs.indexOf(fm);
+      if(at>=0)favs.splice(at,1);else favs.unshift(fm);
+      favs=favs.filter(function(m,i,a){return ALL.indexOf(m)>=0&&a.indexOf(m)===i}).slice(0,12);
+      persistLists();renderTools();return;
+    }
+    var b=e.target.closest('button[data-go]');if(!b)return;
+    var m=b.getAttribute('data-go');
+    if(m){recent=[m].concat(recent.filter(function(x){return x!==m})).slice(0,5);persistLists();renderTools();closeSheet();go(m);reveal()}
   });
+  if(search)search.addEventListener('input',renderTools);
+  $('toolFilters').addEventListener('click',function(e){var b=e.target.closest('[data-filter]');if(!b)return;activeFilter=b.getAttribute('data-filter');renderTools()});
+  function openSheet(){sheet.hidden=false;activeFilter='all';renderTools();if(search){search.value='';renderTools();setTimeout(function(){try{search.focus({preventScroll:true})}catch(e){search.focus()}},60)}}
   $('sheetbg').addEventListener('click',closeSheet);
   sync();
   /* Phím tắt: F và Esc */
