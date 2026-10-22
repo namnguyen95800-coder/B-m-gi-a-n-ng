@@ -981,6 +981,8 @@ body, .hero, .display, .card, .goal-launch, .start-guide, .settings, .presets, #
 
 
 /* ===== V7: sửa lỗi sau khi kiểm thử ===== */
+  /* Các khối bên dưới là lớp ghi đè có chủ đích để sửa giao diện theo theme.
+     Giữ thứ tự cascade khi bảo trì; không gộp selector chỉ vì chúng trùng tên. */
 /* Nhãn LIVE TIMER bị thanh 4px đè mất; trả lại nhãn, bỏ thanh lệch trái */
 .display::before{content:"LIVE TIMER";inset:auto;left:16px;top:14px;width:auto;height:auto;background:none;opacity:1;font-size:10px;font-weight:800;letter-spacing:1.5px;color:#a7ead8}
 /* Điện thoại: thanh dưới không che nội dung cuối trang; ẩn thanh tab trùng lặp */
@@ -1066,7 +1068,7 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
       <div class="hero-kicker"><span class="hero-pulse"></span> FOCUS • TIME • ROUTINE</div>
-      <h2 id="hero-title">Thời gian của bạn.<br><span>Do bạn làm chủ.</span></h2>
+      <h2 id="hero-title">Thời gian của bạn.<br><span>Bạn làm chủ thời gian.</span></h2>
       <p>Một không gian để tập trung, học tập, luyện tập và quản lý từng phút — miễn phí, ngay trên điện thoại.</p>
       <div class="hero-actions" aria-label="Mở nhanh công cụ">
         <button type="button" class="hero-action primary" data-quick-mode="sw"><span class="qa-icon">⏱</span><span><b>Bấm giờ</b><small>Đo thời gian</small></span><span class="qa-arrow">↗</span></button>
@@ -2459,7 +2461,6 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
 (function(){
   'use strict';
   var $=function(id){return document.getElementById(id)};
-  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* Chế độ tập trung */
   var fb=$('focusbtn');
   function setFocus(on){
@@ -2584,89 +2585,782 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
 <script>
 (function(){
   "use strict";
-  var DICT={"Bấm giờ 2.0 — Tập trung, đếm ngược và quản lý thời gian": "Timer 2.0 — Focus, countdown and time management", "Bấm giờ": "Timer", "Đếm ngược": "Countdown", "Pomodoro": "Pomodoro", "Tập luyện": "Workout", "Nấu ăn": "Cooking", "Chia sẻ": "Share", "Cài về màn hình": "Install app", "Thời gian của bạn.": "Your time.", "Do bạn làm chủ.": "You are in control.", "Một không gian để tập trung, học tập, luyện tập và quản lý từng phút — miễn phí, ngay trên điện thoại.": "A space to focus, study, train and manage every minute — free, right on your phone.", "Đo thời gian": "Measure time", "Đặt mục tiêu": "Set a goal", "Tập trung sâu": "Deep focus", "GIỜ ĐỊA PHƯƠNG": "LOCAL TIME", "Đang cập nhật ngày…": "Updating date…", "Không cần tài khoản": "No account needed", "Lần đầu sử dụng?": "First time here?", "Chỉ cần 3 bước để bắt đầu": "Just 3 steps to get started", "Chọn công cụ": "Choose a tool", "Ví dụ: Đếm ngược": "Example: Countdown", "Đặt thời gian": "Set the time", "Nhập phút, giây": "Enter minutes, seconds", "Bấm Bắt đầu": "Press Start", "Thế là xong!": "That’s it!", "BẮT ĐẦU THEO MỤC TIÊU": "START BY GOAL", "Hôm nay bạn muốn làm gì?": "What do you want to do today?", "Không cần nhớ tên công cụ — chọn việc bạn muốn làm.": "No need to remember tool names — choose what you want to do.", "Đổi mục tiêu": "Change goal", "Học tập trung": "Focused study", "Học theo phiên, có giờ nghỉ": "Study in sessions with breaks", "Canh nhiều món cùng lúc": "Time several dishes at once", "Chia thời gian tập và nghỉ": "Split work and rest time", "Thư giãn": "Relax", "Thực hành nhịp thở chậm": "Practice slow breathing", "Đếm đến sự kiện": "Count down to an event", "Kỳ thi, sinh nhật, chuyến đi": "Exams, birthdays, trips", "Đặt giờ bất kỳ": "Set any timer", "Đếm ngược và báo khi hết": "Count down and alert when finished", "Mẹo: mục tiêu bạn chọn gần nhất sẽ được ghi nhớ trên thiết bị này.": "Tip: your most recent goal will be remembered on this device.", "CHỌN CÔNG CỤ": "CHOOSE A TOOL", "12 chế độ": "12 modes", "Chuỗi bước": "Step routine", "Đồng hồ thi": "Exam timer", "Đếm ngày": "Day countdown", "Cờ vua": "Chess", "Hít thở": "Breathing", "Nhắc nhở": "Reminders", "Giờ thế giới": "World clock", "Vòng": "Lap", "Bắt đầu": "Start", "Các vòng": "Laps", "Sao chép": "Copy", "Cài đặt & thống kê": "Settings & statistics", "Âm thanh, thông báo, giao diện và tiến độ": "Sound, notifications, appearance and progress", "Âm lượng": "Volume", "Toàn màn hình": "Fullscreen", "Tiếng báo": "Alert sound", "Nghe thử âm báo đang chọn": "Preview the selected alert", "▶ Thử âm báo": "▶ Test alert", "Âm nền": "Background sound", "Tắt": "Off", "Tiếng mưa": "Rain", "Ồn trắng": "White noise", "Ồn nâu": "Brown noise", "Thông báo khi hết giờ": "Notify when time is up", "Bật thông báo": "Enable notifications", "Thông báo trình duyệt đang tắt.": "Browser notifications are off.", "Giao diện": "Appearance", "Tự động": "Auto", "Sáng": "Light", "Tối": "Dark", "Biển": "Sea", "Rừng": "Forest", "Hồng": "Rose", "Chữ to": "Larger text", "Rung nhẹ": "Light vibration", "Thống kê": "Statistics", "Ít": "Less", "Nhiều": "More", "Mục tiêu mỗi ngày": "Daily goal", "phút": "min", "Xóa thống kê": "Clear statistics", "Hướng dẫn nhanh": "Quick guide", "là trang web miễn phí gồm nhiều loại đồng hồ: bấm giờ, đếm ngược, Pomodoro, tập luyện, đồng hồ thi, đồng hồ cờ vua, nhắc nhở lặp lại, đếm ngược đến Tết và các ngày lễ, giờ thế giới. Không cần đăng ký, dùng được cả khi không có mạng.": "is a free website with many timers: stopwatch, countdown, Pomodoro, workouts, exam timer, chess clock, repeating reminders, countdown to Tet and holidays, and world clock. No sign-up required; works offline.", "Bấm giờ:": "Stopwatch:", "đếm lên, ghi vòng (mỗi lần dừng cũng thành một vòng).": "count up and record laps (each stop also becomes a lap).", "Đếm ngược, Pomodoro, Tập luyện:": "Countdown, Pomodoro, Workout:", "đặt thời gian rồi bấm Bắt đầu, có thể chạy ngầm khi bạn sang tab khác.": "set a time and press Start; it can keep running when you switch tabs.", "Chuỗi bước:": "Step routine:", "nối nhiều bước thành một quy trình.": "link multiple steps into one routine.", "Đồng hồ thi:": "Exam timer:", "tổng thời gian và các mốc báo.": "total time and alert checkpoints.", "Đếm ngày:": "Day countdown:", "đếm ngược đến một ngày quan trọng.": "count down to an important date.", "Cờ vua:": "Chess:", "hai người, chạm nút bên mình sau khi đi.": "two players; tap your side after moving.", "Nấu ăn, Nhắc nhở:": "Cooking, Reminders:", "nhiều bộ đếm cùng lúc.": "multiple timers at once.", "Hít thở:": "Breathing:", "theo vòng tròn to nhỏ.": "follow an expanding and contracting circle.", "Giờ thế giới:": "World clock:", "xem giờ nhiều thành phố.": "see the time in multiple cities.", "Mẹo:": "Tip:", "bấm Lưu mẫu để dùng lại cài đặt, bấm Chia sẻ để gửi link cho bạn bè. Trên máy tính dùng phím Space (bắt đầu hoặc dừng), L (ghi vòng), R (đặt lại), F (chế độ tập trung). Trên điện thoại, bấm biểu tượng ở góc trên bên phải đồng hồ để vào chế độ tập trung. Cần để trang mở thì đồng hồ mới kêu đúng giờ, mở lại trang trong 24 giờ vẫn giữ đồng hồ đang chạy.": "press Save preset to reuse settings, or Share to send a link. On desktop use Space (start/pause), L (lap), R (reset), F (focus mode). On mobile, tap the icon at the top right of the clock for focus mode. Keep the page open for the alarm to sound; reopening within 24 hours restores a running timer.", "Thêm": "Add", "Tìm công cụ phù hợp": "Find a suitable tool", "12 công cụ trong một nơi. Tìm theo tên hoặc chọn nhóm bên dưới; ☆ để ghim yêu thích.": "12 tools in one place. Search by name or choose a category below; use ☆ to pin favorites.", "Tất cả": "All", "📚 Học tập": "📚 Study", "⏱️ Bộ đếm giờ": "⏱️ Timers", "🏠 Sinh hoạt": "🏠 Daily life", "🌿 Thư giãn": "🌿 Relax", "♟️ Trò chơi": "♟️ Games", "★ Yêu thích": "★ Favorites", "↻ Dùng gần đây": "↻ Recent", "Tất cả công cụ": "All tools", "Đến giờ!": "Time’s up!", "Đã biết": "Got it", "Dừng": "Pause", "Đặt lại": "Reset", "Tiếp tục": "Resume", "Chạy lại": "Run again", "Xóa": "Delete", "Lưu": "Save", "Lưu mẫu": "Save preset", "Hôm nay": "Today", "Hôm qua": "Yesterday", "Trước": "Previous", "Sau": "Next", "Tuần": "Week", "Ngày": "Day", "‹ Trước": "‹ Previous", "Sau ›": "Next ›", "Pomodoro 25/5": "Pomodoro 25/5", "Học 50/10": "Study 50/10", "Tabata 20/10": "Tabata 20/10", "Plank 30/15": "Plank 30/15", "Buổi sáng": "Morning routine", "Học 3 bước": "3-step study", "Tập cơ bản": "Basic workout", "Ôn bài cũ": "Review old material", "Học bài mới": "Learn new material", "Làm bài tập": "Do exercises", "Khởi động": "Warm-up", "Tập chính": "Main workout", "Giãn cơ": "Stretching", "Đánh răng": "Brush teeth", "Ăn sáng": "Breakfast", "Nghỉ mắt 20 phút": "Rest eyes 20 min", "Uống nước 60 phút": "Drink water 60 min", "Đứng dậy 45 phút": "Stand up 45 min", "Vươn vai 30 phút": "Stretch 30 min", "Trứng luộc 8 phút": "Boiled eggs 8 min", "Mì gói 3 phút": "Instant noodles 3 min", "Cơm 20 phút": "Rice 20 min", "Trà 5 phút": "Tea 5 min", "Bài tập hít thở": "Breathing exercise", "Báo khi còn": "Alert when remaining", "Báo vàng khi còn (phút)": "Yellow alert when remaining (min)", "Bíp": "Beep", "Bước": "Step", "Bạn đang mở trang trong ứng dụng khác (Zalo, Messenger...). Hãy bấm menu ba chấm, chọn \"Mở bằng trình duyệt\", rồi bấm lại nút này trong Chrome hoặc Safari.": "You opened this page inside another app (Zalo, Messenger…). Tap the three-dot menu, choose “Open in browser”, then tap this button again in Chrome or Safari.", "Bạn đã bật tùy chọn; hãy cấp quyền trình duyệt để thông báo hoạt động.": "You enabled the option; grant browser permission for notifications to work.", "Bấm giờ miễn phí: đếm ngược, Pomodoro, tập luyện, đồng hồ thi, đồng hồ cờ vua, nhắc nhở, đếm ngày đến Tết và giờ thế giới. Dùng được cả khi không có mạng.": "Free timer: countdown, Pomodoro, workouts, exam timer, chess clock, reminders, countdown to Tet and world clock. Works offline.", "Bấm giờ, đếm ngược, Pomodoro, cờ vua, nhắc nhở và nhiều đồng hồ khác": "Timer, countdown, Pomodoro, chess, reminders and more", "Bấm giờ: đếm ngược, Pomodoro, cờ vua và hơn thế nữa": "Timer: countdown, Pomodoro, chess and more", "Bấm menu ba chấm của Chrome, chọn \"Cài đặt ứng dụng\" hoặc \"Thêm vào Màn hình chính\". Nếu không thấy, hãy mở trang bằng Chrome.": "Tap Chrome’s three-dot menu and choose “Install app” or “Add to Home screen”. If you don’t see it, open the page in Chrome.", "Bấm nút Chia sẻ của Safari (hình ô vuông có mũi tên), kéo xuống và chọn \"Thêm vào Màn hình chính\".": "Tap Safari’s Share button (square with an arrow), scroll down and choose “Add to Home Screen”.", "Bộ đếm thời gian đã hoàn thành.": "Timer completed.", "Canh giờ làm bài và mốc báo": "Time your test and set alerts", "Chia công việc thành nhiều bước": "Split work into steps", "Chuông": "Bell", "Chưa có bước nào, hãy thêm bước bên dưới": "No steps yet — add one below", "Chưa có vòng nào. Bấm “Vòng” khi đồng hồ đang chạy để ghi lại.": "No laps yet. Tap “Lap” while the stopwatch is running to record one.", "Chế độ tập trung": "Focus mode", "Cách sử dụng nhanh": "Quick start", "Còi": "Whistle", "Còn ": "Remaining ", "Có thể chạy nhiều món cùng lúc. Gõ tên và số phút rồi bấm Enter để thêm. Đừng tắt trang khi đang nấu.": "You can time several dishes at once. Type a name and minutes, then press Enter to add. Keep this page open while cooking.", "Cộng thêm mỗi nước (giây)": "Add per move (seconds)", "Cờ vua: hết giờ": "Chess: time’s up", "Dương lịch": "Solar calendar", "Hết giờ": "Time's up", "Hết giờ: ": "Time's up: ", "Giữ hơi": "Hold", "Hãy nhấn “Bật thông báo” để cấp quyền trước.": "Tap “Enable notifications” first to grant permission.", "Hít vào": "Inhale", "Hít thở chậm để thư giãn": "Slow breathing to relax", "Hôm nay chưa có lượt nào hoàn thành.": "No completed sessions today.", "Hôm nay!": "Today!", "Hướng dẫn": "Guide", "Hẹn giờ nhiều món ăn cùng lúc": "Time multiple dishes at once", "Học tập trung xen kẽ thời gian nghỉ": "Alternate focus and breaks", "Lịch hoạt động 15 tuần gần nhất": "Activity for the last 15 weeks", "Lọc theo nhóm": "Filter by category", "Máy này không hỗ trợ": "Not supported on this device", "Món ": "Dish ", "Mẫu ": "Preset ", "Mốc 1 (phút)": "Checkpoint 1 (min)", "Mốc 2 (phút)": "Checkpoint 2 (min)", "Mốc 3 (phút)": "Checkpoint 3 (min)", "Mốc 4 (phút)": "Checkpoint 4 (min)", "Mốc báo tiếp theo sau ": "Next alert after ", "Mỗi bên": "Each side", "Mở nhanh công cụ": "Quick open tools", "Mục tiêu gần nhất: ": "Latest goal: ", "Nghỉ": "Break", "Nghỉ (giây)": "Rest (seconds)", "Nghỉ dài": "Long break", "Nghỉ ngắn": "Short break", "Nhắc lặp lại theo chu kỳ, ví dụ cứ 20 phút nghỉ mắt. Cần để trang mở, màn hình được giữ sáng khi có nhắc nhở đang chạy. Enter để thêm.": "Repeat reminders on a cycle, for example rest your eyes every 20 minutes. Keep the page open and the screen awake while a reminder runs. Press Enter to add.", "Nhắc mỗi ": "Remind every ", "Nhắc nghỉ mắt hoặc việc định kỳ": "Remind you to rest your eyes or do recurring tasks", "Nhắc nhở định kỳ": "Recurring reminders", "Nhẹ": "Light", "Phím tắt trên máy tính: Space bắt đầu hoặc dừng, L ghi vòng, R đặt lại (khi đang dừng). Mỗi lần dừng cũng được tính là một vòng.": "Desktop shortcuts: Space to start/pause, L for lap, R to reset (while paused). Each pause also counts as a lap.", "Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Dùng cho tập gym, chạy ngắt quãng, plank, có tiếng bíp mỗi khi đổi giai đoạn.": "Shortcuts: Space to start/pause, R to reset. For gym, intervals or planks; beeps at each phase change.", "Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Hết giờ sẽ có tiếng bíp. Hãy bật âm thanh và giữ tab này mở.": "Shortcuts: Space to start/pause, R to reset. A beep sounds when time is up. Turn on sound and keep this tab open.", "Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Làm việc tập trung rồi nghỉ ngắn, sau 4 phiên là nghỉ dài, tự chuyển giai đoạn.": "Shortcuts: Space to start/pause, R to reset. Focus, take a short break, and after 4 sessions take a long break; phases switch automatically.", "Phím tắt: Space bắt đầu hoặc dừng. To ra là hít vào, nhỏ lại là thở ra.": "Shortcut: Space to start/pause. Growing means inhale; shrinking means exhale.", "Phím tắt: Space kết thúc nước đi của người đang đi (lần đầu tính là người bên dưới), P tạm dừng, R đặt lại. Trên điện thoại, chạm nút bên mình sau khi đi. Nút phía trên xoay ngược cho người ngồi đối diện.": "Shortcuts: Space ends the current player’s move (first press counts for the bottom player), P pauses, R resets. On mobile, tap your side after moving. The top button is rotated for the opposite player.", "Phút": "Minutes", "Pomodoro — học tập trung": "Pomodoro — focused study", "Quy trình": "Routine", "Quyền thông báo bị chặn": "Notification permission blocked", "Sẵn sàng": "Ready", "Số vòng": "Number of rounds", "Sự kiện ": "Event ", "Thi 45 phút": "45-minute exam", "Thi 90 phút": "90-minute exam", "Thoát chế độ tập trung": "Exit focus mode", "Thuyết trình": "Presentation", "Thông báo ngoài trang đang tắt. Hộp báo trong website vẫn hoạt động bình thường.": "Background notifications are off. In-page alerts still work normally.", "Thông báo đang bị chặn trong cài đặt trình duyệt. Bạn vẫn có thể dùng hộp báo trong trang.": "Notifications are blocked in browser settings. You can still use in-page alerts.", "Thông báo đã được cấp quyền": "Notification permission granted", "Thời lượng (phút)": "Duration (minutes)", "Thở ra": "Exhale", "Thử: học bài, thi, nấu ăn…": "Try: study, exams, cooking…", "Trình duyệt này không hỗ trợ thông báo ngoài trang; hộp báo trong website vẫn hoạt động.": "This browser does not support background notifications; in-page alerts still work.", "Tìm công cụ theo tên hoặc mục đích": "Search tools by name or purpose", "Tạo quy trình gồm nhiều bước nối nhau, ví dụ buổi sáng: đánh răng, tập, ăn sáng. Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Có thể lưu thành mẫu.": "Create a routine with linked steps, such as a morning routine: brush teeth, exercise, breakfast. Shortcuts: Space to start/pause, R to reset. Save it as a preset.", "Xem giờ nhiều thành phố cùng lúc. Chọn thành phố rồi bấm Thêm. Chênh lệch giờ tính so với múi giờ của máy bạn.": "See the time in multiple cities. Choose a city and tap Add. Time differences are relative to your device’s time zone.", "Xem giờ ở nhiều thành phố": "See time in multiple cities", "Xong rồi!": "Done!", "Xong rồi! - Bấm giờ": "Done! - Timer", "Xong rồi: ": "Done: ", "bên dưới": "bottom", "bên trên": "top", "chưa có": "none", "chậm hơn bạn ": "slower than you ", "cùng giờ với bạn": "same time as you", "nhanh hơn bạn ": "faster than you ", "Đã chép": "Copied", "Đã nhắc ": "Reminded ", "Đã qua ": "Elapsed ", "Đã xong ": "Completed ", "Đã đến giờ.": "Time's up.", "Đạt mục tiêu hôm nay! 🎉": "Daily goal reached! 🎉", "Đặt phút giây và báo khi hết giờ": "Set minutes/seconds and alert when finished", "Đặt tổng thời gian làm bài và các mốc báo (số phút còn lại). Mốc lớn hơn hoặc bằng tổng thời gian sẽ bị bỏ qua, để 0 là không dùng. Phím tắt: Space bắt đầu hoặc dừng, R đặt lại.": "Set total exam time and alert checkpoints (minutes remaining). Checkpoints greater than or equal to the total time are ignored; use 0 to disable. Shortcuts: Space to start/pause, R to reset.", "Đếm ngược đến một ngày quan trọng như thi, sinh nhật, du lịch. Gõ tên, chọn ngày rồi bấm Enter hoặc nút Thêm. Dữ liệu lưu trên trình duyệt của bạn.": "Count down to an important date such as an exam, birthday or trip. Type a name, choose a date, then press Enter or Add. Data is stored in your browser.", "Đếm ngược đến ngày": "Countdown to date", "Đếm đến kỳ thi, sinh nhật, sự kiện": "Count down to exams, birthdays, events", "Đến giờ: ": "Time's up: ", "Đều 5-5": "Even 5-5", "Đồng hồ cho hai người chơi cờ": "Clock for two chess players", "Đồng hồ cờ vua": "Chess clock", "Đồng hồ nấu ăn": "Cooking timer", "Đồng hồ theo từng bước": "Step-by-step timer", "Đo thời gian đã trôi qua, ghi vòng": "Measure elapsed time and record laps", "Đã bật: trình duyệt có thể hiện thông báo khi hết giờ. Android có thể tạm dừng trang chạy nền.": "Enabled: the browser can show notifications when time is up. Android may pause background pages.", "Ông Công, Ông Táo": "Kitchen Gods Day", "Time Replay": "Time Replay", "Chưa có phiên nào được ghi trong khoảng này.": "No sessions recorded in this period.", "đang chạy": "running", "Phiên": "Session", "phiên": "sessions", "Tuần từ ": "Week of ", "Mục tiêu hôm nay": "Today’s goal", "7 ngày qua: ": "Last 7 days: ", ". Chuỗi ": ". Streak: ", " ngày liên tiếp.": " consecutive days.", "Xuất CSV": "Export CSV", "7 ngày gần nhất": "Last 7 days", "30 ngày gần nhất": "Last 30 days", "Chưa có dữ liệu trong khoảng thời gian này.": "No data for this period.", "Đã xuất ": "Exported ", " dòng thống kê.": " statistic rows.", "Không xuất được CSV.": "Could not export CSV.", "Trục thời gian các phiên trong ngày": "Timeline of sessions in the day", "Thành phố": "City", "Ngày lễ có sẵn": "Available holidays", "Thêm ngày lễ có sẵn...": "Add an available holiday...", "Tên món": "Dish name", "Tên nhắc nhở": "Reminder name", "Tên sự kiện": "Event name", "Tên bước": "Step name", "Tên quy trình": "Routine name", "Tên mẫu mới": "New preset name", "Chưa có món nào. Nhập tên và số phút rồi bấm Thêm.": "No dishes yet. Enter a name and minutes, then tap Add.", "Chưa có ngày nào. Nhập tên, chọn ngày rồi bấm Thêm.": "No dates yet. Enter a name, choose a date, then tap Add.", "Chưa có nhắc nhở nào. Nhập tên và thời gian lặp lại rồi bấm Thêm.": "No reminders yet. Enter a name and repeat interval, then tap Add.", "Chưa có thành phố nào. Chọn thành phố ở trên rồi bấm Thêm.": "No cities yet. Choose a city above and tap Add.", "Chưa có bước nào. Thêm bước bên dưới hoặc chọn một mẫu.": "No steps yet. Add a step below or choose a preset.", "Chưa có công cụ ở đây.": "No tools here.", "Không tìm thấy công cụ phù hợp. Thử từ khóa khác hoặc chọn “Tất cả”.": "No matching tool. Try another keyword or choose “All”.", "Làm bài": "Take the test", "Thời gian còn lại": "Time remaining", "Thời gian đã trôi qua": "Elapsed time", "Vòng hiện tại: ": "Current lap: ", "Mỗi nước": "Each move", "chậm nhất": "slowest", "nhanh nhất": "fastest", "Làm việc, phiên ": "Work, session ", "Tập, vòng ": "Workout, lap ", "Nhắc nhở ": "Reminder ", " (tổng ": " (total ", " hết giờ": " time's up"};
-  var PHRASES=[["Còn ", "Remaining "], ["Hết giờ", "Time's up"], ["Đến giờ", "Time's up"], ["Xong rồi", "Done"], ["Đã qua", "Elapsed"], ["Đã nhắc", "Reminded"], ["Đã xong", "Completed"], ["Làm việc", "Work"], ["Nghỉ", "Break"], ["Vòng", "Lap"], ["Bước", "Step"], ["Món", "Dish"], ["Người", "Player"], ["Mẫu", "Preset"], ["Quy trình", "Routine"], ["Sự kiện", "Event"], ["phút", "min"], ["giây", "sec"], ["giờ", "h"], ["ngày", "days"], ["tuần", "weeks"], ["phiên", "sessions"], ["lần", "times"], ["công cụ", "tools"], ["tổng", "total"], ["chưa có", "none"], ["mỗi", "every"], ["chậm hơn bạn", "slower than you"], ["nhanh hơn bạn", "faster than you"], ["cùng giờ với bạn", "same time as you"], ["bên trên", "top"], ["bên dưới", "bottom"], ["Hôm nay", "Today"], ["Hôm qua", "Yesterday"], ["Tuần từ ", "Week of "], ["đang chạy", "running"], ["7 ngày qua: ", "Last 7 days: "], [". Chuỗi ", ". Streak: "], [" ngày liên tiếp.", " consecutive days."], ["Mục tiêu hôm nay", "Today’s goal"], ["Đã xuất ", "Exported "], [" dòng thống kê.", " statistic rows."], ["Làm việc, phiên ", "Work, session "], ["Tập, vòng ", "Workout, lap "], ["Nhắc nhở ", "Reminder "], ["Vòng hiện tại: ", "Current lap: "], [" (tổng ", " (total "], [" hết giờ", " time's up"], ["Mỗi nước", "Each move"], ["Thời gian còn lại", "Time remaining"], ["Thời gian đã trôi qua", "Elapsed time"], ["chậm nhất", "slowest"], ["nhanh nhất", "fastest"], ["Làm bài", "Take the test"], ["Thành phố", "City"], ["Ngày lễ có sẵn", "Available holidays"], ["Tên món", "Dish name"], ["Tên nhắc nhở", "Reminder name"], ["Tên sự kiện", "Event name"], ["Tên bước", "Step name"], ["Tên quy trình", "Routine name"], ["Tên mẫu mới", "New preset name"]];
-  var KEY="bg2-lang";
-  var lang="vi";
-  var origTitle=document.title;
-  var applying=false;
-  var originalTexts=new WeakMap();
-  var originalAttrs=new WeakMap();
-  try{lang=localStorage.getItem(KEY)||"vi"}catch(e){}
-  function hasVietnamese(text){return /[ăâêôơưđáàảãạắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i.test(text)}
-  function exact(text){var k=String(text).trim();return Object.prototype.hasOwnProperty.call(DICT,k)?DICT[k]:null}
-  function phrase(text){var out=text;for(var i=0;i<PHRASES.length;i++){if(out.indexOf(PHRASES[i][0])>=0)out=out.split(PHRASES[i][0]).join(PHRASES[i][1])}return out}
-  function translateTextNode(node){
-    if(!node||node.nodeType!==3)return;
-    var text=node.nodeValue;if(!text||!text.trim())return;
-    if(lang==="en"){
-      var source=originalTexts.has(node)?originalTexts.get(node):text;
-      if(!originalTexts.has(node))originalTexts.set(node,text);
-      var en=exact(source);
-      if(!en&&hasVietnamese(source))en=phrase(source);
-      if(en&&en!==node.nodeValue)node.nodeValue=en;
-    }else{
-      if(originalTexts.has(node)&&node.nodeValue!==originalTexts.get(node))node.nodeValue=originalTexts.get(node);
+  var DICT = {
+    "Bấm giờ 2.0 — Tập trung, đếm ngược và quản lý thời gian": "Timer 2.0 — Focus, countdown and time management",
+    "Bấm giờ": "Timer",
+    "Đếm ngược": "Countdown",
+    "Pomodoro": "Pomodoro",
+    "Tập luyện": "Workout",
+    "Nấu ăn": "Cooking",
+    "Chia sẻ": "Share",
+    "Cài về màn hình": "Install app",
+    "Thời gian của bạn.": "Your time.",
+    "Bạn làm chủ thời gian.": "You're in control of your time.",
+    "Một không gian để tập trung, học tập, luyện tập và quản lý từng phút — miễn phí, ngay trên điện thoại.": "A space to focus, study, train and manage every minute — free, right on your phone.",
+    "Đo thời gian": "Measure time",
+    "Đặt mục tiêu": "Set a goal",
+    "Tập trung sâu": "Deep focus",
+    "GIỜ ĐỊA PHƯƠNG": "LOCAL TIME",
+    "Đang cập nhật ngày…": "Updating date…",
+    "Không cần tài khoản": "No account needed",
+    "Lần đầu sử dụng?": "First time here?",
+    "Chỉ cần 3 bước để bắt đầu": "Just 3 steps to get started",
+    "Chọn công cụ": "Choose a tool",
+    "Ví dụ: Đếm ngược": "Example: Countdown",
+    "Đặt thời gian": "Set the time",
+    "Nhập phút, giây": "Enter minutes, seconds",
+    "Bấm Bắt đầu": "Press Start",
+    "Thế là xong!": "That’s it!",
+    "BẮT ĐẦU THEO MỤC TIÊU": "START BY GOAL",
+    "Hôm nay bạn muốn làm gì?": "What do you want to do today?",
+    "Không cần nhớ tên công cụ — chọn việc bạn muốn làm.": "No need to remember tool names — choose what you want to do.",
+    "Đổi mục tiêu": "Change goal",
+    "Học tập trung": "Focused study",
+    "Học theo phiên, có giờ nghỉ": "Study in sessions with breaks",
+    "Canh nhiều món cùng lúc": "Time several dishes at once",
+    "Chia thời gian tập và nghỉ": "Split work and rest time",
+    "Thư giãn": "Relax",
+    "Thực hành nhịp thở chậm": "Practice slow breathing",
+    "Đếm đến sự kiện": "Count down to an event",
+    "Kỳ thi, sinh nhật, chuyến đi": "Exams, birthdays, trips",
+    "Đặt giờ bất kỳ": "Set any timer",
+    "Đếm ngược và báo khi hết": "Count down and alert when finished",
+    "Mẹo: mục tiêu bạn chọn gần nhất sẽ được ghi nhớ trên thiết bị này.": "Tip: your most recent goal will be remembered on this device.",
+    "CHỌN CÔNG CỤ": "CHOOSE A TOOL",
+    "12 chế độ": "12 modes",
+    "Chuỗi bước": "Step routine",
+    "Đồng hồ thi": "Exam timer",
+    "Đếm ngày": "Day countdown",
+    "Cờ vua": "Chess",
+    "Hít thở": "Breathing",
+    "Nhắc nhở": "Reminders",
+    "Giờ thế giới": "World clock",
+    "Vòng": "Lap",
+    "Bắt đầu": "Start",
+    "Các vòng": "Laps",
+    "Sao chép": "Copy",
+    "Cài đặt & thống kê": "Settings & statistics",
+    "Âm thanh, thông báo, giao diện và tiến độ": "Sound, notifications, appearance and progress",
+    "Âm lượng": "Volume",
+    "Toàn màn hình": "Fullscreen",
+    "Tiếng báo": "Alert sound",
+    "Nghe thử âm báo đang chọn": "Preview the selected alert",
+    "▶ Thử âm báo": "▶ Test alert",
+    "Âm nền": "Background sound",
+    "Tắt": "Off",
+    "Tiếng mưa": "Rain",
+    "Ồn trắng": "White noise",
+    "Ồn nâu": "Brown noise",
+    "Thông báo khi hết giờ": "Notify when time is up",
+    "Bật thông báo": "Enable notifications",
+    "Thông báo trình duyệt đang tắt.": "Browser notifications are off.",
+    "Giao diện": "Appearance",
+    "Tự động": "Auto",
+    "Sáng": "Light",
+    "Tối": "Dark",
+    "Biển": "Sea",
+    "Rừng": "Forest",
+    "Hồng": "Rose",
+    "Chữ to": "Larger text",
+    "Rung nhẹ": "Light vibration",
+    "Thống kê": "Statistics",
+    "Ít": "Less",
+    "Nhiều": "More",
+    "Mục tiêu mỗi ngày": "Daily goal",
+    "phút": "min",
+    "Xóa thống kê": "Clear statistics",
+    "Hướng dẫn nhanh": "Quick guide",
+    "là trang web miễn phí gồm nhiều loại đồng hồ: bấm giờ, đếm ngược, Pomodoro, tập luyện, đồng hồ thi, đồng hồ cờ vua, nhắc nhở lặp lại, đếm ngược đến Tết và các ngày lễ, giờ thế giới. Không cần đăng ký, dùng được cả khi không có mạng.": "is a free website with many timers: stopwatch, countdown, Pomodoro, workouts, exam timer, chess clock, repeating reminders, countdown to Tet and holidays, and world clock. No sign-up required; works offline.",
+    "Bấm giờ:": "Stopwatch:",
+    "đếm lên, ghi vòng (mỗi lần dừng cũng thành một vòng).": "count up and record laps (each stop also becomes a lap).",
+    "Đếm ngược, Pomodoro, Tập luyện:": "Countdown, Pomodoro, Workout:",
+    "đặt thời gian rồi bấm Bắt đầu, có thể chạy ngầm khi bạn sang tab khác.": "set a time and press Start; it can keep running when you switch tabs.",
+    "Chuỗi bước:": "Step routine:",
+    "nối nhiều bước thành một quy trình.": "link multiple steps into one routine.",
+    "Đồng hồ thi:": "Exam timer:",
+    "tổng thời gian và các mốc báo.": "total time and alert checkpoints.",
+    "Đếm ngày:": "Day countdown:",
+    "đếm ngược đến một ngày quan trọng.": "count down to an important date.",
+    "Cờ vua:": "Chess:",
+    "hai người, chạm nút bên mình sau khi đi.": "two players; tap your side after moving.",
+    "Nấu ăn, Nhắc nhở:": "Cooking, Reminders:",
+    "nhiều bộ đếm cùng lúc.": "multiple timers at once.",
+    "Hít thở:": "Breathing:",
+    "theo vòng tròn to nhỏ.": "follow an expanding and contracting circle.",
+    "Giờ thế giới:": "World clock:",
+    "xem giờ nhiều thành phố.": "see the time in multiple cities.",
+    "Mẹo:": "Tip:",
+    "bấm Lưu mẫu để dùng lại cài đặt, bấm Chia sẻ để gửi link cho bạn bè. Trên máy tính dùng phím Space (bắt đầu hoặc dừng), L (ghi vòng), R (đặt lại), F (chế độ tập trung). Trên điện thoại, bấm biểu tượng ở góc trên bên phải đồng hồ để vào chế độ tập trung. Cần để trang mở thì đồng hồ mới kêu đúng giờ, mở lại trang trong 24 giờ vẫn giữ đồng hồ đang chạy.": "press Save preset to reuse settings, or Share to send a link. On desktop use Space (start/pause), L (lap), R (reset), F (focus mode). On mobile, tap the icon at the top right of the clock for focus mode. Keep the page open for the alarm to sound; reopening within 24 hours restores a running timer.",
+    "Thêm": "Add",
+    "Tìm công cụ phù hợp": "Find a suitable tool",
+    "12 công cụ trong một nơi. Tìm theo tên hoặc chọn nhóm bên dưới; ☆ để ghim yêu thích.": "12 tools in one place. Search by name or choose a category below; use ☆ to pin favorites.",
+    "Tất cả": "All",
+    "📚 Học tập": "📚 Study",
+    "⏱️ Bộ đếm giờ": "⏱️ Timers",
+    "🏠 Sinh hoạt": "🏠 Daily life",
+    "🌿 Thư giãn": "🌿 Relax",
+    "♟️ Trò chơi": "♟️ Games",
+    "★ Yêu thích": "★ Favorites",
+    "↻ Dùng gần đây": "↻ Recent",
+    "Tất cả công cụ": "All tools",
+    "Đến giờ!": "Time’s up!",
+    "Đã biết": "Got it",
+    "Dừng": "Pause",
+    "Đặt lại": "Reset",
+    "Tiếp tục": "Resume",
+    "Chạy lại": "Run again",
+    "Xóa": "Delete",
+    "Lưu": "Save",
+    "Lưu mẫu": "Save preset",
+    "Hôm nay": "Today",
+    "Hôm qua": "Yesterday",
+    "Trước": "Previous",
+    "Sau": "Next",
+    "Tuần": "Week",
+    "Ngày": "Day",
+    "‹ Trước": "‹ Previous",
+    "Sau ›": "Next ›",
+    "Pomodoro 25/5": "Pomodoro 25/5",
+    "Học 50/10": "Study 50/10",
+    "Tabata 20/10": "Tabata 20/10",
+    "Plank 30/15": "Plank 30/15",
+    "Buổi sáng": "Morning routine",
+    "Học 3 bước": "3-step study",
+    "Tập cơ bản": "Basic workout",
+    "Ôn bài cũ": "Review old material",
+    "Học bài mới": "Learn new material",
+    "Làm bài tập": "Do exercises",
+    "Khởi động": "Warm-up",
+    "Tập chính": "Main workout",
+    "Giãn cơ": "Stretching",
+    "Đánh răng": "Brush teeth",
+    "Ăn sáng": "Breakfast",
+    "Nghỉ mắt 20 phút": "Rest eyes 20 min",
+    "Uống nước 60 phút": "Drink water 60 min",
+    "Đứng dậy 45 phút": "Stand up 45 min",
+    "Vươn vai 30 phút": "Stretch 30 min",
+    "Trứng luộc 8 phút": "Boiled eggs 8 min",
+    "Mì gói 3 phút": "Instant noodles 3 min",
+    "Cơm 20 phút": "Rice 20 min",
+    "Trà 5 phút": "Tea 5 min",
+    "Bài tập hít thở": "Breathing exercise",
+    "Báo khi còn": "Alert when remaining",
+    "Báo vàng khi còn (phút)": "Yellow alert when remaining (min)",
+    "Bíp": "Beep",
+    "Bước": "Step",
+    "Bạn đang mở trang trong ứng dụng khác (Zalo, Messenger...). Hãy bấm menu ba chấm, chọn \"Mở bằng trình duyệt\", rồi bấm lại nút này trong Chrome hoặc Safari.": "You opened this page inside another app (Zalo, Messenger…). Tap the three-dot menu, choose “Open in browser”, then tap this button again in Chrome or Safari.",
+    "Bạn đã bật tùy chọn; hãy cấp quyền trình duyệt để thông báo hoạt động.": "You enabled the option; grant browser permission for notifications to work.",
+    "Bấm giờ miễn phí: đếm ngược, Pomodoro, tập luyện, đồng hồ thi, đồng hồ cờ vua, nhắc nhở, đếm ngày đến Tết và giờ thế giới. Dùng được cả khi không có mạng.": "Free timer: countdown, Pomodoro, workouts, exam timer, chess clock, reminders, countdown to Tet and world clock. Works offline.",
+    "Bấm giờ, đếm ngược, Pomodoro, cờ vua, nhắc nhở và nhiều đồng hồ khác": "Timer, countdown, Pomodoro, chess, reminders and more",
+    "Bấm giờ: đếm ngược, Pomodoro, cờ vua và hơn thế nữa": "Timer: countdown, Pomodoro, chess and more",
+    "Bấm menu ba chấm của Chrome, chọn \"Cài đặt ứng dụng\" hoặc \"Thêm vào Màn hình chính\". Nếu không thấy, hãy mở trang bằng Chrome.": "Tap Chrome’s three-dot menu and choose “Install app” or “Add to Home screen”. If you don’t see it, open the page in Chrome.",
+    "Bấm nút Chia sẻ của Safari (hình ô vuông có mũi tên), kéo xuống và chọn \"Thêm vào Màn hình chính\".": "Tap Safari’s Share button (square with an arrow), scroll down and choose “Add to Home Screen”.",
+    "Bộ đếm thời gian đã hoàn thành.": "Timer completed.",
+    "Canh giờ làm bài và mốc báo": "Time your test and set alerts",
+    "Chia công việc thành nhiều bước": "Split work into steps",
+    "Chuông": "Bell",
+    "Chưa có bước nào, hãy thêm bước bên dưới": "No steps yet — add one below",
+    "Chưa có vòng nào. Bấm “Vòng” khi đồng hồ đang chạy để ghi lại.": "No laps yet. Tap “Lap” while the stopwatch is running to record one.",
+    "Chế độ tập trung": "Focus mode",
+    "Cách sử dụng nhanh": "Quick start",
+    "Còi": "Whistle",
+    "Còn ": "Remaining ",
+    "Có thể chạy nhiều món cùng lúc. Gõ tên và số phút rồi bấm Enter để thêm. Đừng tắt trang khi đang nấu.": "You can time several dishes at once. Type a name and minutes, then press Enter to add. Keep this page open while cooking.",
+    "Cộng thêm mỗi nước (giây)": "Add per move (seconds)",
+    "Cờ vua: hết giờ": "Chess: time’s up",
+    "Dương lịch": "Solar calendar",
+    "Hết giờ": "Time's up",
+    "Hết giờ: ": "Time's up: ",
+    "Giữ hơi": "Hold",
+    "Hãy nhấn “Bật thông báo” để cấp quyền trước.": "Tap “Enable notifications” first to grant permission.",
+    "Hít vào": "Inhale",
+    "Hít thở chậm để thư giãn": "Slow breathing to relax",
+    "Hôm nay chưa có lượt nào hoàn thành.": "No completed sessions today.",
+    "Hôm nay!": "Today!",
+    "Hướng dẫn": "Guide",
+    "Hẹn giờ nhiều món ăn cùng lúc": "Time multiple dishes at once",
+    "Học tập trung xen kẽ thời gian nghỉ": "Alternate focus and breaks",
+    "Lịch hoạt động 15 tuần gần nhất": "Activity for the last 15 weeks",
+    "Lọc theo nhóm": "Filter by category",
+    "Máy này không hỗ trợ": "Not supported on this device",
+    "Món ": "Dish ",
+    "Mẫu ": "Preset ",
+    "Mốc 1 (phút)": "Checkpoint 1 (min)",
+    "Mốc 2 (phút)": "Checkpoint 2 (min)",
+    "Mốc 3 (phút)": "Checkpoint 3 (min)",
+    "Mốc 4 (phút)": "Checkpoint 4 (min)",
+    "Mốc báo tiếp theo sau ": "Next alert after ",
+    "Mỗi bên": "Each side",
+    "Mở nhanh công cụ": "Quick open tools",
+    "Mục tiêu gần nhất: ": "Latest goal: ",
+    "Nghỉ": "Break",
+    "Nghỉ (giây)": "Rest (seconds)",
+    "Nghỉ dài": "Long break",
+    "Nghỉ ngắn": "Short break",
+    "Nhắc lặp lại theo chu kỳ, ví dụ cứ 20 phút nghỉ mắt. Cần để trang mở, màn hình được giữ sáng khi có nhắc nhở đang chạy. Enter để thêm.": "Repeat reminders on a cycle, for example rest your eyes every 20 minutes. Keep the page open and the screen awake while a reminder runs. Press Enter to add.",
+    "Nhắc mỗi ": "Remind every ",
+    "Nhắc nghỉ mắt hoặc việc định kỳ": "Remind you to rest your eyes or do recurring tasks",
+    "Nhắc nhở định kỳ": "Recurring reminders",
+    "Nhẹ": "Light",
+    "Phím tắt trên máy tính: Space bắt đầu hoặc dừng, L ghi vòng, R đặt lại (khi đang dừng). Mỗi lần dừng cũng được tính là một vòng.": "Desktop shortcuts: Space to start/pause, L for lap, R to reset (while paused). Each pause also counts as a lap.",
+    "Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Dùng cho tập gym, chạy ngắt quãng, plank, có tiếng bíp mỗi khi đổi giai đoạn.": "Shortcuts: Space to start/pause, R to reset. For gym, intervals or planks; beeps at each phase change.",
+    "Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Hết giờ sẽ có tiếng bíp. Hãy bật âm thanh và giữ tab này mở.": "Shortcuts: Space to start/pause, R to reset. A beep sounds when time is up. Turn on sound and keep this tab open.",
+    "Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Làm việc tập trung rồi nghỉ ngắn, sau 4 phiên là nghỉ dài, tự chuyển giai đoạn.": "Shortcuts: Space to start/pause, R to reset. Focus, take a short break, and after 4 sessions take a long break; phases switch automatically.",
+    "Phím tắt: Space bắt đầu hoặc dừng. To ra là hít vào, nhỏ lại là thở ra.": "Shortcut: Space to start/pause. Growing means inhale; shrinking means exhale.",
+    "Phím tắt: Space kết thúc nước đi của người đang đi (lần đầu tính là người bên dưới), P tạm dừng, R đặt lại. Trên điện thoại, chạm nút bên mình sau khi đi. Nút phía trên xoay ngược cho người ngồi đối diện.": "Shortcuts: Space ends the current player’s move (first press counts for the bottom player), P pauses, R resets. On mobile, tap your side after moving. The top button is rotated for the opposite player.",
+    "Phút": "Minutes",
+    "Pomodoro — học tập trung": "Pomodoro — focused study",
+    "Quy trình": "Routine",
+    "Quyền thông báo bị chặn": "Notification permission blocked",
+    "Sẵn sàng": "Ready",
+    "Số vòng": "Number of rounds",
+    "Sự kiện ": "Event ",
+    "Thi 45 phút": "45-minute exam",
+    "Thi 90 phút": "90-minute exam",
+    "Thoát chế độ tập trung": "Exit focus mode",
+    "Thuyết trình": "Presentation",
+    "Thông báo ngoài trang đang tắt. Hộp báo trong website vẫn hoạt động bình thường.": "Background notifications are off. In-page alerts still work normally.",
+    "Thông báo đang bị chặn trong cài đặt trình duyệt. Bạn vẫn có thể dùng hộp báo trong trang.": "Notifications are blocked in browser settings. You can still use in-page alerts.",
+    "Thông báo đã được cấp quyền": "Notification permission granted",
+    "Thời lượng (phút)": "Duration (minutes)",
+    "Thở ra": "Exhale",
+    "Thử: học bài, thi, nấu ăn…": "Try: study, exams, cooking…",
+    "Trình duyệt này không hỗ trợ thông báo ngoài trang; hộp báo trong website vẫn hoạt động.": "This browser does not support background notifications; in-page alerts still work.",
+    "Tìm công cụ theo tên hoặc mục đích": "Search tools by name or purpose",
+    "Tạo quy trình gồm nhiều bước nối nhau, ví dụ buổi sáng: đánh răng, tập, ăn sáng. Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Có thể lưu thành mẫu.": "Create a routine with linked steps, such as a morning routine: brush teeth, exercise, breakfast. Shortcuts: Space to start/pause, R to reset. Save it as a preset.",
+    "Xem giờ nhiều thành phố cùng lúc. Chọn thành phố rồi bấm Thêm. Chênh lệch giờ tính so với múi giờ của máy bạn.": "See the time in multiple cities. Choose a city and tap Add. Time differences are relative to your device’s time zone.",
+    "Xem giờ ở nhiều thành phố": "See time in multiple cities",
+    "Xong rồi!": "Done!",
+    "Xong rồi! - Bấm giờ": "Done! - Timer",
+    "Xong rồi: ": "Done: ",
+    "bên dưới": "bottom",
+    "bên trên": "top",
+    "chưa có": "none",
+    "chậm hơn bạn ": "slower than you ",
+    "cùng giờ với bạn": "same time as you",
+    "nhanh hơn bạn ": "faster than you ",
+    "Đã chép": "Copied",
+    "Đã nhắc ": "Reminded ",
+    "Đã qua ": "Elapsed ",
+    "Đã xong ": "Completed ",
+    "Đã đến giờ.": "Time's up.",
+    "Đạt mục tiêu hôm nay! 🎉": "Daily goal reached! 🎉",
+    "Đặt phút giây và báo khi hết giờ": "Set minutes/seconds and alert when finished",
+    "Đặt tổng thời gian làm bài và các mốc báo (số phút còn lại). Mốc lớn hơn hoặc bằng tổng thời gian sẽ bị bỏ qua, để 0 là không dùng. Phím tắt: Space bắt đầu hoặc dừng, R đặt lại.": "Set total exam time and alert checkpoints (minutes remaining). Checkpoints greater than or equal to the total time are ignored; use 0 to disable. Shortcuts: Space to start/pause, R to reset.",
+    "Đếm ngược đến một ngày quan trọng như thi, sinh nhật, du lịch. Gõ tên, chọn ngày rồi bấm Enter hoặc nút Thêm. Dữ liệu lưu trên trình duyệt của bạn.": "Count down to an important date such as an exam, birthday or trip. Type a name, choose a date, then press Enter or Add. Data is stored in your browser.",
+    "Đếm ngược đến ngày": "Countdown to date",
+    "Đếm đến kỳ thi, sinh nhật, sự kiện": "Count down to exams, birthdays, events",
+    "Đến giờ: ": "Time's up: ",
+    "Đều 5-5": "Even 5-5",
+    "Đồng hồ cho hai người chơi cờ": "Clock for two chess players",
+    "Đồng hồ cờ vua": "Chess clock",
+    "Đồng hồ nấu ăn": "Cooking timer",
+    "Đồng hồ theo từng bước": "Step-by-step timer",
+    "Đo thời gian đã trôi qua, ghi vòng": "Measure elapsed time and record laps",
+    "Đã bật: trình duyệt có thể hiện thông báo khi hết giờ. Android có thể tạm dừng trang chạy nền.": "Enabled: the browser can show notifications when time is up. Android may pause background pages.",
+    "Ông Công, Ông Táo": "Kitchen Gods Day",
+    "Time Replay": "Time Replay",
+    "Chưa có phiên nào được ghi trong khoảng này.": "No sessions recorded in this period.",
+    "đang chạy": "running",
+    "Phiên": "Session",
+    "phiên": "sessions",
+    "Tuần từ ": "Week of ",
+    "Mục tiêu hôm nay": "Today’s goal",
+    "7 ngày qua: ": "Last 7 days: ",
+    ". Chuỗi ": ". Streak: ",
+    " ngày liên tiếp.": " consecutive days.",
+    "Xuất CSV": "Export CSV",
+    "7 ngày gần nhất": "Last 7 days",
+    "30 ngày gần nhất": "Last 30 days",
+    "Chưa có dữ liệu trong khoảng thời gian này.": "No data for this period.",
+    "Đã xuất ": "Exported ",
+    " dòng thống kê.": " statistic rows.",
+    "Không xuất được CSV.": "Could not export CSV.",
+    "Trục thời gian các phiên trong ngày": "Timeline of sessions in the day",
+    "Thành phố": "City",
+    "Ngày lễ có sẵn": "Available holidays",
+    "Thêm ngày lễ có sẵn...": "Add an available holiday...",
+    "Tên món": "Dish name",
+    "Tên nhắc nhở": "Reminder name",
+    "Tên sự kiện": "Event name",
+    "Tên bước": "Step name",
+    "Tên quy trình": "Routine name",
+    "Tên mẫu mới": "New preset name",
+    "Chưa có món nào. Nhập tên và số phút rồi bấm Thêm.": "No dishes yet. Enter a name and minutes, then tap Add.",
+    "Chưa có ngày nào. Nhập tên, chọn ngày rồi bấm Thêm.": "No dates yet. Enter a name, choose a date, then tap Add.",
+    "Chưa có nhắc nhở nào. Nhập tên và thời gian lặp lại rồi bấm Thêm.": "No reminders yet. Enter a name and repeat interval, then tap Add.",
+    "Chưa có thành phố nào. Chọn thành phố ở trên rồi bấm Thêm.": "No cities yet. Choose a city above and tap Add.",
+    "Chưa có bước nào. Thêm bước bên dưới hoặc chọn một mẫu.": "No steps yet. Add a step below or choose a preset.",
+    "Chưa có công cụ ở đây.": "No tools here.",
+    "Không tìm thấy công cụ phù hợp. Thử từ khóa khác hoặc chọn “Tất cả”.": "No matching tool. Try another keyword or choose “All”.",
+    "Làm bài": "Take the test",
+    "Thời gian còn lại": "Time remaining",
+    "Thời gian đã trôi qua": "Elapsed time",
+    "Vòng hiện tại: ": "Current lap: ",
+    "Mỗi nước": "Each move",
+    "chậm nhất": "slowest",
+    "nhanh nhất": "fastest",
+    "Làm việc, phiên ": "Work, session ",
+    "Tập, vòng ": "Workout, lap ",
+    "Nhắc nhở ": "Reminder ",
+    " (tổng ": " (total ",
+    " hết giờ": " time's up",
+    "Giây": "Seconds",
+    "Tổng thời gian": "Total time",
+    "Chọn khoảng thời gian xuất CSV": "Choose CSV export range",
+    "Âm lịch": "Lunar calendar",
+    "Tết Nguyên Đán": "Lunar New Year",
+    "Rằm tháng Giêng": "First Full Moon Festival",
+    "Giỗ Tổ Hùng Vương": "Hung Kings’ Commemoration Day",
+    "Tết Đoan Ngọ": "Dragon Boat Festival",
+    "Lễ Vu Lan": "Vu Lan Festival",
+    "Tết Trung thu": "Mid-Autumn Festival",
+    "Tết Dương lịch": "New Year's Day",
+    "Quốc tế Phụ nữ": "International Women's Day",
+    "Giải phóng miền Nam": "Reunification Day",
+    "Quốc tế Lao động": "International Workers' Day",
+    "Quốc khánh": "National Day",
+    "Ngày Phụ nữ Việt Nam": "Vietnamese Women's Day",
+    "Ngày Nhà giáo Việt Nam": "Vietnamese Teachers' Day",
+    "Tập thể dục": "Exercise",
+    " trên ": " of ",
+    "Trên": "On",
+    "Dưới": "Under",
+    " lần": " times",
+    "Không có dữ liệu": "No data",
+    "Chọn thành phố": "Choose a city",
+    "Chọn ngày": "Choose a date",
+    "Thêm ngày": "Add date",
+    "Thêm nhắc nhở": "Add reminder",
+    "Thêm thành phố": "Add city",
+    "Thêm bước": "Add step",
+    "Đóng": "Close",
+    "Quay lại": "Back",
+    "Hoàn thành": "Complete"
+  };
+  var PHRASES = [
+    [
+      "Còn ",
+      "Remaining "
+    ],
+    [
+      "Hết giờ",
+      "Time's up"
+    ],
+    [
+      "Đến giờ",
+      "Time's up"
+    ],
+    [
+      "Xong rồi",
+      "Done"
+    ],
+    [
+      "Đã qua",
+      "Elapsed"
+    ],
+    [
+      "Đã nhắc",
+      "Reminded"
+    ],
+    [
+      "Đã xong",
+      "Completed"
+    ],
+    [
+      "Làm việc",
+      "Work"
+    ],
+    [
+      "Nghỉ",
+      "Break"
+    ],
+    [
+      "Vòng",
+      "Lap"
+    ],
+    [
+      "Bước",
+      "Step"
+    ],
+    [
+      "Món",
+      "Dish"
+    ],
+    [
+      "Người",
+      "Player"
+    ],
+    [
+      "Mẫu",
+      "Preset"
+    ],
+    [
+      "Quy trình",
+      "Routine"
+    ],
+    [
+      "Sự kiện",
+      "Event"
+    ],
+    [
+      "phút",
+      "min"
+    ],
+    [
+      "giây",
+      "sec"
+    ],
+    [
+      "giờ",
+      "h"
+    ],
+    [
+      "ngày",
+      "days"
+    ],
+    [
+      "tuần",
+      "weeks"
+    ],
+    [
+      "phiên",
+      "sessions"
+    ],
+    [
+      "lần",
+      "times"
+    ],
+    [
+      "công cụ",
+      "tools"
+    ],
+    [
+      "tổng",
+      "total"
+    ],
+    [
+      "chưa có",
+      "none"
+    ],
+    [
+      "mỗi",
+      "every"
+    ],
+    [
+      "chậm hơn bạn",
+      "slower than you"
+    ],
+    [
+      "nhanh hơn bạn",
+      "faster than you"
+    ],
+    [
+      "cùng giờ với bạn",
+      "same time as you"
+    ],
+    [
+      "bên trên",
+      "top"
+    ],
+    [
+      "bên dưới",
+      "bottom"
+    ],
+    [
+      "Hôm nay",
+      "Today"
+    ],
+    [
+      "Hôm qua",
+      "Yesterday"
+    ],
+    [
+      "Tuần từ ",
+      "Week of "
+    ],
+    [
+      "đang chạy",
+      "running"
+    ],
+    [
+      "7 ngày qua: ",
+      "Last 7 days: "
+    ],
+    [
+      ". Chuỗi ",
+      ". Streak: "
+    ],
+    [
+      " ngày liên tiếp.",
+      " consecutive days."
+    ],
+    [
+      "Mục tiêu hôm nay",
+      "Today’s goal"
+    ],
+    [
+      "Đã xuất ",
+      "Exported "
+    ],
+    [
+      " dòng thống kê.",
+      " statistic rows."
+    ],
+    [
+      "Làm việc, phiên ",
+      "Work, session "
+    ],
+    [
+      "Tập, vòng ",
+      "Workout, lap "
+    ],
+    [
+      "Nhắc nhở ",
+      "Reminder "
+    ],
+    [
+      "Vòng hiện tại: ",
+      "Current lap: "
+    ],
+    [
+      " (tổng ",
+      " (total "
+    ],
+    [
+      " hết giờ",
+      " time's up"
+    ],
+    [
+      "Mỗi nước",
+      "Each move"
+    ],
+    [
+      "Thời gian còn lại",
+      "Time remaining"
+    ],
+    [
+      "Thời gian đã trôi qua",
+      "Elapsed time"
+    ],
+    [
+      "chậm nhất",
+      "slowest"
+    ],
+    [
+      "nhanh nhất",
+      "fastest"
+    ],
+    [
+      "Làm bài",
+      "Take the test"
+    ],
+    [
+      "Thành phố",
+      "City"
+    ],
+    [
+      "Ngày lễ có sẵn",
+      "Available holidays"
+    ],
+    [
+      "Tên món",
+      "Dish name"
+    ],
+    [
+      "Tên nhắc nhở",
+      "Reminder name"
+    ],
+    [
+      "Tên sự kiện",
+      "Event name"
+    ],
+    [
+      "Tên bước",
+      "Step name"
+    ],
+    [
+      "Tên quy trình",
+      "Routine name"
+    ],
+    [
+      "Tên mẫu mới",
+      "New preset name"
+    ]
+  ];
+  // Keep the selected language on this device. Text nodes and attributes are tracked
+  // separately so dynamic UI updates can be translated without losing their source.
+  var KEY = "bg2-lang";
+  var lang = "vi";
+  var origTitle = document.title;
+  var applying = false;
+  var originalTexts = new WeakMap();
+  var originalAttrs = new WeakMap();
+
+  try { lang = localStorage.getItem(KEY) || "vi"; } catch (e) {}
+
+  function hasVietnamese(text) {
+    return /[ăâêôơưđáàảãạắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừởỡợýỳỷỹỵ]/i.test(text);
+  }
+
+  function exact(text) {
+    var key = String(text).trim();
+    return Object.prototype.hasOwnProperty.call(DICT, key) ? DICT[key] : null;
+  }
+
+  // Fallback is intentionally secondary to full-sentence translations.
+  function phrase(text) {
+    var out = text;
+    // Longer phrases first so a short word cannot damage a complete expression.
+    var rules = PHRASES.slice().sort(function (a, b) { return b[0].length - a[0].length; });
+    for (var i = 0; i < rules.length; i++) {
+      var from = rules[i][0];
+      var to = rules[i][1];
+      if (!from) continue;
+      if (/^[A-Za-zÀ-ỹ]+$/.test(from)) {
+        // Match whole Vietnamese words only (e.g. don't translate inside another word).
+        var escaped = from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        var pattern = new RegExp("(^|[^A-Za-zÀ-ỹ])" + escaped + "(?=$|[^A-Za-zÀ-ỹ])", "gi");
+        out = out.replace(pattern, function (match, prefix) { return prefix + to; });
+      } else if (out.indexOf(from) !== -1) {
+        out = out.split(from).join(to);
+      }
+    }
+    return out;
+  }
+
+  function translateString(source) {
+    var leading = (source.match(/^\s*/) || [""])[0];
+    var trailing = (source.match(/\s*$/) || [""])[0];
+    var core = source.slice(leading.length, source.length - trailing.length);
+    if (!core) return source;
+    var translated = exact(core);
+    if (!translated && hasVietnamese(core)) translated = phrase(core);
+    return translated ? leading + translated + trailing : source;
+  }
+
+  function translateTextNode(node) {
+    if (!node || node.nodeType !== 3) return;
+    var current = node.nodeValue;
+    if (!current || !current.trim()) return;
+    var record = originalTexts.get(node);
+
+    if (lang === "en") {
+      // If the current text is our last translation, translate from the original.
+      // Otherwise the app changed it dynamically; accept that new source text.
+      var source = record && current === record.translated ? record.source : current;
+      var translated = translateString(source);
+      originalTexts.set(node, { source: source, translated: translated });
+      if (translated !== current) node.nodeValue = translated;
+    } else if (record) {
+      if (current === record.translated) {
+        if (current !== record.source) node.nodeValue = record.source;
+      } else {
+        // Preserve fresh text generated while English was selected.
+        originalTexts.set(node, { source: current, translated: current });
+      }
     }
   }
-  function attrKey(attr){return "vi_"+attr.replace(/-([a-z])/g,function(m,c){return c.toUpperCase()})}
-  function translateAttributes(el){
-    ["placeholder","aria-label","title"].forEach(function(attr){
-      if(!el.hasAttribute||!el.hasAttribute(attr))return;
-      var v=el.getAttribute(attr);if(!v)return;
-      var key=attrKey(attr);
-      if(lang==="en"){
-        if(!originalAttrs.has(el))originalAttrs.set(el,{});
-        var store=originalAttrs.get(el);
-        if(!(attr in store))store[attr]=v;
-        var t=exact(v)||phrase(v);
-        if(t&&t!==el.getAttribute(attr))el.setAttribute(attr,t);
-      }else{
-        var store2=originalAttrs.get(el);
-        if(store2&&store2[attr]!==undefined&&el.getAttribute(attr)!==store2[attr])el.setAttribute(attr,store2[attr]);
+
+  function translateAttributes(el) {
+    ["placeholder", "aria-label", "title"].forEach(function (attr) {
+      if (!el.hasAttribute || !el.hasAttribute(attr)) return;
+      var current = el.getAttribute(attr);
+      if (!current) return;
+      var records = originalAttrs.get(el) || {};
+      var record = records[attr];
+
+      if (lang === "en") {
+        var source = record && current === record.translated ? record.source : current;
+        var translated = translateString(source);
+        records[attr] = { source: source, translated: translated };
+        originalAttrs.set(el, records);
+        if (translated !== current) el.setAttribute(attr, translated);
+      } else if (record) {
+        if (current === record.translated) {
+          if (current !== record.source) el.setAttribute(attr, record.source);
+        } else {
+          records[attr] = { source: current, translated: current };
+          originalAttrs.set(el, records);
+        }
       }
     });
   }
-  function walk(root){
-    if(!root)return;
-    if(root.nodeType===3){translateTextNode(root);return}
-    var elements=[];
-    try{elements=Array.prototype.slice.call(root.querySelectorAll("*"))}catch(e){return}
-    for(var i=0;i<elements.length;i++){
-      var el=elements[i];
-      if(el.id==="langBtn")continue;
-      var children=el.childNodes;
-      for(var j=0;j<children.length;j++)translateTextNode(children[j]);
+
+  function walk(root) {
+    if (!root) return;
+    var elements = [];
+    if (root.nodeType === 1) elements.push(root);
+    try { elements = elements.concat(Array.prototype.slice.call(root.querySelectorAll("*"))); }
+    catch (e) { return; }
+
+    for (var i = 0; i < elements.length; i++) {
+      var el = elements[i];
+      // Never translate source code or editable/user-entered content.
+      if (/^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/.test(el.tagName) || el.isContentEditable) continue;
+      if (el.id === "langBtn") continue;
+
+      for (var j = 0; j < el.childNodes.length; j++) {
+        var child = el.childNodes[j];
+        if (child.nodeType === 3) translateTextNode(child);
+      }
       translateAttributes(el);
     }
   }
-  function apply(){
-    applying=true;
-    try{walk(document.body)}catch(e){}
-    try{document.title=lang==="en"?(exact(origTitle)||phrase(origTitle)):origTitle}catch(e){}
-    var b=document.getElementById("langBtn");
-    if(b){b.textContent=lang==="en"?"VIE":"ENG";b.setAttribute("aria-label",lang==="en"?"Switch to Vietnamese":"Switch to English")}
-    try{document.documentElement.lang=lang}catch(e){}
-    applying=false;
+
+  function applyLanguage() {
+    if (applying) return;
+    applying = true;
+    try { walk(document.body); } catch (e) {}
+    try { document.title = lang === "en" ? (exact(origTitle) || phrase(origTitle)) : origTitle; } catch (e) {}
+
+    var button = document.getElementById("langBtn");
+    if (button) {
+      var buttonText = lang === "en" ? "VIE" : "ENG";
+      var buttonLabel = lang === "en" ? "Switch to Vietnamese" : "Switch to English";
+      if (button.textContent !== buttonText) button.textContent = buttonText;
+      if (button.getAttribute("aria-label") !== buttonLabel) button.setAttribute("aria-label", buttonLabel);
+    }
+    try { document.documentElement.lang = lang; } catch (e) {}
+    applying = false;
   }
-  var btn=document.getElementById("langBtn");
-  if(btn){
-    btn.addEventListener("click",function(){
-      lang=(lang==="vi")?"en":"vi";
-      try{localStorage.setItem(KEY,lang)}catch(e){}
-      apply();
+
+  var langButton = document.getElementById("langBtn");
+  if (langButton) {
+    langButton.addEventListener("click", function () {
+      lang = lang === "vi" ? "en" : "vi";
+      try { localStorage.setItem(KEY, lang); } catch (e) {}
+      applyLanguage();
     });
   }
-  try{
-    var pending=null;
-    var mo=new MutationObserver(function(){
-      if(applying||lang!=="en")return;
-      if(pending)clearTimeout(pending);
-      pending=setTimeout(function(){if(!applying&&lang==="en"){applying=true;try{walk(document.body)}catch(e){}applying=false}},250);
+
+  // Re-translate newly rendered controls, including controls updated after interaction.
+  try {
+    var pending = null;
+    var observer = new MutationObserver(function () {
+      if (applying || lang !== "en") return;
+      if (pending) clearTimeout(pending);
+      pending = setTimeout(function () {
+        if (!applying && lang === "en") applyLanguage();
+      }, 80);
     });
-    mo.observe(document.body,{childList:true,subtree:true,characterData:true});
-  }catch(e){}
-  if(lang==="en")apply();else{document.documentElement.lang="vi";if(btn)btn.textContent="ENG"}
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ["placeholder", "aria-label", "title"]
+    });
+  } catch (e) {}
+
+  if (lang === "en") applyLanguage();
+  else {
+    document.documentElement.lang = "vi";
+    if (langButton) {
+      langButton.textContent = "ENG";
+      langButton.setAttribute("aria-label", "Switch to English");
+    }
+  }
 })();
 </script>
 </body>
