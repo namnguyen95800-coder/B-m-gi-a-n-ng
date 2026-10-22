@@ -101,7 +101,7 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
 .chess .mid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .chess .mid button{min-height:48px;font-size:16px;padding:10px}
 .side{min-height:min(34vh,220px);font-size:clamp(44px,14vw,68px);font-weight:300;font-variant-numeric:tabular-nums;width:100%}
-.side.flip{transform:rotate(180deg)}
+.chess .side.flip{transform:rotate(180deg)!important}
 .side.on{background:var(--go);color:var(--go-ink);border-color:var(--go)}
 .side.flag{background:var(--stop);color:var(--stop-ink);border-color:var(--stop);font-size:clamp(32px,10vw,48px)}
 .addrow{display:grid;grid-template-columns:1fr 64px 64px auto;gap:8px}
@@ -162,7 +162,7 @@ li .tag{font-size:13px;margin-left:6px;font-weight:500}
   .chess .mid{grid-template-columns:1fr;align-content:center}
   .side{min-height:min(48vh,260px);font-size:clamp(30px,5.5vw,60px)}
   .chess .mid button{white-space:nowrap}
-  .side.flip{transform:none}
+  /* Hướng đồng hồ được điều khiển bằng nút riêng trong mục cờ vua */
   .hint,.foot,.stats{max-width:620px}
   body[data-m=chess] .wrap{grid-template-columns:minmax(0,1fr)}
   body[data-m=chess] .right{display:grid;grid-template-columns:300px minmax(0,1fr);gap:0 24px;align-items:start}
@@ -1062,6 +1062,26 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
 /* Người dùng quay lại: bỏ hướng dẫn lần đầu, thu gọn hero trên điện thoại để đồng hồ lên sớm hơn */
 html.seen .start-guide{display:none}
 @media(max-width:620px){html.seen .hero-side,html.seen .hero-copy>p{display:none}html.seen .hero{padding-block:18px}}
+
+/* FIX đồng hồ cờ: giữ nút ổn định, không animate transform khi cập nhật thời gian */
+.chess .side,
+.chess .side.flip,
+.chess .side:active:not(:disabled){
+  transition:none!important;
+}
+.chess .side.flip,
+.chess .side.flip:active:not(:disabled){
+  transform:rotate(180deg)!important;
+}
+/* Đồng hồ cờ vua ở chế độ ngang toàn màn hình */
+#panel:fullscreen{background:var(--bg);color:var(--ink);width:100%;height:100%;padding:10px;overflow:hidden;}
+#panel:fullscreen .chess{height:100%;min-height:0;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-rows:1fr;align-items:stretch;gap:10px;}
+#panel:fullscreen .side{height:100%;min-height:0;font-size:clamp(28px,8vh,72px);padding:8px 2px;}
+#panel:fullscreen .mid{grid-template-columns:1fr;align-content:center;gap:8px;}
+#panel:fullscreen .mid button{font-size:clamp(11px,2.3vh,16px);min-height:40px;padding:7px;white-space:nowrap;}
+#panel:fullscreen .side.flip{transform:rotate(180deg)!important;}
+#panel:fullscreen .chess{touch-action:manipulation;}
+@media (orientation:landscape) and (max-height:520px){#panel:fullscreen{padding:6px}#panel:fullscreen .chess{gap:6px}#panel:fullscreen .side{font-size:clamp(28px,9vh,64px)}}
 </style>
 </head>
 <body>
@@ -1580,14 +1600,17 @@ html.seen .start-guide{display:none}
   function chess(force){
     cancelAnimationFrame(raf);
     if(force||!ch){var base=Math.max(1000,(val('s1',10)*60+val('s3',0))*1000);
-    ch={t:[base,base],b:base,inc:val('s2',0)*1000,a:-1,last:0,over:-1,pause:false};}
-    panel.innerHTML='<div class="chess"><button class="side flip" data-i="1"></button><div class="mid"><button data-a="p">Dừng</button><button data-a="r">Đặt lại</button></div><button class="side" data-i="0"></button></div>';
+    ch={t:[base,base],b:base,inc:val('s2',0)*1000,a:-1,last:0,over:-1,pause:false,sameDirection:ch?ch.sameDirection:false};}
+    panel.innerHTML='<div class="chess"><button class="side" data-i="1" aria-label="Đồng hồ người chơi phía trên"></button><div class="mid"><button data-a="p">Dừng</button><button data-a="r">Đặt lại</button><button data-a="fs">⛶ Toàn màn hình</button><button data-a="orient">↻ Cùng hướng</button></div><button class="side" data-i="0" aria-label="Đồng hồ người chơi phía dưới"></button></div>'; 
+    var orientBtn=panel.querySelector('[data-a="orient"]');if(orientBtn&&ch.sameDirection)orientBtn.textContent='↔ Đối diện';
     panel.onclick=function(e){
       var b=e.target.closest('button');if(!b||!ch)return;
       var n=performance.now(),a=b.getAttribute('data-a'),i=b.getAttribute('data-i');
       un();
       if(a==='r'){chess(true);return}
-      if(a==='p'){
+      if(a==='fs'){toggleChessFullscreen();return}
+      if(a==='orient'){ch.sameDirection=!ch.sameDirection;var ob=panel.querySelector('[data-a="orient"]');if(ob)ob.textContent=ch.sameDirection?'↔ Đối diện':'↻ Cùng hướng';return}
+      if(a==='p'){ 
         if(ch.a<0||ch.over>=0)return;
         if(ch.pause){ch.pause=false;ch.last=n;b.textContent='Dừng'}
         else{ch.t[ch.a]-=n-ch.last;ch.pause=true;b.textContent='Tiếp tục'}
@@ -1600,6 +1623,22 @@ html.seen .start-guide{display:none}
     };
     chLoop();
   }
+  async function toggleChessFullscreen(){
+    try{
+      if(document.fullscreenElement){
+        await document.exitFullscreen();
+        try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock()}catch(e){}
+      }else{
+        if(panel.requestFullscreen) await panel.requestFullscreen();
+        else if(document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+        try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock('landscape')}catch(e){}
+      }
+    }catch(e){showAlert('Không thể bật toàn màn hình','Trình duyệt có thể chưa hỗ trợ chế độ này. Hãy thử mở website bằng Chrome.');}
+  }
+  document.addEventListener('fullscreenchange',function(){
+    var b=panel.querySelector('[data-a="fs"]');
+    if(b)b.textContent=document.fullscreenElement?'⤢ Thoát toàn màn hình':'⛶ Toàn màn hình';
+  });
   function chFlag(){ch.t[ch.a]=0;ch.over=ch.a;ch.a=-1;bp(4,0.6);if(window.logStat)window.logStat('chess',Math.max(0,2*(ch.b||0)-ch.t[0]-ch.t[1]))}
   function chLoop(){
     if(!ch)return;
@@ -1610,7 +1649,9 @@ html.seen .start-guide{display:none}
     for(var k=0;k<bs.length;k++){
       var i=+bs[k].getAttribute('data-i'),r=ch.t[i]-((ch.a===i&&!ch.pause)?n-ch.last:0);
       bs[k].textContent=ch.over===i?'Hết giờ':(r<10000?(Math.max(0,r)/1000).toFixed(1):mmss(r));
-      bs[k].className='side'+(i===1?' flip':'')+(ch.a===i?' on':'')+(ch.over===i?' flag':'');
+      var sideClass='side'+(i===1&&!ch.sameDirection?' flip':'')+(ch.a===i?' on':'')+(ch.over===i?' flag':'');
+      /* Chỉ đổi class khi trạng thái thật sự thay đổi, tránh cập nhật CSS mỗi khung hình */
+      if(bs[k].className!==sideClass)bs[k].className=sideClass;
     }
     raf=requestAnimationFrame(chLoop);
   }
@@ -2646,6 +2687,14 @@ html.seen .start-guide{display:none}
     "Âm thanh, thông báo, giao diện và tiến độ": "Sound, notifications, appearance and progress",
     "Âm lượng": "Volume",
     "Toàn màn hình": "Fullscreen",
+    "⛶ Toàn màn hình": "⛶ Fullscreen",
+    "⤢ Thoát toàn màn hình": "⤢ Exit fullscreen",
+    "↻ Cùng hướng": "↻ Same orientation",
+    "↔ Đối diện": "↔ Opposite sides",
+    "Đồng hồ người chơi phía trên": "Top player's clock",
+    "Đồng hồ người chơi phía dưới": "Bottom player's clock",
+    "Không thể bật toàn màn hình": "Unable to enter fullscreen",
+    "Trình duyệt có thể chưa hỗ trợ chế độ này. Hãy thử mở website bằng Chrome.": "Your browser may not support this mode. Try opening the website in Chrome.",
     "Tiếng báo": "Alert sound",
     "Nghe thử âm báo đang chọn": "Preview the selected alert",
     "▶ Thử âm báo": "▶ Test alert",
