@@ -1129,7 +1129,7 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
   <div class="foot"><label>Âm nền <select id="amb" aria-label="Âm nền"><option value="off">Tắt</option><option value="rain">Tiếng mưa</option><option value="white">Ồn trắng</option><option value="brown">Ồn nâu</option></select></label></div>
   <div class="foot notify-tools"><label class="chk"><input type="checkbox" id="notifyToggle"> Thông báo khi hết giờ</label><button type="button" id="notifyPermission">Bật thông báo</button></div><p class="notify-note" id="notifyStatus" role="status">Thông báo trình duyệt đang tắt.</p>
   <div class="foot"><label>Giao diện <select id="thm" aria-label="Giao diện"><option value="auto">Tự động</option><option value="light">Sáng</option><option value="dark">Tối</option><option value="ocean">Biển</option><option value="forest">Rừng</option><option value="rose">Hồng</option><option value="mint">Mint Studio</option><option value="midnight">Midnight Luxe</option><option value="aurora">Aurora Pop</option><option value="glass">Glass Luxe</option></select></label><label class="chk"><input type="checkbox" id="big"> Chữ to</label><label class="chk"><input type="checkbox" id="hap"> Rung nhẹ</label></div>
-  <section class="stats"><h2>Thống kê</h2><div id="st-goal"></div><div id="st-today"></div><div id="st-sum" class="sum"></div><div id="st-heat" class="heat" role="img" aria-label="Lịch hoạt động 15 tuần gần nhất"></div><div class="hlg"><span>Ít</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>Nhiều</span></div><div class="goalset"><label for="st-goal-in">Mục tiêu mỗi ngày</label><input id="st-goal-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="30" autocomplete="off"><span>phút</span></div><button id="st-clear">Xóa thống kê</button></section>
+  <section class="stats"><h2>Thống kê</h2><div id="st-goal"></div><div id="st-today"></div><div id="st-sum" class="sum"></div><div id="st-heat" class="heat" role="img" aria-label="Lịch hoạt động 15 tuần gần nhất"></div><div class="hlg"><span>Ít</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>Nhiều</span></div><div class="goalset"><label for="st-goal-in">Mục tiêu mỗi ngày</label><input id="st-goal-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="30" autocomplete="off"><span>phút</span></div><button id="st-clear">Xóa thống kê</button><select id="st-csv-range" aria-label="Chọn khoảng thời gian xuất CSV"><option value="all">Tất cả</option><option value="7">7 ngày gần nhất</option><option value="30">30 ngày gần nhất</option></select><button id="st-csv" type="button">Xuất CSV</button></section>
     </div>
   </details>
   <details class="help"><summary>Hướng dẫn nhanh</summary><div>
@@ -2065,6 +2065,28 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
   var gin=$('st-goal-in');gin.value=goalMin();
   gin.addEventListener('input',function(){var v=parseInt(gin.value,10);if(v>=1){ls('bg2-goal',String(v));drawStats()}});
   $('st-clear').addEventListener('click',function(){ls('bg-stats','{}');drawStats()});
+  $('st-csv').addEventListener('click',function(){
+    try{
+      var range=$('st-csv-range').value,limit=range==='all'?0:parseInt(range,10),cutoff='';
+      if(limit){var dt=new Date();dt.setDate(dt.getDate()-(limit-1));cutoff=dk(dt);}
+      var d=load()||{},rows=[['Ngay','Cong cu','Phut','So lan']],count=0;
+      Object.keys(d).sort().forEach(function(k){
+        if(cutoff&&k<cutoff)return;
+        Object.keys(NM).forEach(function(m){
+          var v=d[k][m];
+          if(v&&v[0]){rows.push([k,NM[m],(v[0]/60000).toFixed(2),v[1]||0]);count++;}
+        });
+      });
+      if(!count){toast('Chưa có dữ liệu trong khoảng thời gian này.');return;}
+      var csv=rows.map(function(r){return r.map(function(x){return '"'+String(x).replace(/"/g,'""')+'"'}).join(',')}).join('\r\n');
+      var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+      var url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download='thong-ke-bam-gio'+(limit?'-'+limit+'-ngay':'')+'.csv';
+      document.body.appendChild(a);a.click();a.remove();
+      setTimeout(function(){URL.revokeObjectURL(url)},1000);
+      toast('Đã xuất '+count+' dòng thống kê.');
+    }catch(e){toast('Không xuất được CSV.');}
+  });
   drawStats();
   /* Giờ thế giới */
   var CITIES=[
