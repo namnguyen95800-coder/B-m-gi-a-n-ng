@@ -16,10 +16,17 @@
 <meta property="og:image" content="https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Bấm giờ: đếm ngược, Pomodoro, cờ vua và nhiều loại đồng hồ khác">
 <meta name="twitter:card" content="summary_large_image">
-<script>try{var _t=localStorage.getItem('bg2-theme');if(_t&&_t!=='auto')document.documentElement.setAttribute('data-theme',_t);if(localStorage.getItem('bg2-big')==='1')document.documentElement.className='big'}catch(e){}</script>
+<meta name="twitter:title" content="Bấm giờ: đếm ngược, Pomodoro, cờ vua và hơn thế nữa">
+<meta name="twitter:description" content="Nhiều loại đồng hồ trong một trang, miễn phí, dùng được cả khi mất mạng.">
+<meta name="twitter:image" content="https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/og-image.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Bấm giờ","url":"https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"vi","offers":{"@type":"Offer","price":"0","priceCurrency":"VND"},"description":"Đếm ngược, Pomodoro, tập luyện, đồng hồ thi, đồng hồ cờ vua, nhắc nhở và giờ thế giới. Miễn phí, dùng được khi không có mạng."}</script>
+<script>try{var _t=localStorage.getItem('bg2-theme');if(_t&&_t!=='auto')document.documentElement.setAttribute('data-theme',_t);if(localStorage.getItem('bg2-big')==='1')document.documentElement.className='big';if(localStorage.getItem('bg2-seen')==='1')document.documentElement.classList.add('seen')}catch(e){}</script>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0d1a20">
+<meta name="theme-color" content="#eef3f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1a20" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -225,7 +232,6 @@ html.big .lapnow{font-size:18px}
 .tool-card small{display:block;margin-top:4px;font-size:11px;line-height:1.35;color:var(--muted);font-weight:400}
 .tool-card>button:first-child.on small{color:inherit;opacity:.8}
 .tool-section-label{letter-spacing:.04em;text-transform:none;font-size:13px}
-.tool-intro{font-size:13px;line-height:1.45;color:var(--muted);margin:2px 0 8px}
 .tool-section-label{display:flex;align-items:center;justify-content:space-between;margin:14px 0 8px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .sheet-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .tool-card{display:grid;grid-template-columns:minmax(0,1fr) 38px;gap:4px;min-width:0}
@@ -578,7 +584,7 @@ input,select{border-radius:12px}
 .hero-action{border-radius:16px;min-height:72px}
 .hero-action b{font-size:14px}.hero-action small{font-size:12px}
 .hero-side{border-radius:22px}
-.start-guide,.goal-launch,.stats,.settings-panel,.tool-panel,.panel,.card,.display,.tabs,.laps,.hint,.section-label{scroll-margin-top:18px}
+.start-guide,.goal-launch,.stats,.panel,.card,.display,.tabs,.laps,.hint,.section-label{scroll-margin-top:18px}
 .start-guide,.goal-launch{border-radius:22px;box-shadow:0 6px 22px rgba(18,47,57,.035)}
 .start-guide{padding:clamp(14px,2.5vw,22px)}
 .goal-launch{padding:clamp(15px,2.5vw,22px)}
@@ -645,7 +651,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 .hero:after{content:"";position:absolute;z-index:-1;width:270px;height:270px;border-radius:50%;right:-100px;top:-130px;background:radial-gradient(circle,color-mix(in srgb,var(--accent,#13b8a6) 20%,transparent),transparent 70%);pointer-events:none}
 .hero-kicker{letter-spacing:.14em;font-size:10px;font-weight:800}
 .hero h2{letter-spacing:-.055em;line-height:1.08}
-.hero-copy>p,.hero-copy .hero-desc{max-width:48ch;line-height:1.7}
+.hero-copy>p{max-width:48ch;line-height:1.7}
 .hero-action{border-radius:16px;min-height:68px;box-shadow:0 4px 14px rgba(10,30,50,.035)}
 .hero-action:hover,.goal-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,35,55,.09)}
 .hero-action:active,.goal-card:active,button:active{transform:scale(.985)}
@@ -944,9 +950,6 @@ body, .hero, .display, .card, .goal-launch, .start-guide, .settings, .presets, #
 :root[data-theme="glass"] button{background:#ffffff9c;border-color:#cbd8ec;border-radius:16px;box-shadow:0 3px 9px #536d9512}
 :root[data-theme="glass"] #main.go,:root[data-theme="glass"] .tabs button[aria-selected="true"]{background:linear-gradient(110deg,#637ff0,#8f8af5 55%,#48cdb1);color:#fff;border:0;box-shadow:0 7px 18px #637ff044}
 :root[data-theme="glass"] input,:root[data-theme="glass"] select{background:#ffffffb8;border-color:#cbd8ec}
-/* Theme-aware lower navigation and readable text */
-:root[data-theme="mint"] .bottom-nav,:root[data-theme="midnight"] .bottom-nav,:root[data-theme="aurora"] .bottom-nav,:root[data-theme="glass"] .bottom-nav{border-color:var(--line)}
-:root[data-theme="midnight"] .muted,:root[data-theme="aurora"] .muted{color:var(--muted)}
 @media(max-width:620px){
  :root[data-theme="midnight"] .display{border-radius:10px 22px 10px 22px}
  :root[data-theme="aurora"] .display{border-radius:34px 16px 34px 16px}
@@ -962,10 +965,7 @@ body, .hero, .display, .card, .goal-launch, .start-guide, .settings, .presets, #
 /* Each theme explicitly sets text and form colors, avoiding pale text on white surfaces. */
 :root[data-theme="mint"] body,:root[data-theme="midnight"] body,:root[data-theme="aurora"] body,:root[data-theme="glass"] body{color:var(--ink)}
 :root[data-theme="mint"] .settings,:root[data-theme="mint"] .presets,:root[data-theme="mint"] #panel,:root[data-theme="mint"] .laps,:root[data-theme="mint"] .stats,:root[data-theme="mint"] .help,:root[data-theme="mint"] .extras,:root[data-theme="mint"] .start-guide,:root[data-theme="mint"] .goal-launch,:root[data-theme="mint"] .tabs{color:#163a32}
-:root[data-theme="glass"] .hero,:root[data-theme="glass"] .display,:root[data-theme="glass"] .settings,:root[data-theme="glass"] .presets,:root[data-theme="glass"] #panel,:root[data-theme="glass"] .laps,:root[data-theme="glass"] .stats,:root[data-theme="glass"] .help,:root[data-theme="glass"] .extras,:root[data-theme="glass"] .start-guide,:root[data-theme="glass"] .goal-launch,:root[data-theme="glass"] .tabs{color:#202b45}
-:root[data-theme="mint"] .muted,:root[data-theme="mint"] .hint,:root[data-theme="mint"] .foot,:root[data-theme="mint"] .stats h2,:root[data-theme="mint"] .laps h2{color:#4f7168}
-:root[data-theme="glass"] .muted,:root[data-theme="glass"] .phase,:root[data-theme="glass"] .lapnow,:root[data-theme="glass"] .hint,:root[data-theme="glass"] .foot,:root[data-theme="glass"] .stats h2,:root[data-theme="glass"] .laps h2{color:#53647d}
-:root[data-theme="midnight"] .muted,:root[data-theme="midnight"] .phase,:root[data-theme="midnight"] .lapnow,:root[data-theme="midnight"] .hint,:root[data-theme="midnight"] .foot,:root[data-theme="midnight"] .stats h2,:root[data-theme="midnight"] .laps h2,:root[data-theme="aurora"] .muted,:root[data-theme="aurora"] .phase,:root[data-theme="aurora"] .lapnow,:root[data-theme="aurora"] .hint,:root[data-theme="aurora"] .foot,:root[data-theme="aurora"] .stats h2,:root[data-theme="aurora"] .laps h2{color:var(--muted)}
+:root[data-theme="glass"] .hero,:root[data-theme="glass"] .display,:root[data-theme="glass"] .settings,:root[data-theme="glass"] .presets,:root[data-theme="glass"] #panel,:root[data-theme="glass"] .laps,:root[data-theme="glass"] .stats,:root[data-theme="glass"] .help,:root[data-theme="glass"] .extras,:root[data-theme="glass"] .start-guide,:root[data-theme="glass"] .goal-launch,:root[data-theme="glass"] .tabs{color:#202b45}:root[data-theme="mint"] .hint,:root[data-theme="mint"] .foot,:root[data-theme="mint"] .stats h2,:root[data-theme="mint"] .laps h2{color:#4f7168}:root[data-theme="glass"] .phase,:root[data-theme="glass"] .lapnow,:root[data-theme="glass"] .hint,:root[data-theme="glass"] .foot,:root[data-theme="glass"] .stats h2,:root[data-theme="glass"] .laps h2{color:#53647d}:root[data-theme="midnight"] .phase,:root[data-theme="midnight"] .lapnow,:root[data-theme="midnight"] .hint,:root[data-theme="midnight"] .foot,:root[data-theme="midnight"] .stats h2,:root[data-theme="midnight"] .laps h2,:root[data-theme="aurora"] .phase,:root[data-theme="aurora"] .lapnow,:root[data-theme="aurora"] .hint,:root[data-theme="aurora"] .foot,:root[data-theme="aurora"] .stats h2,:root[data-theme="aurora"] .laps h2{color:var(--muted)}
 :root[data-theme="midnight"] .settings label,:root[data-theme="midnight"] .settings p,:root[data-theme="midnight"] .settings span,:root[data-theme="midnight"] .stats,:root[data-theme="midnight"] .help,:root[data-theme="midnight"] .extras,:root[data-theme="midnight"] .start-guide,:root[data-theme="aurora"] .settings label,:root[data-theme="aurora"] .settings p,:root[data-theme="aurora"] .settings span,:root[data-theme="aurora"] .stats,:root[data-theme="aurora"] .help,:root[data-theme="aurora"] .extras,:root[data-theme="aurora"] .start-guide{color:var(--ink)}
 :root[data-theme="midnight"] input,:root[data-theme="midnight"] select,:root[data-theme="midnight"] textarea,:root[data-theme="aurora"] input,:root[data-theme="aurora"] select,:root[data-theme="aurora"] textarea{background:#111a2a;color:var(--ink);border-color:var(--line);color-scheme:dark}
 :root[data-theme="mint"] input,:root[data-theme="mint"] select,:root[data-theme="mint"] textarea,:root[data-theme="glass"] input,:root[data-theme="glass"] select,:root[data-theme="glass"] textarea{background:#fff;color:var(--ink);border-color:var(--line);color-scheme:light}
@@ -1059,6 +1059,9 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
 .rp-c.pomo{background:#4f8cff}.rp-c.iv{background:#2ec99d}.rp-c.cd{background:#ffb84d}.rp-c.seq{background:#a78bfa}.rp-c.exam{background:#ff7a5f}.rp-c.cook{background:#f472b6}.rp-c.chess{background:#94a3b8}
 .rp-empty{color:var(--muted);font-size:13px;margin-top:8px}
 .hidden{display:none!important}
+/* Người dùng quay lại: bỏ hướng dẫn lần đầu, thu gọn hero trên điện thoại để đồng hồ lên sớm hơn */
+html.seen .start-guide{display:none}
+@media(max-width:620px){html.seen .hero-side,html.seen .hero-copy>p{display:none}html.seen .hero{padding-block:18px}}
 </style>
 </head>
 <body>
@@ -1214,7 +1217,8 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
 <div id="alertbox" role="alertdialog" aria-modal="true" aria-labelledby="atitle" hidden>
   <div class="abox"><div id="atitle" class="at">Đến giờ!</div><div id="alist"></div><button id="aok">Đã biết</button></div>
 </div>
-<script>window.TT=document.title;</script>
+<noscript><p style="max-width:480px;margin:24px auto;padding:0 16px;font-family:system-ui,sans-serif">Trang Bấm giờ cần bật JavaScript để chạy các bộ đếm.</p></noscript>
+<script>window.TT=document.title;try{localStorage.setItem('bg2-seen','1')}catch(e){}</script>
 <script>
 (function(){
   var $=function(id){return document.getElementById(id)};
@@ -1223,8 +1227,8 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
   var mode='sw',running=false,startAt=0,raf=0,ac=null;
   var elapsed=0,lapBase=0,laps=[];
   var started=false,done=false,idx=0,acc=0,cfg=null;
-  var ENG={sw:1,cd:1,pomo:1,iv:1,pres:1,seq:1,exam:1},STORE={};
-  var NAMES={cd:'Đếm ngược',pomo:'Pomodoro',iv:'Tập luyện',pres:'Thuyết trình',seq:'Quy trình',exam:'Đồng hồ thi'};
+  var ENG={sw:1,cd:1,pomo:1,iv:1,seq:1,exam:1},STORE={};
+  var NAMES={cd:'Đếm ngược',pomo:'Pomodoro',iv:'Tập luyện',seq:'Quy trình',exam:'Đồng hồ thi'};
   function snap(){return {running:running,startAt:startAt,elapsed:elapsed,lapBase:lapBase,laps:laps,started:started,done:done,idx:idx,acc:acc,cfg:cfg}}
   function load(o){o=o||{};running=!!o.running;startAt=o.startAt||0;elapsed=o.elapsed||0;lapBase=o.lapBase||0;laps=o.laps||[];started=!!o.started;done=!!o.done;idx=o.idx||0;acc=o.acc||0;cfg=o.cfg||null}
 
@@ -1250,7 +1254,6 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
        '<div class="chips"><button data-p="1">1 phút</button><button data-p="5">5 phút</button><button data-p="10">10 phút</button><button data-p="30">30 phút</button></div>',
     pomo:grp('Làm việc',field('s1','Phút',25,999),field('s2','Giây',0,59))+grp('Nghỉ ngắn',field('s3','Phút',5,999),field('s4','Giây',0,59))+grp('Nghỉ dài',field('s5','Phút',15,999),field('s6','Giây',0,59)),
     iv:field('s1','Tập (giây)',30,3600)+field('s2','Nghỉ (giây)',10,3600)+field('s3','Số vòng',8,99),
-    pres:field('s1','Thời lượng (phút)',20,300)+field('s2','Báo vàng khi còn (phút)',5,60),
     chess:grp('Mỗi bên',field('s1','Phút',10,999),field('s3','Giây',0,59))+field('s2','Cộng thêm mỗi nước (giây)',0,60),
     cook:'',breath:'',days:'',rem:'',world:'',seq:'<div id="seqbox" class="sq"></div>',exam:grp('Tổng thời gian',field('s1','Phút',90,999),field('s2','Giây',0,59))+grp('Báo khi còn',field('s3','Mốc 1 (phút)',30,999),field('s4','Mốc 2 (phút)',15,999))+grp('',field('s5','Mốc 3 (phút)',5,999),field('s6','Mốc 4 (phút)',1,999))
   };
@@ -1270,7 +1273,6 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
     if(mode==='cd')return {m:val('s1',5),s:val('s2',0)};
     if(mode==='seq')return {steps:(window.seqSteps?window.seqSteps():[])};
     if(mode==='exam')return {t:val('s1',90)*60+val('s2',0),marks:[val('s3',30),val('s4',15),val('s5',5),val('s6',1)]};
-    if(mode==='pres')return {m:val('s1',20),w:val('s2',5)};
     if(mode==='pomo')return {w:val('s1',25)*60+val('s2',0),b:val('s3',5)*60+val('s4',0),l:val('s5',15)*60+val('s6',0)};
     return {w:val('s1',30),r:val('s2',10),n:Math.max(1,val('s3',8))};
   }
@@ -1287,7 +1289,7 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
     var X=function(ms){return Math.max(1000,ms)};
     if(mode==='seq'){var st=c.steps||[];return i<st.length?{name:st[i].n+' ('+(i+1)+'/'+st.length+')',ms:X(st[i].ms)}:null}
     if(mode==='exam'){var sg=segs(c);return i<sg.length?{name:sg[i].name,ms:X(sg[i].ms)}:null}
-    if(mode==='cd'||mode==='pres')return i>0?null:{name:mode==='pres'?'Thuyết trình':'Đếm ngược',ms:X((c.m*60+(c.s||0))*1000)};
+    if(mode==='cd')return i>0?null:{name:'Đếm ngược',ms:X((c.m*60+(c.s||0))*1000)};
     if(mode==='pomo'){
       var k=(i>>1)+1;
       if(i%2===0)return {name:'Làm việc, phiên '+k,ms:X(c.w*1000)};
@@ -1355,7 +1357,7 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
     if(done){timeEl.textContent='00:00';phaseEl.textContent='Xong rồi!';fill.style.width='100%';lapNow.textContent='';document.title='Xong rồi! - Bấm giờ';paint(0,'done');fit();return}
     if(started){e=engE();p=phase(idx,cfg)}else{p=phase(0,readCfg())}
     if(!p){timeEl.textContent='00:00';phaseEl.textContent='Chưa có bước nào, hãy thêm bước bên dưới';fill.style.width='0%';lapNow.textContent='';paint(0,'idle');fit();return}
-    timeEl.textContent=fmtS(p.ms-e);if(mode==='pres'&&started){var rm=p.ms-e;timeEl.style.color=rm<=60000?'var(--stop)':rm<=cfg.w*60000?'#d99a00':''}
+    timeEl.textContent=fmtS(p.ms-e);
     phaseEl.textContent=started?p.name:'Sẵn sàng';
     fill.style.width=(started?Math.min(100,e/p.ms*100):0)+'%';
     lapNow.textContent=(mode==='pomo'&&started)?'Đã xong '+(idx>>1)+' phiên':'';
@@ -2533,6 +2535,7 @@ body.focus #side{background:rgba(255,255,255,.08)!important;color:#e8f1f3!import
   }
   tabs.addEventListener('click',sync);
   function closeSheet(){sheet.hidden=true}
+  var reduce=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
   function reveal(){var w=document.querySelector('.wrap');if(w&&window.matchMedia&&matchMedia('(max-width:620px)').matches)w.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})}
   nav.addEventListener('click',function(e){
     var b=e.target.closest('button');if(!b)return;
