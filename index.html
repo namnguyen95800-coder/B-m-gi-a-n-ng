@@ -1208,6 +1208,38 @@ html.seen .start-guide{display:none}
     <b>Giờ thế giới:</b> xem giờ nhiều thành phố.</p>
     <p><b>Mẹo:</b> bấm Lưu mẫu để dùng lại cài đặt, bấm Chia sẻ để gửi link cho bạn bè. Trên máy tính dùng phím Space (bắt đầu hoặc dừng), L (ghi vòng), R (đặt lại), F (chế độ tập trung). Trên điện thoại, bấm biểu tượng ở góc trên bên phải đồng hồ để vào chế độ tập trung. Cần để trang mở thì đồng hồ mới kêu đúng giờ, mở lại trang trong 24 giờ vẫn giữ đồng hồ đang chạy.</p>
   </div></details>
+  <details class="help donate" id="donate" hidden>
+    <summary>☕ Ủng hộ người làm</summary>
+    <div>
+      <p>Bấm giờ miễn phí và không có quảng cáo. Nếu thấy hữu ích, bạn có thể mời mình một ly cà phê, hoàn toàn tùy tâm.</p>
+      <div id="donate-list" style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:10px 0"></div>
+      <p style="text-align:center"><b>Người nhận: NGUYEN HAI NAM</b></p>
+      <p style="text-align:center">Quét mã bằng app ngân hàng hoặc Momo. Cảm ơn bạn rất nhiều!</p>
+    </div>
+  </details>
+  <script>
+  /* ỦNG HỘ: mỗi mục là một ảnh QR nằm cùng thư mục với index.html. Ảnh nào không có thì bị bỏ qua;
+     không có ảnh nào thì cả mục Ủng hộ tự ẩn. */
+  (function(){
+    var QRS=[{f:'ung-ho-mb.png',n:'MB Bank'},{f:'ung-ho-momo.png',n:'Momo'}];
+    try{
+      var box=document.getElementById('donate'),list=document.getElementById('donate-list');
+      if(!box||!list)return;
+      QRS.forEach(function(q){
+        var fig=document.createElement('figure');
+        fig.style.cssText='margin:0;flex:1 1 150px;max-width:220px;text-align:center';
+        var img=new Image();
+        img.alt='Mã QR '+q.n;img.loading='lazy';
+        img.style.cssText='display:block;width:100%;height:auto;border-radius:12px;background:#fff';
+        var cap=document.createElement('figcaption');
+        cap.textContent=q.n;cap.style.cssText='margin-top:6px;font-weight:600;color:var(--ink)';
+        fig.appendChild(img);fig.appendChild(cap);
+        img.onload=function(){list.appendChild(fig);box.hidden=false};
+        img.src=q.f;
+      });
+    }catch(e){}
+  })();
+  </script>
 </main>
 <nav class="bnav" id="bnav" aria-label="Chọn công cụ">
   <button type="button" data-go="sw"><span class="ni">⏱️</span><span class="nl">Bấm giờ</span></button>
@@ -2637,6 +2669,10 @@ html.seen .start-guide{display:none}
     "Tập luyện": "Workout",
     "Nấu ăn": "Cooking",
     "Chia sẻ": "Share",
+    "☕ Ủng hộ người làm": "☕ Support the maker",
+    "Bấm giờ miễn phí và không có quảng cáo. Nếu thấy hữu ích, bạn có thể mời mình một ly cà phê, hoàn toàn tùy tâm.": "Timer is free and ad-free. If you find it useful, you can buy me a coffee, entirely optional.",
+    "Quét mã bằng app ngân hàng hoặc Momo. Cảm ơn bạn rất nhiều!": "Scan with your banking app or Momo. Thank you so much!",
+    "Người nhận: NGUYEN HAI NAM": "Recipient: NGUYEN HAI NAM",
     "Cài về màn hình": "Install app",
     "Thời gian của bạn.": "Your time.",
     "Bạn làm chủ thời gian.": "You're in control of your time.",
