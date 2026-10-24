@@ -1098,7 +1098,8 @@ html.seen .start-guide{display:none}
 #panel:fullscreen .chess{touch-action:manipulation;}
 @media (orientation:landscape) and (max-height:520px){#panel:fullscreen{padding:6px}#panel:fullscreen .chess{gap:6px}#panel:fullscreen .side{font-size:clamp(28px,9vh,64px)}}
 /* === Bản dùng trong app (APK) === */
-.in-app #shr,.in-app #inst{display:none!important}
+.in-app #shr,.in-app #inst,.in-app .notify-tools,.in-app #notifyStatus,.in-app #dlApk{display:none!important}
+#dlApk{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;margin:-8px 0 16px;padding:10px 16px;border-radius:14px;background:var(--go);color:var(--go-ink);font-weight:800;font-size:14px;text-decoration:none;box-shadow:0 4px 12px rgba(12,40,50,.12)}
 html{overscroll-behavior-y:contain}
 .in-app body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .in-app input,.in-app textarea,.in-app select{-webkit-user-select:text;user-select:text}
@@ -1108,6 +1109,7 @@ html{overscroll-behavior-y:contain}
 <body>
 <main>
   <div class="top"><h1>Bấm giờ</h1><div class="tb"><button id="langBtn" type="button" aria-label="Switch language">ENG</button><button id="shr">Chia sẻ</button><button id="inst">Cài về màn hình</button></div></div>
+  <a id="dlApk" href="Dousob_-_Manage_your_time_v1_0_0_1.APK" download hidden>📲 Tải app Android (APK)</a>
 
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
@@ -2846,6 +2848,7 @@ html{overscroll-behavior-y:contain}
     "Tập luyện": "Workout",
     "Nấu ăn": "Cooking",
     "Chia sẻ": "Share",
+    "📲 Tải app Android (APK)": "📲 Get Android app (APK)",
     "Bấm Quay lại lần nữa để thoát": "Press back again to exit",
     "☕ Ủng hộ người làm": "☕ Support the maker",
     "Bấm giờ miễn phí và không có quảng cáo. Nếu thấy hữu ích, bạn có thể mời mình một ly cà phê, hoàn toàn tùy tâm.": "Timer is free and ad-free. If you find it useful, you can buy me a coffee, entirely optional.",
@@ -3688,5 +3691,6 @@ html{overscroll-behavior-y:contain}
   }
 })();
 </script>
+<script>(function(){try{var a=document.getElementById('dlApk');if(a&&/Android/i.test(navigator.userAgent)&&!document.documentElement.classList.contains('in-app'))a.hidden=false}catch(e){}})();</script>
 </body>
 </html>
