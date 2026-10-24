@@ -210,6 +210,13 @@ html.big .lapnow{font-size:18px}
 .wadd{display:flex;gap:8px;margin-bottom:6px}
 .wadd select{flex:1;font:inherit;font-size:16px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0}
 .wadd button{min-height:48px;padding:10px 18px;font-size:16px}
+.tcalc .row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin:10px 0}
+.tcalc label{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:14px;flex:1 1 130px;min-width:0}
+.tcalc input,.tcalc select{font:inherit;font-size:16px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0;width:100%;box-sizing:border-box}
+.tcalc h3{margin:20px 0 4px;font-size:17px}
+.tcalc .big{font-size:26px;font-weight:700;line-height:1.25;color:var(--ink)}
+.tcalc .card{display:block;line-height:1.5}
+.tcalc .row button{min-height:48px;padding:10px 18px;font-size:16px}
 .help{margin-top:22px;max-width:620px}
 .help summary{cursor:pointer;font-weight:600;color:var(--muted);padding:8px 0}
 .help div{font-size:14px;line-height:1.6;color:var(--muted)}
@@ -1140,6 +1147,8 @@ html.seen .start-guide{display:none}
     <button role="tab" data-m="breath" aria-selected="false">Hít thở</button>
     <button role="tab" data-m="rem" aria-selected="false">Nhắc nhở</button>
     <button role="tab" data-m="world" aria-selected="false">Giờ thế giới</button>
+    <button role="tab" data-m="sleep" aria-selected="false">Tính giờ ngủ</button>
+    <button role="tab" data-m="dcalc" aria-selected="false">Tính ngày</button>
   </div>
   <div class="wrap"><div class="left">
   <div class="display" id="disp" role="timer" data-state="idle">
@@ -1205,7 +1214,7 @@ html.seen .start-guide{display:none}
     <b>Cờ vua:</b> hai người, chạm nút bên mình sau khi đi.<br>
     <b>Nấu ăn, Nhắc nhở:</b> nhiều bộ đếm cùng lúc.<br>
     <b>Hít thở:</b> theo vòng tròn to nhỏ.<br>
-    <b>Giờ thế giới:</b> xem giờ nhiều thành phố.</p>
+    <b>Giờ thế giới:</b> xem giờ nhiều thành phố.<br><b>Tính giờ ngủ:</b> gợi ý giờ đi ngủ hoặc thức dậy.<br><b>Tính ngày:</b> số ngày giữa hai ngày, cộng trừ ngày.</p>
     <p><b>Mẹo:</b> bấm Lưu mẫu để dùng lại cài đặt, bấm Chia sẻ để gửi link cho bạn bè. Trên máy tính dùng phím Space (bắt đầu hoặc dừng), L (ghi vòng), R (đặt lại), F (chế độ tập trung). Trên điện thoại, bấm biểu tượng ở góc trên bên phải đồng hồ để vào chế độ tập trung. Cần để trang mở thì đồng hồ mới kêu đúng giờ, mở lại trang trong 24 giờ vẫn giữ đồng hồ đang chạy.</p>
   </div></details>
   <details class="help donate" id="donate" hidden>
@@ -1254,7 +1263,7 @@ html.seen .start-guide{display:none}
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Tất cả công cụ">
   <div class="sheet-bg" id="sheetbg"></div>
   <div class="sheet-card"><div class="sheet-grip"></div><div class="sheet-title">Tìm công cụ phù hợp</div>
-    <div class="tool-search"><input id="toolSearch" type="search" placeholder="Thử: học bài, thi, nấu ăn…" autocomplete="off" aria-label="Tìm công cụ theo tên hoặc mục đích"><div class="tool-search-hint">12 công cụ trong một nơi. Tìm theo tên hoặc chọn nhóm bên dưới; ☆ để ghim yêu thích.</div></div>
+    <div class="tool-search"><div class="tool-search-hint">14 công cụ trong một nơi. Bấm ☆ để ghim tối đa 4 công cụ lên thanh dưới.</div></div>
     <div class="tool-filters" id="toolFilters" aria-label="Lọc theo nhóm">
       <button type="button" data-filter="all" aria-pressed="true">Tất cả</button>
       <button type="button" data-filter="study" aria-pressed="false">📚 Học tập</button>
@@ -1297,6 +1306,8 @@ html.seen .start-guide{display:none}
     cook:'Có thể chạy nhiều món cùng lúc. Gõ tên và số phút rồi bấm Enter để thêm. Đừng tắt trang khi đang nấu.',
     breath:'Phím tắt: Space bắt đầu hoặc dừng. To ra là hít vào, nhỏ lại là thở ra.',
     rem:'Nhắc lặp lại theo chu kỳ, ví dụ cứ 20 phút nghỉ mắt. Cần để trang mở, màn hình được giữ sáng khi có nhắc nhở đang chạy. Enter để thêm.',
+    sleep:'Chọn giờ cần thức dậy để xem nên đi ngủ lúc nào, hoặc chọn giờ đi ngủ để xem nên dậy lúc nào. Tính theo chu kỳ ngủ khoảng 90 phút.',
+    dcalc:'Tính số ngày giữa hai ngày, hoặc cộng trừ ngày, tuần, tháng, năm từ một ngày bất kỳ.',
     world:'Xem giờ nhiều thành phố cùng lúc. Chọn thành phố rồi bấm Thêm. Chênh lệch giờ tính so với múi giờ của máy bạn.',
     seq:'Tạo quy trình gồm nhiều bước nối nhau, ví dụ buổi sáng: đánh răng, tập, ăn sáng. Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Có thể lưu thành mẫu.',
     exam:'Đặt tổng thời gian làm bài và các mốc báo (số phút còn lại). Mốc lớn hơn hoặc bằng tổng thời gian sẽ bị bỏ qua, để 0 là không dùng. Phím tắt: Space bắt đầu hoặc dừng, R đặt lại.'
@@ -1310,7 +1321,7 @@ html.seen .start-guide{display:none}
     pomo:grp('Làm việc',field('s1','Phút',25,999),field('s2','Giây',0,59))+grp('Nghỉ ngắn',field('s3','Phút',5,999),field('s4','Giây',0,59))+grp('Nghỉ dài',field('s5','Phút',15,999),field('s6','Giây',0,59)),
     iv:field('s1','Tập (giây)',30,3600)+field('s2','Nghỉ (giây)',10,3600)+field('s3','Số vòng',8,99),
     chess:grp('Mỗi bên',field('s1','Phút',10,999),field('s3','Giây',0,59))+field('s2','Cộng thêm mỗi nước (giây)',0,60),
-    cook:'',breath:'',days:'',rem:'',world:'',seq:'<div id="seqbox" class="sq"></div>',exam:grp('Tổng thời gian',field('s1','Phút',90,999),field('s2','Giây',0,59))+grp('Báo khi còn',field('s3','Mốc 1 (phút)',30,999),field('s4','Mốc 2 (phút)',15,999))+grp('',field('s5','Mốc 3 (phút)',5,999),field('s6','Mốc 4 (phút)',1,999))
+    cook:'',breath:'',days:'',rem:'',world:'',sleep:'',dcalc:'',seq:'<div id="seqbox" class="sq"></div>',exam:grp('Tổng thời gian',field('s1','Phút',90,999),field('s2','Giây',0,59))+grp('Báo khi còn',field('s3','Mốc 1 (phút)',30,999),field('s4','Mốc 2 (phút)',15,999))+grp('',field('s5','Mốc 3 (phút)',5,999),field('s6','Mốc 4 (phút)',1,999))
   };
 
   function pad(n,l){n=String(n);while(n.length<l)n='0'+n;return n}
@@ -1398,7 +1409,7 @@ html.seen .start-guide{display:none}
     }else lastTx='';
   }
   function render(){
-    if(mode==='chess'||mode==='cook'||mode==='breath'||mode==='days'||mode==='rem'||mode==='world')return;timeEl.style.color='';bar.hidden=mode==='sw';$('disp').classList.toggle('flash',mode!=='sw'&&done);
+    if(mode==='chess'||mode==='cook'||mode==='breath'||mode==='days'||mode==='rem'||mode==='world'||mode==='sleep'||mode==='dcalc')return;timeEl.style.color='';bar.hidden=mode==='sw';$('disp').classList.toggle('flash',mode!=='sw'&&done);
     if(mode==='sw'){
       var t=now(),f=fmt(t);
       timeEl.innerHTML=f.main+'<span class="cs">'+f.cs+'</span>';
@@ -1553,7 +1564,7 @@ html.seen .start-guide{display:none}
     var tg=e.target.tagName;
     if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA'||e.ctrlKey||e.metaKey||e.altKey||window.alertOpen)return;
     if(e.code==='Space'&&nativeSpace(e.target))return;
-    if(mode==='chess'||mode==='cook'||mode==='breath'||mode==='days'||mode==='rem'||mode==='world')return;
+    if(mode==='chess'||mode==='cook'||mode==='breath'||mode==='days'||mode==='rem'||mode==='world'||mode==='sleep'||mode==='dcalc')return;
     if(e.code==='Space'){e.preventDefault();toggle()}
     else if(e.key==='l'||e.key==='L'){if(mode==='sw'&&running)lap()}
     else if(e.key==='r'||e.key==='R'){if(mode==='sw'?(!running&&elapsed>0):(started||done))reset()}
@@ -1781,14 +1792,14 @@ html.seen .start-guide{display:none}
   window.panelMode=function(m){
     cancelAnimationFrame(raf);
     cur=m;
-    var isP=m==='chess'||m==='cook'||m==='breath'||m==='days'||m==='rem'||m==='world';
+    var isP=m==='chess'||m==='cook'||m==='breath'||m==='days'||m==='rem'||m==='world'||m==='sleep'||m==='dcalc';
     disp.hidden=isP;ctl.hidden=isP;panel.hidden=!isP;document.body.classList.toggle('pm',isP);if(isP){document.body.removeAttribute('data-st');if(window.setFocus)window.setFocus(false)}var wr=document.querySelector('.wrap');if(wr){wr.classList.remove('enter');void wr.offsetWidth;wr.classList.add('enter');setTimeout(function(){wr.classList.remove('enter')},420)}document.body.setAttribute('data-m',m);
     if(!isP)panel.innerHTML='';
     var ins=setBox.querySelectorAll('input');
     for(var k=0;k<ins.length;k++){var sv2=ls('bg2-'+m+'-'+ins[k].id);if(sv2!==null)ins[k].value=String(sv2).replace(/\D/g,'')}
     if(ins.length)setBox.dispatchEvent(new Event('input',{bubbles:true}));
     ls('bg-mode',m);
-    if(m==='chess')chess();else if(m==='cook')cook();else if(m==='breath')breath();else if(m==='days')days();else if(m==='rem')rem2();else if(m==='seq')seqUI();else if(m==='world')world();
+    if(m==='chess')chess();else if(m==='cook')cook();else if(m==='breath')breath();else if(m==='days')days();else if(m==='rem')rem2();else if(m==='seq')seqUI();else if(m==='world')world();else if(m==='sleep')sleepTool();else if(m==='dcalc')dcalc();
     drawPre();
   };
   setBox.addEventListener('input',function(e){
@@ -1812,7 +1823,7 @@ html.seen .start-guide{display:none}
     DAYS.sort(function(a,b){return tgt(a.date)-tgt(b.date)});
     cl.innerHTML=DAYS.length?DAYS.map(function(x,i){
       var t=dtxt(x.date);
-      return '<div class="card"><div><div class="nm">'+esc(x.name)+' ('+fdate(x.date)+')</div><div class="tm" id="dt'+i+'">'+t[0]+'</div><div class="nm" id="ds'+i+'">'+t[1]+'</div></div><div class="bt"><button data-a="x" data-i="'+i+'">Xóa</button></div></div>';
+      return '<div class="card"><div><div class="nm"><span>'+esc(x.name)+'</span> ('+fdate(x.date)+')</div><div class="tm" id="dt'+i+'">'+t[0]+'</div><div class="nm" id="ds'+i+'">'+t[1]+'</div></div><div class="bt"><button data-a="x" data-i="'+i+'">Xóa</button></div></div>';
     }).join(''):'<p class="hint">Chưa có ngày nào. Nhập tên, chọn ngày rồi bấm Thêm.</p>';
   }
   function addDay(){
@@ -1859,13 +1870,14 @@ html.seen .start-guide{display:none}
   }
   window.__l2s=function(d,m,y){return lunar2solar(d,m,y,0,7)};
   var HOL=[
-    ['Âm lịch','l',[['Tết Nguyên Đán',1,1],['Rằm tháng Giêng',15,1],['Giỗ Tổ Hùng Vương',10,3],['Tết Đoan Ngọ',5,5],['Lễ Vu Lan',15,7],['Tết Trung thu',15,8],['Ông Công, Ông Táo',23,12]]],
-    ['Dương lịch','s',[['Tết Dương lịch',1,1],['Valentine',14,2],['Quốc tế Phụ nữ',8,3],['Giải phóng miền Nam',30,4],['Quốc tế Lao động',1,5],['Quốc khánh',2,9],['Ngày Phụ nữ Việt Nam',20,10],['Halloween',31,10],['Ngày Nhà giáo Việt Nam',20,11],['Giáng sinh',25,12]]]
+    ['Âm lịch','l',[['Tết Nguyên Đán',1,1],['Vía Thần Tài',10,1],['Rằm tháng Giêng',15,1],['Tết Hàn Thực',3,3],['Giỗ Tổ Hùng Vương',10,3],['Lễ Phật Đản',15,4],['Tết Đoan Ngọ',5,5],['Lễ Vu Lan',15,7],['Tết Trung thu',15,8],['Tết Trùng Cửu',9,9],['Rằm tháng Mười',15,10],['Ông Công, Ông Táo',23,12],['Giao thừa (Âm lịch)',0,0]]],
+    ['Dương lịch','s',[['Tết Dương lịch',1,1],['Ngày thành lập Đảng',3,2],['Valentine',14,2],['Ngày Thầy thuốc Việt Nam',27,2],['Quốc tế Phụ nữ',8,3],['Valentine trắng',14,3],['Cá tháng Tư',1,4],['Ngày Sách Việt Nam',21,4],['Ngày Trái đất',22,4],['Giải phóng miền Nam',30,4],['Quốc tế Lao động',1,5],['Chiến thắng Điện Biên Phủ',7,5],['Ngày sinh Chủ tịch Hồ Chí Minh',19,5],['Quốc tế Thiếu nhi',1,6],['Ngày Gia đình Việt Nam',28,6],['Ngày Thương binh Liệt sĩ',27,7],['Cách mạng Tháng Tám',19,8],['Quốc khánh',2,9],['Ngày khai giảng',5,9],['Giải phóng Thủ đô',10,10],['Ngày Doanh nhân Việt Nam',13,10],['Ngày Phụ nữ Việt Nam',20,10],['Halloween',31,10],['Ngày Pháp luật Việt Nam',9,11],['Ngày Độc thân',11,11],['Ngày Nhà giáo Việt Nam',20,11],['Ngày Quốc phòng toàn dân',22,12],['Đêm Giáng sinh',24,12],['Giáng sinh',25,12],['Giao thừa (Dương lịch)',31,12]]],
+    ['Theo thứ trong tuần','w',[['Ngày của Mẹ',20,5],['Ngày của Cha',30,6],['Lễ Tạ ơn',44,11]]]
   ];
   function holOpts(){
     var h='<option value="">Thêm ngày lễ có sẵn...</option>';
     HOL.forEach(function(g,gi){
-      h+='<optgroup label="'+g[0]+'">'+g[2].map(function(x,i){return '<option value="'+gi+':'+i+'">'+esc(x[0])+'</option>'}).join('')+'</optgroup>';
+      h+='<optgroup label="'+(EN()?({'Âm lịch':'Lunar calendar','Dương lịch':'Solar calendar','Theo thứ trong tuần':'By weekday'}[g[0]]||g[0]):g[0])+'">'+g[2].map(function(x,i){return '<option value="'+gi+':'+i+'">'+esc(x[0])+'</option>'}).join('')+'</optgroup>';
     });
     return h;
   }
@@ -1874,6 +1886,8 @@ html.seen .start-guide{display:none}
     for(var yy=y-1;yy<=y+1;yy++){
       var dt;
       if(kind==='s')dt=new Date(yy,m-1,d);
+      else if(kind==='w'){var f=new Date(yy,m-1,1),n=Math.floor(d/10),wd=d%10;dt=new Date(yy,m-1,1+(wd-f.getDay()+7)%7+(n-1)*7)}
+      else if(d===0){var r2=lunar2solar(1,1,yy+1,0,7);if(!r2[0])continue;dt=new Date(r2[2],r2[1]-1,r2[0]-1)}
       else{var r=lunar2solar(d,m,yy,0,7);if(!r[0])continue;dt=new Date(r[2],r[1]-1,r[0])}
       if(dt.getTime()>=today&&(!best||dt<best))best=dt;
     }
@@ -2227,7 +2241,7 @@ html.seen .start-guide{display:none}
   function rpUpsertLive(){
     try{
       if(typeof running==='undefined'||!running||typeof mode==='undefined')return;
-      if(mode==='chess'||mode==='cook'||mode==='breath'||mode==='days'||mode==='rem'||mode==='world')return;
+      if(mode==='chess'||mode==='cook'||mode==='breath'||mode==='days'||mode==='rem'||mode==='world'||mode==='sleep'||mode==='dcalc')return;
       var now=Date.now(),start=(typeof startAt!=='undefined'&&startAt)?startAt:now;
       var arr=rpAll(),found=null;
       for(var i=arr.length-1;i>=0;i--){if(arr[i].open&&arr[i].m===mode&&Math.abs(arr[i].s-start)<60000){found=arr[i];break}}
@@ -2284,17 +2298,20 @@ html.seen .start-guide{display:none}
   drawReplay();
   /* Giờ thế giới */
   var CITIES=[
-    ['Hà Nội','Việt Nam','Asia/Ho_Chi_Minh','Châu Á'],['Bangkok','Thái Lan','Asia/Bangkok','Châu Á'],['Phnom Penh','Campuchia','Asia/Phnom_Penh','Châu Á'],['Viêng Chăn','Lào','Asia/Vientiane','Châu Á'],['Yangon','Myanmar','Asia/Yangon','Châu Á'],['Singapore','Singapore','Asia/Singapore','Châu Á'],['Kuala Lumpur','Malaysia','Asia/Kuala_Lumpur','Châu Á'],['Jakarta','Indonesia','Asia/Jakarta','Châu Á'],['Manila','Philippines','Asia/Manila','Châu Á'],['Bắc Kinh','Trung Quốc','Asia/Shanghai','Châu Á'],['Hồng Kông','Trung Quốc','Asia/Hong_Kong','Châu Á'],['Đài Bắc','Đài Loan','Asia/Taipei','Châu Á'],['Tokyo','Nhật Bản','Asia/Tokyo','Châu Á'],['Seoul','Hàn Quốc','Asia/Seoul','Châu Á'],['Ulaanbaatar','Mông Cổ','Asia/Ulaanbaatar','Châu Á'],['New Delhi','Ấn Độ','Asia/Kolkata','Châu Á'],['Kathmandu','Nepal','Asia/Kathmandu','Châu Á'],['Dhaka','Bangladesh','Asia/Dhaka','Châu Á'],['Karachi','Pakistan','Asia/Karachi','Châu Á'],['Colombo','Sri Lanka','Asia/Colombo','Châu Á'],['Dubai','Các Tiểu vương quốc Ả Rập (UAE)','Asia/Dubai','Châu Á'],['Riyadh','Ả Rập Xê Út','Asia/Riyadh','Châu Á'],['Doha','Qatar','Asia/Qatar','Châu Á'],['Tehran','Iran','Asia/Tehran','Châu Á'],['Jerusalem','Israel','Asia/Jerusalem','Châu Á'],['Istanbul','Thổ Nhĩ Kỳ','Europe/Istanbul','Châu Á'],['Vladivostok','Nga','Asia/Vladivostok','Châu Á'],
-    ['Moscow','Nga','Europe/Moscow','Châu Âu'],['Kyiv','Ukraine','Europe/Kiev','Châu Âu'],['Warsaw','Ba Lan','Europe/Warsaw','Châu Âu'],['Prague','Séc','Europe/Prague','Châu Âu'],['Vienna','Áo','Europe/Vienna','Châu Âu'],['Berlin','Đức','Europe/Berlin','Châu Âu'],['Paris','Pháp','Europe/Paris','Châu Âu'],['Zurich','Thụy Sĩ','Europe/Zurich','Châu Âu'],['Rome','Ý','Europe/Rome','Châu Âu'],['Madrid','Tây Ban Nha','Europe/Madrid','Châu Âu'],['Lisbon','Bồ Đào Nha','Europe/Lisbon','Châu Âu'],['Amsterdam','Hà Lan','Europe/Amsterdam','Châu Âu'],['Brussels','Bỉ','Europe/Brussels','Châu Âu'],['London','Anh','Europe/London','Châu Âu'],['Dublin','Ireland','Europe/Dublin','Châu Âu'],['Stockholm','Thụy Điển','Europe/Stockholm','Châu Âu'],['Oslo','Na Uy','Europe/Oslo','Châu Âu'],['Copenhagen','Đan Mạch','Europe/Copenhagen','Châu Âu'],['Helsinki','Phần Lan','Europe/Helsinki','Châu Âu'],['Athens','Hy Lạp','Europe/Athens','Châu Âu'],
-    ['Cairo','Ai Cập','Africa/Cairo','Châu Phi'],['Casablanca','Ma-rốc','Africa/Casablanca','Châu Phi'],['Lagos','Nigeria','Africa/Lagos','Châu Phi'],['Nairobi','Kenya','Africa/Nairobi','Châu Phi'],['Johannesburg','Nam Phi','Africa/Johannesburg','Châu Phi'],
-    ['New York','Hoa Kỳ (Mỹ)','America/New_York','Châu Mỹ'],['Chicago','Hoa Kỳ (Mỹ)','America/Chicago','Châu Mỹ'],['Denver','Hoa Kỳ (Mỹ)','America/Denver','Châu Mỹ'],['Los Angeles','Hoa Kỳ (Mỹ)','America/Los_Angeles','Châu Mỹ'],['Anchorage','Hoa Kỳ (Mỹ)','America/Anchorage','Châu Mỹ'],['Honolulu','Hoa Kỳ (Mỹ)','Pacific/Honolulu','Châu Mỹ'],['Toronto','Canada','America/Toronto','Châu Mỹ'],['Vancouver','Canada','America/Vancouver','Châu Mỹ'],['Mexico City','Mexico','America/Mexico_City','Châu Mỹ'],['Havana','Cuba','America/Havana','Châu Mỹ'],['Bogotá','Colombia','America/Bogota','Châu Mỹ'],['Lima','Peru','America/Lima','Châu Mỹ'],['Santiago','Chile','America/Santiago','Châu Mỹ'],['Buenos Aires','Argentina','America/Argentina/Buenos_Aires','Châu Mỹ'],['São Paulo','Brazil','America/Sao_Paulo','Châu Mỹ'],
-    ['Sydney','Úc','Australia/Sydney','Châu Đại Dương'],['Perth','Úc','Australia/Perth','Châu Đại Dương'],['Auckland','New Zealand','Pacific/Auckland','Châu Đại Dương'],['Suva','Fiji','Pacific/Fiji','Châu Đại Dương']
+    ['Hà Nội','Việt Nam','Asia/Ho_Chi_Minh','Châu Á'],['Bangkok','Thái Lan','Asia/Bangkok','Châu Á'],['Phnom Penh','Campuchia','Asia/Phnom_Penh','Châu Á'],['Viêng Chăn','Lào','Asia/Vientiane','Châu Á'],['Yangon','Myanmar','Asia/Yangon','Châu Á'],['Singapore','Singapore','Asia/Singapore','Châu Á'],['Kuala Lumpur','Malaysia','Asia/Kuala_Lumpur','Châu Á'],['Jakarta','Indonesia','Asia/Jakarta','Châu Á'],['Manila','Philippines','Asia/Manila','Châu Á'],['Bắc Kinh','Trung Quốc','Asia/Shanghai','Châu Á'],['Hồng Kông','Trung Quốc','Asia/Hong_Kong','Châu Á'],['Đài Bắc','Đài Loan','Asia/Taipei','Châu Á'],['Tokyo','Nhật Bản','Asia/Tokyo','Châu Á'],['Seoul','Hàn Quốc','Asia/Seoul','Châu Á'],['Ulaanbaatar','Mông Cổ','Asia/Ulaanbaatar','Châu Á'],['New Delhi','Ấn Độ','Asia/Kolkata','Châu Á'],['Kathmandu','Nepal','Asia/Kathmandu','Châu Á'],['Dhaka','Bangladesh','Asia/Dhaka','Châu Á'],['Karachi','Pakistan','Asia/Karachi','Châu Á'],['Colombo','Sri Lanka','Asia/Colombo','Châu Á'],['Dubai','Các Tiểu vương quốc Ả Rập (UAE)','Asia/Dubai','Châu Á'],['Riyadh','Ả Rập Xê Út','Asia/Riyadh','Châu Á'],['Doha','Qatar','Asia/Qatar','Châu Á'],['Tehran','Iran','Asia/Tehran','Châu Á'],['Jerusalem','Israel','Asia/Jerusalem','Châu Á'],['Istanbul','Thổ Nhĩ Kỳ','Europe/Istanbul','Châu Á'],['Vladivostok','Nga','Asia/Vladivostok','Châu Á'],['Tashkent','Uzbekistan','Asia/Tashkent','Châu Á'],['Almaty','Kazakhstan','Asia/Almaty','Châu Á'],['Baku','Azerbaijan','Asia/Baku','Châu Á'],['Tbilisi','Gruzia','Asia/Tbilisi','Châu Á'],['Yerevan','Armenia','Asia/Yerevan','Châu Á'],['Kabul','Afghanistan','Asia/Kabul','Châu Á'],['Baghdad','Iraq','Asia/Baghdad','Châu Á'],['Kuwait City','Kuwait','Asia/Kuwait','Châu Á'],['Muscat','Oman','Asia/Muscat','Châu Á'],['Beirut','Li-băng','Asia/Beirut','Châu Á'],['Amman','Jordan','Asia/Amman','Châu Á'],['Malé','Maldives','Indian/Maldives','Châu Á'],['Macao','Trung Quốc','Asia/Macau','Châu Á'],['Bandar Seri Begawan','Brunei','Asia/Brunei','Châu Á'],['Thimphu','Bhutan','Asia/Thimphu','Châu Á'],['Yekaterinburg','Nga','Asia/Yekaterinburg','Châu Á'],['Novosibirsk','Nga','Asia/Novosibirsk','Châu Á'],['Pyongyang','Triều Tiên','Asia/Pyongyang','Châu Á'],['Dili','Đông Timor','Asia/Dili','Châu Á'],
+    ['Moscow','Nga','Europe/Moscow','Châu Âu'],['Kyiv','Ukraine','Europe/Kiev','Châu Âu'],['Warsaw','Ba Lan','Europe/Warsaw','Châu Âu'],['Prague','Séc','Europe/Prague','Châu Âu'],['Vienna','Áo','Europe/Vienna','Châu Âu'],['Berlin','Đức','Europe/Berlin','Châu Âu'],['Paris','Pháp','Europe/Paris','Châu Âu'],['Zurich','Thụy Sĩ','Europe/Zurich','Châu Âu'],['Rome','Ý','Europe/Rome','Châu Âu'],['Madrid','Tây Ban Nha','Europe/Madrid','Châu Âu'],['Lisbon','Bồ Đào Nha','Europe/Lisbon','Châu Âu'],['Amsterdam','Hà Lan','Europe/Amsterdam','Châu Âu'],['Brussels','Bỉ','Europe/Brussels','Châu Âu'],['London','Anh','Europe/London','Châu Âu'],['Dublin','Ireland','Europe/Dublin','Châu Âu'],['Stockholm','Thụy Điển','Europe/Stockholm','Châu Âu'],['Oslo','Na Uy','Europe/Oslo','Châu Âu'],['Copenhagen','Đan Mạch','Europe/Copenhagen','Châu Âu'],['Helsinki','Phần Lan','Europe/Helsinki','Châu Âu'],['Athens','Hy Lạp','Europe/Athens','Châu Âu'],['Reykjavik','Iceland','Atlantic/Reykjavik','Châu Âu'],['Budapest','Hungary','Europe/Budapest','Châu Âu'],['Bucharest','Romania','Europe/Bucharest','Châu Âu'],['Sofia','Bulgaria','Europe/Sofia','Châu Âu'],['Belgrade','Serbia','Europe/Belgrade','Châu Âu'],['Minsk','Belarus','Europe/Minsk','Châu Âu'],['Riga','Latvia','Europe/Riga','Châu Âu'],['Vilnius','Litva','Europe/Vilnius','Châu Âu'],['Tallinn','Estonia','Europe/Tallinn','Châu Âu'],['Azores','Bồ Đào Nha','Atlantic/Azores','Châu Âu'],
+    ['Cairo','Ai Cập','Africa/Cairo','Châu Phi'],['Casablanca','Ma-rốc','Africa/Casablanca','Châu Phi'],['Lagos','Nigeria','Africa/Lagos','Châu Phi'],['Nairobi','Kenya','Africa/Nairobi','Châu Phi'],['Johannesburg','Nam Phi','Africa/Johannesburg','Châu Phi'],['Addis Ababa','Ethiopia','Africa/Addis_Ababa','Châu Phi'],['Accra','Ghana','Africa/Accra','Châu Phi'],['Algiers','Algeria','Africa/Algiers','Châu Phi'],['Tunis','Tunisia','Africa/Tunis','Châu Phi'],['Dakar','Senegal','Africa/Dakar','Châu Phi'],['Kinshasa','CHDC Congo','Africa/Kinshasa','Châu Phi'],['Luanda','Angola','Africa/Luanda','Châu Phi'],['Harare','Zimbabwe','Africa/Harare','Châu Phi'],['Khartoum','Sudan','Africa/Khartoum','Châu Phi'],['Dar es Salaam','Tanzania','Africa/Dar_es_Salaam','Châu Phi'],['Antananarivo','Madagascar','Indian/Antananarivo','Châu Phi'],['Port Louis','Mauritius','Indian/Mauritius','Châu Phi'],
+    ['New York','Hoa Kỳ (Mỹ)','America/New_York','Châu Mỹ'],['Chicago','Hoa Kỳ (Mỹ)','America/Chicago','Châu Mỹ'],['Denver','Hoa Kỳ (Mỹ)','America/Denver','Châu Mỹ'],['Los Angeles','Hoa Kỳ (Mỹ)','America/Los_Angeles','Châu Mỹ'],['Anchorage','Hoa Kỳ (Mỹ)','America/Anchorage','Châu Mỹ'],['Honolulu','Hoa Kỳ (Mỹ)','Pacific/Honolulu','Châu Mỹ'],['Toronto','Canada','America/Toronto','Châu Mỹ'],['Vancouver','Canada','America/Vancouver','Châu Mỹ'],['Mexico City','Mexico','America/Mexico_City','Châu Mỹ'],['Havana','Cuba','America/Havana','Châu Mỹ'],['Bogotá','Colombia','America/Bogota','Châu Mỹ'],['Lima','Peru','America/Lima','Châu Mỹ'],['Santiago','Chile','America/Santiago','Châu Mỹ'],['Buenos Aires','Argentina','America/Argentina/Buenos_Aires','Châu Mỹ'],['São Paulo','Brazil','America/Sao_Paulo','Châu Mỹ'],['Phoenix','Hoa Kỳ (Mỹ)','America/Phoenix','Châu Mỹ'],['Winnipeg','Canada','America/Winnipeg','Châu Mỹ'],['Edmonton','Canada','America/Edmonton','Châu Mỹ'],['Halifax','Canada','America/Halifax','Châu Mỹ'],['St. John\'s','Canada','America/St_Johns','Châu Mỹ'],['Panama City','Panama','America/Panama','Châu Mỹ'],['Caracas','Venezuela','America/Caracas','Châu Mỹ'],['La Paz','Bolivia','America/La_Paz','Châu Mỹ'],['Montevideo','Uruguay','America/Montevideo','Châu Mỹ'],['Guatemala City','Guatemala','America/Guatemala','Châu Mỹ'],['Kingston','Jamaica','America/Jamaica','Châu Mỹ'],['San Juan','Puerto Rico','America/Puerto_Rico','Châu Mỹ'],['Santo Domingo','Cộng hòa Dominica','America/Santo_Domingo','Châu Mỹ'],['Quito','Ecuador','America/Guayaquil','Châu Mỹ'],['Manaus','Brazil','America/Manaus','Châu Mỹ'],
+    ['Sydney','Úc','Australia/Sydney','Châu Đại Dương'],['Perth','Úc','Australia/Perth','Châu Đại Dương'],['Auckland','New Zealand','Pacific/Auckland','Châu Đại Dương'],['Suva','Fiji','Pacific/Fiji','Châu Đại Dương'],['Brisbane','Úc','Australia/Brisbane','Châu Đại Dương'],['Adelaide','Úc','Australia/Adelaide','Châu Đại Dương'],['Darwin','Úc','Australia/Darwin','Châu Đại Dương'],['Port Moresby','Papua New Guinea','Pacific/Port_Moresby','Châu Đại Dương'],['Nouméa','New Caledonia','Pacific/Noumea','Châu Đại Dương'],['Guam','Hoa Kỳ (Mỹ)','Pacific/Guam','Châu Đại Dương'],['Papeete','Polynesia thuộc Pháp','Pacific/Tahiti','Châu Đại Dương'],['Nuku\'alofa','Tonga','Pacific/Tongatapu','Châu Đại Dương'],['Apia','Samoa','Pacific/Apia','Châu Đại Dương'],['Chatham','New Zealand','Pacific/Chatham','Châu Đại Dương'],
+    ['UTC','Giờ chuẩn quốc tế','UTC','Giờ chuẩn']
   ];
   var WZ=null;
   try{WZ=JSON.parse(ls('bg2-world')||'null')}catch(x){WZ=null}
   if(!Array.isArray(WZ))WZ=['Asia/Ho_Chi_Minh','Asia/Tokyo','Europe/London','America/New_York'];
   WZ=WZ.filter(function(z){return CITIES.some(function(c){return c[2]===z})});
-  function cityName(z){for(var i=0;i<CITIES.length;i++)if(CITIES[i][2]===z)return CITIES[i][0]+', '+CITIES[i][1];return z}
+  var CTRY_EN={"Ai Cập": "Egypt", "Anh": "United Kingdom", "Ba Lan": "Poland", "Brazil": "Brazil", "Bỉ": "Belgium", "Bồ Đào Nha": "Portugal", "Campuchia": "Cambodia", "Các Tiểu vương quốc Ả Rập (UAE)": "United Arab Emirates", "Hoa Kỳ (Mỹ)": "United States", "Hy Lạp": "Greece", "Hà Lan": "Netherlands", "Hàn Quốc": "South Korea", "Lào": "Laos", "Ma-rốc": "Morocco", "Mông Cổ": "Mongolia", "Na Uy": "Norway", "Nam Phi": "South Africa", "Nga": "Russia", "Nhật Bản": "Japan", "Phần Lan": "Finland", "Pháp": "France", "Séc": "Czechia", "Thái Lan": "Thailand", "Thổ Nhĩ Kỳ": "Türkiye", "Thụy Sĩ": "Switzerland", "Thụy Điển": "Sweden", "Trung Quốc": "China", "Tây Ban Nha": "Spain", "Việt Nam": "Vietnam", "Áo": "Austria", "Úc": "Australia", "Ý": "Italy", "Đan Mạch": "Denmark", "Đài Loan": "Taiwan", "Đức": "Germany", "Ả Rập Xê Út": "Saudi Arabia", "Ấn Độ": "India", "Gruzia": "Georgia", "Li-băng": "Lebanon", "Triều Tiên": "North Korea", "Đông Timor": "Timor-Leste", "Litva": "Lithuania", "CHDC Congo": "DR Congo", "Cộng hòa Dominica": "Dominican Republic", "Polynesia thuộc Pháp": "French Polynesia", "Giờ chuẩn quốc tế": "Coordinated Universal Time"},CITY_EN={"Hà Nội": "Hanoi", "Viêng Chăn": "Vientiane", "Bắc Kinh": "Beijing", "Hồng Kông": "Hong Kong", "Đài Bắc": "Taipei", "Kyiv": "Kyiv"},REG_EN={"Châu Á": "Asia", "Châu Âu": "Europe", "Châu Phi": "Africa", "Châu Mỹ": "Americas", "Châu Đại Dương": "Oceania", "Giờ chuẩn": "Standard time"};
+  function cnOf(c){return EN()?(CITY_EN[c[0]]||c[0])+', '+(CTRY_EN[c[1]]||c[1]):c[0]+', '+c[1]}
+  function cityName(z){for(var i=0;i<CITIES.length;i++)if(CITIES[i][2]===z)return cnOf(CITIES[i]);return z}
   function tzOff(z,d){
     var f=new Intl.DateTimeFormat('en-US',{timeZone:z,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}),q={};
     f.formatToParts(d).forEach(function(x){q[x.type]=x.value});
@@ -2302,11 +2319,11 @@ html.seen .start-guide{display:none}
   }
   function wtxt(z){
     try{
-      var d=new Date();
+      var d=new Date(),en=EN();
       var time=d.toLocaleTimeString('en-GB',{timeZone:z,hourCycle:'h23',hour:'2-digit',minute:'2-digit',second:'2-digit'});
-      var date=d.toLocaleDateString('vi-VN',{timeZone:z,weekday:'short',day:'2-digit',month:'2-digit'});
-      var diff=Math.round(tzOff(z,d)+d.getTimezoneOffset()),h=Math.abs(diff)/60;
-      var rel=diff===0?'cùng giờ với bạn':(diff>0?'nhanh hơn bạn ':'chậm hơn bạn ')+String(h).replace('.',',')+' giờ';
+      var date=d.toLocaleDateString(en?'en-GB':'vi-VN',{timeZone:z,weekday:'short',day:'2-digit',month:'2-digit'});
+      var diff=Math.round(tzOff(z,d)+d.getTimezoneOffset()),h=Math.abs(diff)/60,hs=en?String(h):String(h).replace('.',',');
+      var rel=diff===0?(en?'same time as you':'cùng giờ với bạn'):en?(hs+(h===1?' hour ':' hours ')+(diff>0?'ahead of you':'behind you')):((diff>0?'nhanh hơn bạn ':'chậm hơn bạn ')+hs+' giờ');
       return [time,date+', '+rel];
     }catch(x){return ['--:--:--','']}
   }
@@ -2319,8 +2336,11 @@ html.seen .start-guide{display:none}
   }
   function world(){
     cancelAnimationFrame(raf);
-    var opts='';
-    ['Châu Á','Châu Âu','Châu Phi','Châu Mỹ','Châu Đại Dương'].forEach(function(r){var o=CITIES.filter(function(c){return c[3]===r&&WZ.indexOf(c[2])<0}).map(function(c){return '<option value="'+c[2]+'">'+esc(c[0]+', '+c[1])+'</option>'}).join('');if(o)opts+='<optgroup label="'+r+'">'+o+'</optgroup>'});
+    var opts='',en=EN();
+    ['Châu Á','Châu Âu','Châu Phi','Châu Mỹ','Châu Đại Dương','Giờ chuẩn'].forEach(function(r){
+      var o=CITIES.filter(function(c){return c[3]===r&&WZ.indexOf(c[2])<0}).map(function(c){return [cnOf(c),c[2]]}).sort(function(a,b){return a[0].localeCompare(b[0],en?'en':'vi')}).map(function(c){return '<option value="'+c[1]+'">'+esc(c[0])+'</option>'}).join('');
+      if(o)opts+='<optgroup label="'+(en?REG_EN[r]:r)+'">'+o+'</optgroup>';
+    });
     panel.innerHTML='<div class="wadd"><select id="wz" aria-label="Thành phố">'+opts+'</select><button data-a="add">Thêm</button></div><div id="wl"></div>';
     panel.onclick=function(e){
       var b=e.target.closest('button');if(!b)return;
@@ -2336,6 +2356,85 @@ html.seen .start-guide{display:none}
     if(cur!=='world')return;
     WZ.forEach(function(z,i){var t=wtxt(z),a=$('wt'+i),b=$('wd'+i);if(a)a.textContent=t[0];if(b)b.textContent=t[1]});
   },1000);
+
+  /* Tính giờ ngủ và Tính ngày */
+  function EN(){return document.documentElement.lang==='en'}
+  function T(v,e){return EN()?e:v}
+  function PL(n,vi,en){return EN()?n+' '+en+(n===1?'':'s'):n+' '+vi}
+  var SL={m:'wake',t:'06:30'};
+  try{var s0=JSON.parse(ls('bg2-sleep')||'null');if(s0&&(s0.m==='wake'||s0.m==='bed')&&/^\d\d:\d\d$/.test(s0.t))SL=s0}catch(x){}
+  function hm(n){n=((n%1440)+1440)%1440;return pad(Math.floor(n/60),2)+':'+pad(n%60,2)}
+  function durTxt(n){var h=Math.floor(n/60),m=n%60;return EN()?h+' h'+(m?' '+m+' min':''):h+' giờ'+(m?' '+m+' phút':'')}
+  function slRows(){
+    var p=SL.t.split(':'),base=(+p[0])*60+(+p[1]),wake=SL.m==='wake',cs=wake?[6,5,4,3]:[3,4,5,6];
+    return cs.map(function(c){
+      var t=wake?base-c*90-15:base+15+c*90;
+      return '<div class="card"><div><div class="tm">'+hm(t)+'</div><div class="nm">'+PL(c,'chu kỳ','cycle')+' · '+T('ngủ ','sleep ')+durTxt(c*90)+(c>=5?' ★':'')+'</div></div></div>';
+    }).join('');
+  }
+  function sleepTool(){
+    cancelAnimationFrame(raf);
+    var wake=SL.m==='wake';
+    panel.innerHTML='<div class="tcalc"><div class="chips2"><button type="button" data-sa="wake" aria-pressed="'+wake+'">'+T('Tôi cần dậy lúc…','I need to wake at…')+'</button><button type="button" data-sa="bed" aria-pressed="'+!wake+'">'+T('Tôi đi ngủ lúc…','I go to bed at…')+'</button></div>'+
+      '<div class="row"><label>'+(wake?T('Giờ cần thức dậy','Wake-up time'):T('Giờ đi ngủ','Bedtime'))+'<input type="time" id="sl-t" value="'+SL.t+'"></label>'+(wake?'':'<button type="button" data-sa="now">'+T('Bây giờ','Now')+'</button>')+'</div>'+
+      '<p class="hint">'+(wake?T('Nên lên giường vào một trong các giờ sau:','Aim to be in bed at one of these times:'):T('Nên thức dậy vào một trong các giờ sau:','Aim to wake up at one of these times:'))+'</p><div id="sl-rows">'+slRows()+'</div>'+
+      '<p class="hint">'+T('Tính theo chu kỳ ngủ khoảng 90 phút và khoảng 15 phút để chìm vào giấc ngủ. ★ là mức 7,5 đến 9 giờ, nằm trong khoảng 7 đến 9 giờ mà người lớn thường cần. Đây chỉ là ước tính, mỗi người một khác.','Based on roughly 90-minute sleep cycles and about 15 minutes to fall asleep. ★ marks 7.5 to 9 hours, within the 7 to 9 hours adults typically need. This is only an estimate and varies by person.')+'</p></div>';
+    panel.onclick=function(e){
+      var b=e.target.closest('button');if(!b)return;var a=b.getAttribute('data-sa');
+      if(a==='wake'||a==='bed')SL.m=a;else if(a==='now'){var d=new Date();SL.t=pad(d.getHours(),2)+':'+pad(d.getMinutes(),2)}else return;
+      ls('bg2-sleep',JSON.stringify(SL));sleepTool();
+    };
+    panel.oninput=panel.onchange=function(e){
+      if(e.target.id!=='sl-t'||!/^\d\d:\d\d$/.test(e.target.value))return;
+      SL.t=e.target.value;ls('bg2-sleep',JSON.stringify(SL));var r=$('sl-rows');if(r)r.innerHTML=slRows();
+    };
+  }
+  function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1,2)+'-'+pad(d.getDate(),2)}
+  var DC=null;
+  function dcInit(){var t=new Date(),u=new Date(t.getFullYear(),t.getMonth(),t.getDate()+30);DC={a:ymd(t),b:ymd(u),c:ymd(t),op:'+',n:'100',u:'d'}}
+  function pd(s){var m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(s||'');if(!m)return null;var y=+m[1],mo=+m[2],d=+m[3];if(y<1000||mo<1||mo>12||d<1||d>31)return null;var u=Date.UTC(y,mo-1,d);return new Date(u).getUTCDate()===d?{y:y,m:mo,d:d,u:u}:null}
+  function addM(x,k){var t=x.y*12+(x.m-1)+k,y=Math.floor(t/12),m=((t%12)+12)%12,last=new Date(Date.UTC(y,m+1,0)).getUTCDate();return Date.UTC(y,m,Math.min(x.d,last))}
+  function fmtD(u){try{return new Date(u).toLocaleDateString(EN()?'en-GB':'vi-VN',EN()?{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}:{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'})}catch(x){return new Date(u).toISOString().slice(0,10)}}
+  function dcSpan(a,b){
+    var lo=a.u<=b.u?a:b,hi=a.u<=b.u?b:a,days=Math.round((hi.u-lo.u)/864e5);
+    var m=(hi.y-lo.y)*12+(hi.m-lo.m);if(addM(lo,m)>hi.u)m--;
+    var rest=Math.round((hi.u-addM(lo,m))/864e5),y=Math.floor(m/12),mo=m%12,parts=[];
+    if(y)parts.push(PL(y,'năm','year'));if(mo)parts.push(PL(mo,'tháng','month'));if(rest||!parts.length)parts.push(PL(rest,'ngày','day'));
+    var w=Math.floor(days/7),r=days%7;
+    return {days:days,rev:b.u<a.u,wd:days>=7?PL(w,'tuần','week')+(r?' '+PL(r,'ngày','day'):''):'',ymd:(y||mo)?parts.join(' '):''};
+  }
+  function dcAdd(c,op,n,u){
+    var k=(op==='-'?-1:1)*n,u2;
+    if(u==='d')u2=Date.UTC(c.y,c.m-1,c.d+k);else if(u==='w')u2=Date.UTC(c.y,c.m-1,c.d+k*7);else if(u==='m')u2=addM(c,k);else u2=addM(c,k*12);
+    var y=new Date(u2).getUTCFullYear();return(y<1000||y>9999)?null:u2;
+  }
+  function dcUpd(){
+    var r1=$('dc-r1'),r2=$('dc-r2');if(!r1||!r2)return;
+    var a=pd(DC.a),b=pd(DC.b),bad=T('Chọn đủ ngày hợp lệ.','Please choose valid dates.');
+    if(!a||!b)r1.textContent=bad;else{var s=dcSpan(a,b);
+      r1.innerHTML='<div class="big">'+esc(PL(s.days,'ngày','day'))+'</div>'+(s.wd?'<div class="nm">'+esc(s.wd)+'</div>':'')+(s.ymd?'<div class="nm">'+esc(s.ymd)+'</div>':'')+(s.rev?'<div class="nm">'+esc(T('Ngày kết thúc nằm trước ngày bắt đầu.','The end date is before the start date.'))+'</div>':'')}
+    var c=pd(DC.c),n=parseInt(DC.n,10);
+    if(!c||isNaN(n))r2.textContent=bad;else{var u2=dcAdd(c,DC.op,n,DC.u);r2.innerHTML=u2===null?esc(T('Kết quả nằm ngoài phạm vi hỗ trợ.','The result is out of the supported range.')):'<div class="big">'+esc(fmtD(u2))+'</div>'}
+  }
+  function dcalc(){
+    cancelAnimationFrame(raf);if(!DC)dcInit();
+    function opt(v,t,sel){return '<option value="'+v+'"'+(sel===v?' selected':'')+'>'+t+'</option>'}
+    panel.innerHTML='<div class="tcalc"><h3>'+T('Khoảng cách giữa hai ngày','Days between two dates')+'</h3>'+
+      '<div class="row"><label>'+T('Từ ngày','From')+'<input type="date" id="dc-a" value="'+DC.a+'"></label><label>'+T('Đến ngày','To')+'<input type="date" id="dc-b" value="'+DC.b+'"></label></div><div class="card" id="dc-r1"></div>'+
+      '<h3>'+T('Cộng hoặc trừ thời gian','Add or subtract time')+'</h3>'+
+      '<div class="row"><label>'+T('Từ ngày','Start date')+'<input type="date" id="dc-c" value="'+DC.c+'"></label></div>'+
+      '<div class="row"><label>'+T('Phép tính','Operation')+'<select id="dc-op">'+opt('+',T('Cộng','Add'),DC.op)+opt('-',T('Trừ','Subtract'),DC.op)+'</select></label>'+
+      '<label>'+T('Số lượng','Amount')+'<input type="text" id="dc-n" inputmode="numeric" pattern="[0-9]*" maxlength="5" value="'+DC.n+'" autocomplete="off"></label>'+
+      '<label>'+T('Đơn vị','Unit')+'<select id="dc-u">'+opt('d',T('ngày','days'),DC.u)+opt('w',T('tuần','weeks'),DC.u)+opt('m',T('tháng','months'),DC.u)+opt('y',T('năm','years'),DC.u)+'</select></label></div><div class="card" id="dc-r2"></div></div>';
+    panel.onclick=null;
+    panel.oninput=panel.onchange=function(e){
+      var id=e.target.id;if(id==='dc-n'){var v=e.target.value.replace(/\D/g,'');if(v!==e.target.value)e.target.value=v}
+      var map={'dc-a':'a','dc-b':'b','dc-c':'c','dc-op':'op','dc-n':'n','dc-u':'u'};if(!map[id])return;
+      DC[map[id]]=e.target.value;dcUpd();
+    };
+    dcUpd();
+  }
+  try{var lastL=document.documentElement.lang;new MutationObserver(function(){var l=document.documentElement.lang;if(l===lastL)return;lastL=l;if(cur==='sleep')sleepTool();else if(cur==='dcalc')dcalc();else if(cur==='world')world();else if(cur==='days')days()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']})}catch(x){}
 
   /* Lưu và khôi phục trạng thái khi tải lại trang */
   window.__panelSave=function(){
@@ -2550,26 +2649,39 @@ html.seen .start-guide{display:none}
   window.setFocus=setFocus;
   fb.addEventListener('click',function(){setFocus(!document.body.classList.contains('focus'))});
   /* Thanh điều hướng dưới */
-  var ICON={sw:'⏱️',cd:'⏳',pomo:'🍅',iv:'💪',seq:'📋',exam:'📝',days:'📅',chess:'♟️',cook:'🍳',breath:'🌬️',rem:'🔔',world:'🌍'};
-  var EXTRA=['seq','exam','days','chess','cook','breath','rem','world'];
-  var ALL=['sw','cd','pomo','iv','seq','exam','days','chess','cook','breath','rem','world'];
-  var DESCR={sw:'Đo thời gian đã trôi qua, ghi vòng',cd:'Đặt phút giây và báo khi hết giờ',pomo:'Học tập trung xen kẽ thời gian nghỉ',iv:'Tập luyện theo vòng tập và nghỉ',seq:'Chia công việc thành nhiều bước',exam:'Canh giờ làm bài và mốc báo',days:'Đếm đến kỳ thi, sinh nhật, sự kiện',chess:'Đồng hồ cho hai người chơi cờ',cook:'Hẹn giờ nhiều món ăn cùng lúc',breath:'Hít thở chậm để thư giãn',rem:'Nhắc nghỉ mắt hoặc việc định kỳ',world:'Xem giờ ở nhiều thành phố'};
+  var ICON={sw:'⏱️',cd:'⏳',pomo:'🍅',iv:'💪',seq:'📋',exam:'📝',days:'📅',chess:'♟️',cook:'🍳',breath:'🌬️',rem:'🔔',world:'🌍',sleep:'😴',dcalc:'📆'};
+  var EXTRA=['seq','exam','days','chess','cook','breath','rem','world','sleep','dcalc'];
+  var ALL=['sw','cd','pomo','iv','seq','exam','days','chess','cook','breath','rem','world','sleep','dcalc'];
+  var DESCR={sw:'Đo thời gian đã trôi qua, ghi vòng',cd:'Đặt phút giây và báo khi hết giờ',pomo:'Học tập trung xen kẽ thời gian nghỉ',iv:'Tập luyện theo vòng tập và nghỉ',seq:'Chia công việc thành nhiều bước',exam:'Canh giờ làm bài và mốc báo',days:'Đếm đến kỳ thi, sinh nhật, sự kiện',chess:'Đồng hồ cho hai người chơi cờ',cook:'Hẹn giờ nhiều món ăn cùng lúc',breath:'Hít thở chậm để thư giãn',rem:'Nhắc nghỉ mắt hoặc việc định kỳ',world:'Xem giờ ở nhiều thành phố',sleep:'Gợi ý giờ đi ngủ hoặc thức dậy theo chu kỳ',dcalc:'Số ngày giữa hai ngày, cộng trừ ngày tháng'};
   var tabs=$('tabs'),nav=$('bnav'),more=$('bmore'),sheet=$('sheet'),grid=$('sgrid');
   var search=$('toolSearch'),favGrid=$('favGrid'),recentGrid=$('recentGrid');
   var favs=[],recent=[],activeFilter='all';
-  var CATS={sw:'timer',cd:'timer',pomo:'study',iv:'daily',seq:'study',exam:'study',days:'daily',chess:'games',cook:'daily',breath:'relax',rem:'daily',world:'daily'};
-  var ALIASES={sw:'stopwatch lap split đo thời gian bấm giờ',cd:'hẹn giờ đếm lùi báo thức đếm ngược',pomo:'học bài tập trung nghỉ pomodoro học tập',iv:'tập thể dục workout vận động nghỉ',seq:'các bước quy trình việc cần làm checklist',exam:'kiểm tra kiểm tra bài thi làm bài thời lượng',days:'sinh nhật kỳ thi tết sự kiện ngày còn lại',chess:'cờ vua cờ đồng hồ hai người chơi',cook:'nấu ăn trứng mì món ăn bếp',breath:'thở thư giãn bình tĩnh hít thở',rem:'nhắc nhở nghỉ mắt uống nước định kỳ',world:'múi giờ quốc tế giờ các nước thành phố'};
+  var CATS={sw:'timer',cd:'timer',pomo:'study',iv:'daily',seq:'study',exam:'study',days:'daily',chess:'games',cook:'daily',breath:'relax',rem:'daily',world:'daily',sleep:'relax',dcalc:'daily'};
+  var ALIASES={sw:'stopwatch lap split đo thời gian bấm giờ',cd:'hẹn giờ đếm lùi báo thức đếm ngược',pomo:'học bài tập trung nghỉ pomodoro học tập',iv:'tập thể dục workout vận động nghỉ',seq:'các bước quy trình việc cần làm checklist',exam:'kiểm tra kiểm tra bài thi làm bài thời lượng',days:'sinh nhật kỳ thi tết sự kiện ngày còn lại',chess:'cờ vua cờ đồng hồ hai người chơi',cook:'nấu ăn trứng mì món ăn bếp',breath:'thở thư giãn bình tĩnh hít thở',rem:'nhắc nhở nghỉ mắt uống nước định kỳ',world:'múi giờ quốc tế giờ các nước thành phố',sleep:'ngủ giờ đi ngủ thức dậy chu kỳ ngủ báo thức sleep cycle bedtime wake',dcalc:'tính ngày cộng ngày trừ ngày cộng trừ ngày khoảng cách số ngày tuần tháng năm date calculator days between'};
   try{favs=JSON.parse(localStorage.getItem('bg2-favs')||'[]');if(!Array.isArray(favs))favs=[]}catch(e){favs=[]}
   try{recent=JSON.parse(localStorage.getItem('bg2-recent')||'[]');if(!Array.isArray(recent))recent=[]}catch(e){recent=[]}
   function tabOf(m){return tabs.querySelector('button[data-m="'+m+'"]')}
-  var NAMES={sw:'Bấm giờ',cd:'Đếm ngược',pomo:'Pomodoro — học tập trung',iv:'Tập luyện',seq:'Đồng hồ theo từng bước',exam:'Đồng hồ thi',days:'Đếm ngược đến ngày',chess:'Đồng hồ cờ vua',cook:'Đồng hồ nấu ăn',breath:'Bài tập hít thở',rem:'Nhắc nhở định kỳ',world:'Giờ thế giới'};
+  var NAMES={sw:'Bấm giờ',cd:'Đếm ngược',pomo:'Pomodoro — học tập trung',iv:'Tập luyện',seq:'Đồng hồ theo từng bước',exam:'Đồng hồ thi',days:'Đếm ngược đến ngày',chess:'Đồng hồ cờ vua',cook:'Đồng hồ nấu ăn',breath:'Bài tập hít thở',rem:'Nhắc nhở định kỳ',world:'Giờ thế giới',sleep:'Tính giờ ngủ',dcalc:'Tính ngày'};
   function toolName(m){return NAMES[m]||(function(){var t=tabOf(m);return t?t.textContent.trim():m})()}
   function go(m){var t=tabOf(m);if(t)t.click()}
+  /* Thanh dưới: hiện tối đa 4 công cụ đã ghim (mới nhất bên phải), thiếu thì bù bằng 4 công cụ mặc định */
+  var NAVS=['sw','cd','pomo','iv'];
+  function renderNav(){
+    var pins=favs.filter(function(m){return ALL.indexOf(m)>=0}).slice(0,4).reverse(),s=pins.slice();
+    ['sw','cd','pomo','iv'].forEach(function(m){if(s.length<4&&s.indexOf(m)<0)s.push(m)});
+    NAVS=s;
+    var old=nav.querySelectorAll('button[data-go]');for(var i=0;i<old.length;i++)nav.removeChild(old[i]);
+    s.forEach(function(m){
+      var t=tabOf(m),b=document.createElement('button');b.type='button';b.setAttribute('data-go',m);
+      b.innerHTML='<span class="ni"></span><span class="nl"></span>';b.firstChild.textContent=ICON[m]||'◷';b.lastChild.textContent=t?t.textContent.trim():toolName(m);
+      nav.insertBefore(b,more);
+    });
+  }
   function card(m){var name=toolName(m),desc=DESCR[m]||'';return '<div class="tool-card" data-tool-card="'+m+'"><button type="button" data-go="'+m+'" aria-label="Mở '+name+'"><span class="ni">'+(ICON[m]||'◷')+'</span><span class="tool-name"><b>'+name+'</b><br><small>'+desc+'</small></span></button><button type="button" class="tool-fav" data-fav="'+m+'" aria-label="Ghim '+name+'" aria-pressed="'+(favs.indexOf(m)>=0?'true':'false')+'" title="Yêu thích">'+(favs.indexOf(m)>=0?'★':'☆')+'</button></div>'}
   function renderGrid(el,items){el.innerHTML=items.map(card).join('')||'<div class="tool-empty">Chưa có công cụ ở đây.</div>'}
   function persistLists(){try{localStorage.setItem('bg2-favs',JSON.stringify(favs));localStorage.setItem('bg2-recent',JSON.stringify(recent.slice(0,5)))}catch(e){}}
   function renderTools(){
-    var q=(search.value||'').trim().toLocaleLowerCase('vi');
+    var q=(search&&search.value||'').trim().toLocaleLowerCase('vi');
     var filtered=ALL.filter(function(m){
       var hay=(toolName(m)+' '+(DESCR[m]||'')+' '+(ALIASES[m]||'')).toLocaleLowerCase('vi');
       return (!q||hay.indexOf(q)>=0)&&(activeFilter==='all'||CATS[m]===activeFilter);
@@ -2588,21 +2700,47 @@ html.seen .start-guide{display:none}
   // Khởi động theo mục tiêu: ghi nhớ lựa chọn gần nhất và mở đúng công cụ.
   var goalGrid=$('goalGrid'),goalFoot=$('goalFoot'),goalReset=$('goalReset'),savedGoal='';
   try{savedGoal=localStorage.getItem('bg2-goal')||''}catch(e){}
+  /* Gợi ý mục tiêu ngẫu nhiên: mỗi lần mở trang hiện 6 trong số các mục tiêu, luôn giữ mục tiêu gần nhất */
+  var GP=[
+    ['study','pomo','📚','Học tập trung','Học theo phiên, có giờ nghỉ'],
+    ['cook','cook','🍳','Nấu ăn','Canh nhiều món cùng lúc'],
+    ['workout','iv','💪','Tập luyện','Chia thời gian tập và nghỉ'],
+    ['relax','breath','🌿','Thư giãn','Thực hành nhịp thở chậm'],
+    ['event','days','📅','Đếm đến sự kiện','Kỳ thi, sinh nhật, chuyến đi'],
+    ['timer','cd','⏳','Đặt giờ bất kỳ','Đếm ngược và báo khi hết'],
+    ['sleep','sleep','😴','Ngủ đủ giấc','Tính giờ đi ngủ hoặc thức dậy'],
+    ['eyes','rem','👀','Nghỉ mắt định kỳ','Nhắc lặp lại, ví dụ mỗi 20 phút'],
+    ['exam','exam','📝','Làm bài thi','Canh giờ và các mốc báo'],
+    ['routine','seq','📋','Làm theo quy trình','Nối nhiều bước thành một'],
+    ['chess','chess','♟️','Chơi cờ hai người','Đồng hồ cho hai bên'],
+    ['world','world','🌍','Gọi người ở xa','Xem giờ nhiều thành phố'],
+    ['dates','dcalc','📆','Tính số ngày','Giữa hai ngày, cộng trừ ngày'],
+    ['lap','sw','⏱️','Đo thời gian','Bấm giờ và ghi từng vòng']
+  ];
+  (function(){
+    try{
+      var a=GP.slice(),i,j,t;
+      for(i=a.length-1;i>0;i--){j=Math.floor(Math.random()*(i+1));t=a[i];a[i]=a[j];a[j]=t}
+      var pick=a.slice(0,6),keep=GP.filter(function(g){return g[0]===savedGoal})[0];
+      if(keep&&!pick.some(function(g){return g[0]===savedGoal}))pick[Math.floor(Math.random()*6)]=keep;
+      goalGrid.innerHTML=pick.map(function(g){return '<button type="button" class="goal-card" data-goal="'+g[0]+'" data-mode="'+g[1]+'"><span class="goal-icon">'+g[2]+'</span><span><b>'+g[3]+'</b><small>'+g[4]+'</small></span><span class="goal-arrow">↗</span></button>'}).join('');
+    }catch(e){}
+  })();
   function markGoal(goal,mode){
     goalGrid.querySelectorAll('[data-goal]').forEach(function(b){var active=b.getAttribute('data-goal')===goal;b.setAttribute('aria-pressed',active?'true':'false')});
     if(goalReset)goalReset.hidden=!goal;
-    var labels={study:'Học tập trung',cook:'Nấu ăn',workout:'Tập luyện',relax:'Thư giãn',event:'Đếm đến sự kiện',timer:'Đặt giờ bất kỳ'};
+    var labels={};GP.forEach(function(g){labels[g[0]]=g[3]});
     if(goalFoot)goalFoot.textContent=goal?'Mục tiêu gần nhất: '+(labels[goal]||goal)+'. Đã ghi nhớ trên thiết bị này.':'Mẹo: mục tiêu bạn chọn gần nhất sẽ được ghi nhớ trên thiết bị này.';
   }
   if(savedGoal){var sb=goalGrid.querySelector('[data-goal="'+savedGoal+'"]');if(sb)markGoal(savedGoal,sb.getAttribute('data-mode'))}
   goalGrid.addEventListener('click',function(e){var b=e.target.closest('[data-goal]');if(!b)return;var goal=b.getAttribute('data-goal'),mode=b.getAttribute('data-mode');try{localStorage.setItem('bg2-goal',goal)}catch(x){}markGoal(goal,mode);recent=[mode].concat(recent.filter(function(x){return x!==mode})).slice(0,5);persistLists();renderTools();go(mode);if(window.matchMedia&&matchMedia('(max-width:620px)').matches){var w=document.querySelector('.wrap');if(w)w.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})}});
   goalReset.addEventListener('click',function(){try{localStorage.removeItem('bg2-goal')}catch(e){}markGoal('','');});
-  renderTools();
+  renderTools();renderNav();
   function sync(){
     var sel=tabs.querySelector('[aria-selected="true"]'),m=sel?sel.getAttribute('data-m'):'sw';
     var bs=nav.querySelectorAll('button[data-go]');
     for(var i=0;i<bs.length;i++){var on=bs[i].getAttribute('data-go')===m;bs[i].classList.toggle('on',on);if(on)bs[i].setAttribute('aria-current','page');else bs[i].removeAttribute('aria-current')}
-    var ex=EXTRA.indexOf(m)>=0;
+    var ex=NAVS.indexOf(m)<0;
     more.classList.toggle('on',ex);
     more.querySelector('.ni').textContent=ex?ICON[m]:'⋯';
     more.querySelector('.nl').textContent=ex&&sel?sel.textContent:'Thêm';
@@ -2624,7 +2762,7 @@ html.seen .start-guide{display:none}
       var fm=fav.getAttribute('data-fav'),at=favs.indexOf(fm);
       if(at>=0)favs.splice(at,1);else favs.unshift(fm);
       favs=favs.filter(function(m,i,a){return ALL.indexOf(m)>=0&&a.indexOf(m)===i}).slice(0,12);
-      persistLists();renderTools();return;
+      persistLists();renderTools();renderNav();sync();return;
     }
     var b=e.target.closest('button[data-go]');if(!b)return;
     var m=b.getAttribute('data-go');
@@ -2632,7 +2770,7 @@ html.seen .start-guide{display:none}
   });
   if(search)search.addEventListener('input',renderTools);
   $('toolFilters').addEventListener('click',function(e){var b=e.target.closest('[data-filter]');if(!b)return;activeFilter=b.getAttribute('data-filter');renderTools()});
-  function openSheet(){sheet.hidden=false;activeFilter='all';renderTools();if(search){search.value='';renderTools();setTimeout(function(){try{search.focus({preventScroll:true})}catch(e){search.focus()}},60)}}
+  function openSheet(){sheet.hidden=false;activeFilter='all';renderTools()}
   $('sheetbg').addEventListener('click',closeSheet);
   sync();
   /* Phím tắt: F và Esc */
@@ -2719,6 +2857,63 @@ html.seen .start-guide{display:none}
     "Hít thở": "Breathing",
     "Nhắc nhở": "Reminders",
     "Giờ thế giới": "World clock",
+    "Tính giờ ngủ": "Sleep calculator",
+    "Giáng sinh": "Christmas",
+    "Vía Thần Tài": "God of Wealth Day",
+    "Tết Hàn Thực": "Cold Food Festival",
+    "Lễ Phật Đản": "Buddha's Birthday (Vesak)",
+    "Tết Trùng Cửu": "Double Ninth Festival",
+    "Rằm tháng Mười": "Full Moon of the 10th Month",
+    "Giao thừa (Âm lịch)": "Lunar New Year's Eve",
+    "Ngày thành lập Đảng": "Founding of the Communist Party of Vietnam",
+    "Ngày Thầy thuốc Việt Nam": "Vietnamese Doctors' Day",
+    "Valentine trắng": "White Day",
+    "Cá tháng Tư": "April Fools' Day",
+    "Ngày Sách Việt Nam": "Vietnam Book Day",
+    "Ngày Trái đất": "Earth Day",
+    "Chiến thắng Điện Biên Phủ": "Dien Bien Phu Victory Day",
+    "Ngày sinh Chủ tịch Hồ Chí Minh": "President Ho Chi Minh's Birthday",
+    "Quốc tế Thiếu nhi": "International Children's Day",
+    "Ngày Gia đình Việt Nam": "Vietnamese Family Day",
+    "Ngày Thương binh Liệt sĩ": "War Invalids and Martyrs Day",
+    "Cách mạng Tháng Tám": "August Revolution Day",
+    "Ngày khai giảng": "First Day of School",
+    "Giải phóng Thủ đô": "Capital Liberation Day",
+    "Ngày Doanh nhân Việt Nam": "Vietnamese Entrepreneurs' Day",
+    "Ngày Pháp luật Việt Nam": "Vietnam Law Day",
+    "Ngày Độc thân": "Singles' Day",
+    "Ngày Quốc phòng toàn dân": "National Defense Day",
+    "Đêm Giáng sinh": "Christmas Eve",
+    "Giao thừa (Dương lịch)": "New Year's Eve",
+    "Ngày của Mẹ": "Mother's Day",
+    "Ngày của Cha": "Father's Day",
+    "Lễ Tạ ơn": "Thanksgiving",
+    "Theo thứ trong tuần": "By weekday",
+    "Ngủ đủ giấc": "Get enough sleep",
+    "Tính giờ đi ngủ hoặc thức dậy": "Plan bedtime or wake-up time",
+    "Nghỉ mắt định kỳ": "Rest your eyes regularly",
+    "Nhắc lặp lại, ví dụ mỗi 20 phút": "Repeating reminders, like every 20 minutes",
+    "Làm bài thi": "Take an exam",
+    "Canh giờ và các mốc báo": "Track time with alert marks",
+    "Làm theo quy trình": "Follow a routine",
+    "Nối nhiều bước thành một": "Chain several steps together",
+    "Chơi cờ hai người": "Play chess",
+    "Đồng hồ cho hai bên": "A clock for both players",
+    "Gọi người ở xa": "Call someone far away",
+    "Xem giờ nhiều thành phố": "See the time in several cities",
+    "Tính số ngày": "Count days",
+    "Giữa hai ngày, cộng trừ ngày": "Between two dates, add or subtract",
+    "Bấm giờ và ghi từng vòng": "Stopwatch with laps",
+    "Tập luyện theo vòng tập và nghỉ": "Workout rounds with rest",
+    "Tính ngày": "Date calculator",
+    "Tính giờ ngủ:": "Sleep calculator:",
+    "Tính ngày:": "Date calculator:",
+    "Gợi ý giờ đi ngủ hoặc thức dậy theo chu kỳ": "Suggest bedtimes or wake-up times by sleep cycle",
+    "Số ngày giữa hai ngày, cộng trừ ngày tháng": "Days between two dates, add or subtract time",
+    "Chọn giờ cần thức dậy để xem nên đi ngủ lúc nào, hoặc chọn giờ đi ngủ để xem nên dậy lúc nào. Tính theo chu kỳ ngủ khoảng 90 phút.": "Choose when you need to wake up to see when to go to bed, or choose a bedtime to see when to wake up. Based on roughly 90-minute sleep cycles.",
+    "Tính số ngày giữa hai ngày, hoặc cộng trừ ngày, tuần, tháng, năm từ một ngày bất kỳ.": "Count the days between two dates, or add or subtract days, weeks, months or years from any date.",
+    "gợi ý giờ đi ngủ hoặc thức dậy.": "suggests bedtimes or wake-up times.",
+    "số ngày giữa hai ngày, cộng trừ ngày.": "days between two dates, add or subtract days.",
     "Vòng": "Lap",
     "Bắt đầu": "Start",
     "Các vòng": "Laps",
@@ -2785,7 +2980,7 @@ html.seen .start-guide{display:none}
     "bấm Lưu mẫu để dùng lại cài đặt, bấm Chia sẻ để gửi link cho bạn bè. Trên máy tính dùng phím Space (bắt đầu hoặc dừng), L (ghi vòng), R (đặt lại), F (chế độ tập trung). Trên điện thoại, bấm biểu tượng ở góc trên bên phải đồng hồ để vào chế độ tập trung. Cần để trang mở thì đồng hồ mới kêu đúng giờ, mở lại trang trong 24 giờ vẫn giữ đồng hồ đang chạy.": "press Save preset to reuse settings, or Share to send a link. On desktop use Space (start/pause), L (lap), R (reset), F (focus mode). On mobile, tap the icon at the top right of the clock for focus mode. Keep the page open for the alarm to sound; reopening within 24 hours restores a running timer.",
     "Thêm": "Add",
     "Tìm công cụ phù hợp": "Find a suitable tool",
-    "12 công cụ trong một nơi. Tìm theo tên hoặc chọn nhóm bên dưới; ☆ để ghim yêu thích.": "12 tools in one place. Search by name or choose a category below; use ☆ to pin favorites.",
+    "14 công cụ trong một nơi. Bấm ☆ để ghim tối đa 4 công cụ lên thanh dưới.": "14 tools in one place. Tap ☆ to pin up to 4 tools to the bottom bar.",
     "Tất cả": "All",
     "📚 Học tập": "📚 Study",
     "⏱️ Bộ đếm giờ": "⏱️ Timers",
