@@ -23,7 +23,14 @@
 <meta name="twitter:image" content="https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/og-image.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Bấm giờ","url":"https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"vi","offers":{"@type":"Offer","price":"0","priceCurrency":"VND"},"description":"Đếm ngược, Pomodoro, tập luyện, đồng hồ thi, đồng hồ cờ vua, nhắc nhở và giờ thế giới. Miễn phí, dùng được khi không có mạng."}</script>
 <script>try{var _t=localStorage.getItem('bg2-theme');if(_t&&_t!=='auto')document.documentElement.setAttribute('data-theme',_t);if(localStorage.getItem('bg2-big')==='1')document.documentElement.className='big';if(localStorage.getItem('bg2-seen')==='1')document.documentElement.classList.add('seen')}catch(e){}</script>
-<script>(function(){try{var ua=navigator.userAgent||'';var app=/; wv\)/.test(ua)||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true||/[?&]app=1\b/.test(location.search);if(app){document.documentElement.classList.add('in-app');try{localStorage.setItem('bg2-inapp','1')}catch(e){}}else{try{if(localStorage.getItem('bg2-inapp')==='1'&&/; wv\)/.test(ua))document.documentElement.classList.add('in-app')}catch(e){}}}catch(e){}})();</script>
+<script>(function(){try{var ua=navigator.userAgent||'',h=document.documentElement,app=false;
+if(/; wv\)/.test(ua)||/Android[^)]*\)[^)]*Version\/4\.0/i.test(ua))app=true;
+try{var b=navigator.userAgentData&&navigator.userAgentData.brands;if(b&&b.some(function(x){return /webview/i.test(x.brand)}))app=true}catch(e){}
+if(window.matchMedia&&matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true)app=true;
+if(/[?&]app=1\b/.test(location.search)||/#.*app=1/.test(location.hash))app=true;
+if(document.referrer&&/^android-app:/.test(document.referrer))app=true;
+try{if(app)localStorage.setItem('bg2-inapp','1');else if(localStorage.getItem('bg2-inapp')==='1'&&/Android/i.test(ua)&&!/Chrome\/[\d.]+ Mobile Safari\/[\d.]+$/.test(ua))app=true}catch(e){}
+if(app)h.classList.add('in-app')}catch(e){}})();</script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#eef3f4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0d1a20" media="(prefers-color-scheme: dark)">
