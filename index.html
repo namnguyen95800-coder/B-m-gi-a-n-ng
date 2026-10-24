@@ -23,6 +23,7 @@
 <meta name="twitter:image" content="https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/og-image.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Bấm giờ","url":"https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"vi","offers":{"@type":"Offer","price":"0","priceCurrency":"VND"},"description":"Đếm ngược, Pomodoro, tập luyện, đồng hồ thi, đồng hồ cờ vua, nhắc nhở và giờ thế giới. Miễn phí, dùng được khi không có mạng."}</script>
 <script>try{var _t=localStorage.getItem('bg2-theme');if(_t&&_t!=='auto')document.documentElement.setAttribute('data-theme',_t);if(localStorage.getItem('bg2-big')==='1')document.documentElement.className='big';if(localStorage.getItem('bg2-seen')==='1')document.documentElement.classList.add('seen')}catch(e){}</script>
+<script>(function(){try{var ua=navigator.userAgent||'';var app=/; wv\)/.test(ua)||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true||/[?&]app=1\b/.test(location.search);if(app){document.documentElement.classList.add('in-app');try{localStorage.setItem('bg2-inapp','1')}catch(e){}}else{try{if(localStorage.getItem('bg2-inapp')==='1'&&/; wv\)/.test(ua))document.documentElement.classList.add('in-app')}catch(e){}}}catch(e){}})();</script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#eef3f4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0d1a20" media="(prefers-color-scheme: dark)">
@@ -1089,6 +1090,12 @@ html.seen .start-guide{display:none}
 #panel:fullscreen .side.flip{transform:rotate(180deg)!important;}
 #panel:fullscreen .chess{touch-action:manipulation;}
 @media (orientation:landscape) and (max-height:520px){#panel:fullscreen{padding:6px}#panel:fullscreen .chess{gap:6px}#panel:fullscreen .side{font-size:clamp(28px,9vh,64px)}}
+/* === Bản dùng trong app (APK) === */
+.in-app #shr,.in-app #inst{display:none!important}
+html{overscroll-behavior-y:contain}
+.in-app body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.in-app input,.in-app textarea,.in-app select{-webkit-user-select:text;user-select:text}
+@media(max-width:620px){main{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important}}
 </style>
 </head>
 <body>
@@ -1217,7 +1224,7 @@ html.seen .start-guide{display:none}
     <b>Giờ thế giới:</b> xem giờ nhiều thành phố.<br><b>Tính giờ ngủ:</b> gợi ý giờ đi ngủ hoặc thức dậy.<br><b>Tính ngày:</b> số ngày giữa hai ngày, cộng trừ ngày.</p>
     <p><b>Mẹo:</b> bấm Lưu mẫu để dùng lại cài đặt, bấm Chia sẻ để gửi link cho bạn bè. Trên máy tính dùng phím Space (bắt đầu hoặc dừng), L (ghi vòng), R (đặt lại), F (chế độ tập trung). Trên điện thoại, bấm biểu tượng ở góc trên bên phải đồng hồ để vào chế độ tập trung. Cần để trang mở thì đồng hồ mới kêu đúng giờ, mở lại trang trong 24 giờ vẫn giữ đồng hồ đang chạy.</p>
   </div></details>
-  <details class="help donate" id="donate" hidden>
+  <details class="help donate" id="donate">
     <summary>☕ Ủng hộ người làm</summary>
     <div>
       <p>Bấm giờ miễn phí và không có quảng cáo. Nếu thấy hữu ích, bạn có thể mời mình một ly cà phê, hoàn toàn tùy tâm.</p>
@@ -1227,28 +1234,33 @@ html.seen .start-guide{display:none}
     </div>
   </details>
   <script>
-  /* ỦNG HỘ: mỗi mục là một ảnh QR nằm cùng thư mục với index.html. Ảnh nào không có thì bị bỏ qua;
-     không có ảnh nào thì cả mục Ủng hộ tự ẩn. */
+  /* ỦNG HỘ: ảnh QR chỉ được tải khi người dùng mở mục này, để trang mở nhanh và nhẹ. */
   (function(){
-    var QRS=[{f:'ung-ho-mb.png',n:'MB Bank'},{f:'ung-ho-momo.png',n:'Momo'}];
+    var QRS=[{f:'ung-ho-mb.png',n:'MB Bank'},{f:'ung-ho-momo.png',n:'Momo'}],loaded=false;
     try{
       var box=document.getElementById('donate'),list=document.getElementById('donate-list');
       if(!box||!list)return;
-      QRS.forEach(function(q){
-        var fig=document.createElement('figure');
-        fig.style.cssText='margin:0;flex:1 1 150px;max-width:220px;text-align:center';
-        var img=new Image();
-        img.alt='Mã QR '+q.n;
-        img.style.cssText='display:block;width:100%;height:auto;border-radius:12px;background:#fff';
-        var cap=document.createElement('figcaption');
-        cap.textContent=q.n;cap.style.cssText='margin-top:6px;font-weight:600;color:var(--ink)';
-        var sv=document.createElement('a');
-        sv.href=q.f;sv.download='ma-qr-'+q.f;sv.textContent='⬇ Lưu mã QR';
-        sv.style.cssText='display:inline-block;margin-top:8px;padding:10px 16px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-weight:600;font-size:15px;text-decoration:none';
-        fig.appendChild(img);fig.appendChild(cap);fig.appendChild(sv);
-        img.onload=function(){list.appendChild(fig);box.hidden=false};
-        img.src=q.f;
-      });
+      function load(){
+        if(loaded)return;loaded=true;list.textContent='';var fails=0;
+        QRS.forEach(function(q){
+          var fig=document.createElement('figure');
+          fig.style.cssText='margin:0;flex:1 1 150px;max-width:220px;text-align:center';
+          var img=new Image();img.alt='Mã QR '+q.n;img.width=560;img.height=560;
+          img.style.cssText='display:block;width:100%;height:auto;border-radius:12px;background:#fff';
+          var cap=document.createElement('figcaption');
+          cap.textContent=q.n;cap.style.cssText='margin-top:6px;font-weight:600;color:var(--ink)';
+          var sv=document.createElement('a');
+          sv.href=q.f;sv.download='ma-qr-'+q.f;sv.textContent='⬇ Lưu mã QR';
+          sv.style.cssText='display:inline-block;margin-top:8px;padding:10px 16px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-weight:600;font-size:15px;text-decoration:none';
+          fig.appendChild(img);fig.appendChild(cap);fig.appendChild(sv);list.appendChild(fig);
+          img.onerror=function(){
+            if(fig.parentNode)fig.parentNode.removeChild(fig);
+            if(++fails===QRS.length){loaded=false;var m=document.createElement('p');m.textContent='Chưa tải được mã QR. Bạn thử lại sau nhé.';m.style.textAlign='center';list.appendChild(m)}
+          };
+          img.src=q.f;
+        });
+      }
+      box.addEventListener('toggle',function(){if(box.open)load()});
     }catch(e){}
   })();
   </script>
@@ -2786,6 +2798,23 @@ html.seen .start-guide{display:none}
     if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA'||window.alertOpen)return;
     if((e.key==='f'||e.key==='F')&&!$('disp').hidden)setFocus(!document.body.classList.contains('focus'));
   });
+  /* Nút Back của Android (chỉ trong app): đóng bảng/tập trung -> về Bấm giờ -> bấm 2 lần để thoát */
+  if(document.documentElement.classList.contains('in-app')){
+    var exitArmed=false,exitT=null;
+    function curMode(){var s=tabs.querySelector('[aria-selected="true"]');return s?s.getAttribute('data-m'):'sw'}
+    function backToast(msg){var t=$('toast');if(!t)return;t.textContent=msg;t.hidden=false;t.classList.remove('show');void t.offsetWidth;t.classList.add('show');setTimeout(function(){t.hidden=true},1800)}
+    try{history.replaceState({bg:0},'');history.pushState({bg:1},'')}catch(e){}
+    window.addEventListener('popstate',function(){
+      if(exitArmed){clearTimeout(exitT);try{history.back()}catch(e){}return}
+      try{history.pushState({bg:1},'')}catch(e){}
+      if(window.alertOpen){document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return}
+      if(!sheet.hidden){closeSheet();return}
+      if(document.body.classList.contains('focus')){setFocus(false);return}
+      if(curMode()!=='sw'){go('sw');return}
+      exitArmed=true;backToast('Bấm Quay lại lần nữa để thoát');
+      exitT=setTimeout(function(){exitArmed=false},2000);
+    });
+  }
   /* Rung nhẹ khi bấm */
   var hap=$('hap'),hapOn=true;
   try{hapOn=localStorage.getItem('bg2-hap')!=='0'}catch(x){}
@@ -2810,6 +2839,7 @@ html.seen .start-guide{display:none}
     "Tập luyện": "Workout",
     "Nấu ăn": "Cooking",
     "Chia sẻ": "Share",
+    "Bấm Quay lại lần nữa để thoát": "Press back again to exit",
     "☕ Ủng hộ người làm": "☕ Support the maker",
     "Bấm giờ miễn phí và không có quảng cáo. Nếu thấy hữu ích, bạn có thể mời mình một ly cà phê, hoàn toàn tùy tâm.": "Timer is free and ad-free. If you find it useful, you can buy me a coffee, entirely optional.",
     "Quét mã bằng app ngân hàng hoặc Momo. Cảm ơn bạn rất nhiều!": "Scan with your banking app or Momo. Thank you so much!",
@@ -2858,6 +2888,7 @@ html.seen .start-guide{display:none}
     "Nhắc nhở": "Reminders",
     "Giờ thế giới": "World clock",
     "Tính giờ ngủ": "Sleep calculator",
+    "Chưa tải được mã QR. Bạn thử lại sau nhé.": "Could not load the QR codes. Please try again later.",
     "Giáng sinh": "Christmas",
     "Vía Thần Tài": "God of Wealth Day",
     "Tết Hàn Thực": "Cold Food Festival",

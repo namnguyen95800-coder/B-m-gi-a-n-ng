@@ -1,5 +1,5 @@
-const V='bam-gio-v2';
-const FILES=['./','index.html','manifest.json','icon-192.png','icon-512.png','ung-ho-mb.png','ung-ho-momo.png'];
+const V='bam-gio-v3';
+const FILES=['./','index.html','manifest.json','icon-192.png','icon-512.png'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(V).then(c=>Promise.all(FILES.map(f=>c.add(f).catch(()=>{})))).then(()=>self.skipWaiting()));
 });
