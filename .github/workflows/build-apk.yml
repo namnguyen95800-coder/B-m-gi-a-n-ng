@@ -35,7 +35,7 @@ jobs:
             "appName": "Dousob - Manage your time",
             "webDir": "www",
             "server": {
-              "url": "https://namnguyen95800-coder.github.io/dousob-manage-your-time/"
+              "url": "https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/"
             }
           }
           EOF
