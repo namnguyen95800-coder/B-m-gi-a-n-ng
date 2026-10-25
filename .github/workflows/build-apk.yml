@@ -1,0 +1,123 @@
+herename: Build APK
+
+# Chạy thủ công: vào tab Actions > Build APK > Run workflow
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Tạo dự án Capacitor
+        run: |
+          mkdir app && cd app
+          npm init -y
+          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 @capacitor/local-notifications@7 @capacitor/app@7
+          mkdir www
+          echo '<!doctype html><meta charset="utf-8"><title>Dousob</title><body style="background:#0b1020"></body>' > www/index.html
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "com.dousob.bamgio",
+            "appName": "Dousob - Manage your time",
+            "webDir": "www",
+            "server": {
+              "url": "https://namnguyen95800-coder.github.io/B-m-gi-a-n-ng/"
+            }
+          }
+          EOF
+          npx cap add android
+
+      - name: Quyền báo thức và thông báo
+        run: |
+          M=app/android/app/src/main/AndroidManifest.xml
+          sed -i 's|<application|<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>\n    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>\n    <application|' "$M"
+          grep -n "uses-permission" "$M"
+
+      - name: Icon app (lấy icon-512.png hoặc icon-192.png của web)
+        run: |
+          SRC=""
+          for f in icon-512.png icon-192.png; do
+            if [ -f "$f" ]; then SRC="$f"; break; fi
+          done
+          if [ -n "$SRC" ]; then
+            RES=app/android/app/src/main/res
+            rm -f $RES/mipmap-anydpi-v26/ic_launcher.xml $RES/mipmap-anydpi-v26/ic_launcher_round.xml
+            for d in $RES/mipmap-*dpi; do
+              cp "$SRC" "$d/ic_launcher.png"
+              cp "$SRC" "$d/ic_launcher_round.png"
+              cp "$SRC" "$d/ic_launcher_foreground.png"
+            done
+            echo "Đã dùng icon: $SRC"
+          else
+            echo "Không thấy icon, dùng icon mặc định"
+          fi
+
+      - name: Khoá ký cố định (để lần sau cài đè được)
+        run: |
+          mkdir -p ~/.android
+          base64 -d > ~/.android/debug.keystore <<'EOF'
+          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
+          EOF
+
+      - name: Build APK
+        working-directory: app/android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Đăng APK lên Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/android/app/build/outputs/apk/debug/app-debug.apk Dousob.apk
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest Dousob.apk --title "APK mới nhất" --notes "Bản APK Android mới nhất của Bấm giờ." --latest
