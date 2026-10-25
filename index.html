@@ -144,15 +144,56 @@ PXR.hms=function(){
     $('hm-r2').innerHTML=(c===null||e===null)?T('Nhập dạng giờ:phút, ví dụ 2:45.','Use h:mm, e.g. 2:45.'):'<div class="big">'+fm($('hm-o').value==='+'?c+e:c-e)+'</div><div class="nm">'+((($('hm-o').value==='+'?c+e:c-e)/60).toFixed(2))+' '+T('giờ','hours')+'</div>';
   });$('panel').oninput();
 };
-/* ---- Đồng hồ để bàn ---- */
+/* ---- Đồng hồ để bàn: 5 kiểu (số lớn, lật, neon, tối giản, kim) ---- */
+var DKT=[['big','Số lớn','Big'],['flip','Đồng hồ lật','Flip'],['neon','Neon','Neon'],['thin','Tối giản','Minimal'],['analog','Kim','Analog']];
+function dkCss(){if($('dk-css'))return;var s=document.createElement('style');s.id='dk-css';s.textContent=
+'#dk-c{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:min(62vh,500px);padding:16px 8px;overflow:hidden;text-align:center;transition:background .3s}'+
+'#dk-c:fullscreen{width:100vw;height:100vh;min-height:0;border-radius:0;margin:0}#dk-c:-webkit-full-screen{width:100vw;height:100vh;min-height:0;border-radius:0;margin:0}'+
+'#dk-c .dt{font-weight:800;line-height:1;font-variant-numeric:tabular-nums;font-size:min(17vw,30vh)}#dk-c .dd{font-size:clamp(14px,3.4vw,24px);opacity:.75}'+
+'#dk-c.dk-neon{background:#05060a;color:#35f0ff}#dk-c.dk-neon .dt{font-weight:600;letter-spacing:.04em;text-shadow:0 0 8px #35f0ff,0 0 24px #1aa7c9,0 0 48px #1aa7c9}'+
+'#dk-c.dk-thin{background:transparent}#dk-c.dk-thin .dt{font-weight:200;letter-spacing:.02em;font-size:min(21vw,34vh)}'+
+'#dk-c.dk-flip{background:#0c0c0f;color:#f3f3f3}#dk-c.dk-analog{background:#0b1220;color:#dbe7f3}'+
+'.fr{display:flex;gap:min(2.4vw,14px);align-items:center;perspective:900px}.fr i{font-style:normal;font-size:calc(var(--H)*.4);opacity:.5}'+
+'.fp{position:relative;width:calc(var(--H)*.82);height:var(--H);font-weight:800;font-size:calc(var(--H)*.68);font-variant-numeric:tabular-nums}'+
+'.fp .h{position:absolute;left:0;right:0;height:calc(50% - 1px);overflow:hidden;background:#1d1d23;backface-visibility:hidden}'+
+'.fp .h span{position:absolute;left:0;right:0;height:calc(var(--H) - 2px);line-height:calc(var(--H) - 2px);text-align:center}'+
+'.fp .t{top:0;border-radius:10px 10px 0 0}.fp .t span{top:0}.fp .b{bottom:0;border-radius:0 0 10px 10px;background:#17171c}.fp .b span{bottom:0}'+
+'.fp .ft{top:0;border-radius:10px 10px 0 0;transform-origin:50% 100%;animation:fpt .28s ease-in forwards;z-index:3}.fp .ft span{top:0}'+
+'.fp .fb{bottom:0;border-radius:0 0 10px 10px;background:#17171c;transform-origin:50% 0;transform:rotateX(90deg);animation:fpb .28s .28s ease-out forwards;z-index:3}.fp .fb span{bottom:0}'+
+'@keyframes fpt{to{transform:rotateX(-90deg)}}@keyframes fpb{to{transform:rotateX(0)}}#dk-c svg{width:min(80vw,56vh);height:auto}'+
+'.dkc{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.dkc button[aria-pressed="true"]{outline:2px solid #2dbe9d;outline-offset:1px}';
+document.head.appendChild(s)}
+function mkFp(v){return '<div class="fp" data-v="'+v+'"><div class="h t"><span>'+v+'</span></div><div class="h b"><span>'+v+'</span></div></div>'}
+function flipTo(el,v){var o=el.getAttribute('data-v');if(o===v)return;el.setAttribute('data-v',v);el.querySelector('.t span').textContent=v;
+  var x=el.querySelectorAll('.ft,.fb');for(var i=0;i<x.length;i++)x[i].remove();
+  var f=document.createElement('div');f.className='h ft';f.innerHTML='<span>'+o+'</span>';var g=document.createElement('div');g.className='h fb';g.innerHTML='<span>'+v+'</span>';el.appendChild(f);el.appendChild(g);
+  setTimeout(function(){var b=el.querySelector('.b span');if(b)b.textContent=v;if(f.parentNode){f.remove();g.remove()}},580)}
+function dkSvg(){var t='<svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="96" fill="#101a26" stroke="#2dbe9d" stroke-width="3"/>';
+  for(var i=0;i<60;i++){var m=i%5===0;t+='<line x1="100" y1="7" x2="100" y2="'+(m?19:12)+'" stroke="#9fb4c8" stroke-width="'+(m?3:1)+'" transform="rotate('+(i*6)+' 100 100)"/>'}
+  [['12',100,44],['3',156,106],['6',100,170],['9',44,106]].forEach(function(p){t+='<text x="'+p[1]+'" y="'+p[2]+'" fill="#dbe7f3" font-size="16" font-weight="700" text-anchor="middle">'+p[0]+'</text>'});
+  return t+'<line id="dk-hh" x1="100" y1="100" x2="100" y2="58" stroke="#fff" stroke-width="6" stroke-linecap="round"/><line id="dk-hm" x1="100" y1="100" x2="100" y2="36" stroke="#fff" stroke-width="4" stroke-linecap="round"/><line id="dk-hs" x1="100" y1="112" x2="100" y2="24" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/><circle cx="100" cy="100" r="5" fill="#ff6b6b"/></svg>'}
 PXR.desk=function(){
-  stop();var h12=!!ls('h12'),wl=null;
-  mount('<div class="card" id="dk-c" style="text-align:center;padding:28px 8px"><div id="dk-t" style="font-size:clamp(48px,17vw,120px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums"></div><div id="dk-d" class="nm" style="margin-top:10px;font-size:18px"></div></div><div class="row"><button id="dk-f" type="button">'+T('Toàn màn hình','Fullscreen')+'</button><button id="dk-h" type="button">'+T('Đổi 12/24 giờ','12/24 hour')+'</button></div><div class="nm">'+T('Màn hình luôn sáng khi mở công cụ này.','Screen stays on while this tool is open.')+'</div>',null,function(e){
-    var id=e.target.id;if(id==='dk-h'){h12=!h12;ls('h12',h12);draw()}
-    if(id==='dk-f'){try{var c=$('dk-c');(c.requestFullscreen||document.documentElement.requestFullscreen).call(c.requestFullscreen?c:document.documentElement)}catch(x){}}
+  stop();dkCss();var th=ls('dkt')||'big',h12=!!ls('h12'),sec=ls('dks')!==false,wl=null;
+  function now(){var n=new Date(),h=n.getHours();return{n:n,h:h,hh:h12?((h%12)||12):h,m:n.getMinutes(),s:n.getSeconds()}}
+  function build(){var c=$('dk-c'),q=now(),h='';c.className='card dk-'+th;
+    if(th==='flip')h='<div class="fr" style="--H:min('+(sec?30:40)+'vw,50vh)">'+mkFp(pad(q.hh))+'<i>:</i>'+mkFp(pad(q.m))+(sec?'<i>:</i>'+mkFp(pad(q.s)):'')+'</div>';
+    else if(th==='analog')h=dkSvg();else h='<div class="dt" id="dk-t"></div>';
+    c.innerHTML=h+'<div class="dd" id="dk-d"></div>';
+    var b=document.querySelectorAll('[data-th]');for(var i=0;i<b.length;i++)b[i].setAttribute('aria-pressed',b[i].getAttribute('data-th')===th?'true':'false')}
+  function rot(id,a){var e=$(id);if(e)e.setAttribute('transform','rotate('+a+' 100 100)')}
+  function upd(){var c=$('dk-c');if(!c){stop();return}var q=now();
+    if(th==='flip'){var f=c.querySelectorAll('.fp');flipTo(f[0],pad(q.hh));flipTo(f[1],pad(q.m));if(f[2])flipTo(f[2],pad(q.s))}
+    else if(th==='analog'){rot('dk-hh',(q.h%12)*30+q.m*.5);rot('dk-hm',q.m*6+q.s*.1);rot('dk-hs',q.s*6)}
+    else $('dk-t').textContent=pad(q.hh)+':'+pad(q.m)+(sec?':'+pad(q.s):'');
+    $('dk-d').textContent=q.n.toLocaleDateString(EN()?'en-GB':'vi-VN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(h12?' · '+(q.h<12?'AM':'PM'):'')}
+  mount('<div class="dkc">'+DKT.map(function(x){return '<button type="button" data-th="'+x[0]+'">'+(EN()?x[2]:x[1])+'</button>'}).join('')+'</div><div class="card" id="dk-c"></div><div class="dkc"><button id="dk-f" type="button">'+T('Toàn màn hình','Fullscreen')+'</button><button id="dk-h" type="button">'+T('Đổi 12/24 giờ','12/24 hour')+'</button><button id="dk-s" type="button">'+T('Hiện/ẩn giây','Show/hide seconds')+'</button></div><div class="nm">'+T('Màn hình luôn sáng khi mở công cụ này.','Screen stays on while this tool is open.')+'</div>',null,function(e){
+    var b=e.target.closest('button');if(!b)return;var id=b.id,t=b.getAttribute('data-th');
+    if(t){th=t;ls('dkt',th);build();upd()}
+    else if(id==='dk-h'){h12=!h12;ls('h12',h12);build();upd()}
+    else if(id==='dk-s'){sec=!sec;ls('dks',sec);build();upd()}
+    else if(id==='dk-f'){try{var c=$('dk-c');(c.requestFullscreen||c.webkitRequestFullscreen).call(c)}catch(x){}}
   });
-  function draw(){var t=$('dk-t');if(!t){stop();return}var n=new Date(),h=n.getHours(),s=pad(n.getMinutes())+':'+pad(n.getSeconds());t.textContent=h12?((h%12)||12)+':'+s+' '+(h<12?'AM':'PM'):pad(h)+':'+s;$('dk-d').textContent=n.toLocaleDateString(EN()?'en-GB':'vi-VN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
-  draw();tick=setInterval(draw,1000);
+  build();upd();tick=setInterval(upd,1000);
   try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(w){wl=w;window.__mt=function(){try{wl.release()}catch(e){}window.__mt=null}}).catch(function(){})}catch(e){}
 };
 /* ---- Tính lương theo giờ ---- */
