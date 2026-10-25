@@ -1,4 +1,4 @@
-herename: Build APK
+name: Build APK
 
 # Chạy thủ công: vào tab Actions > Build APK > Run workflow
 on:
