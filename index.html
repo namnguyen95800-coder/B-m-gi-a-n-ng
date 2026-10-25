@@ -31,14 +31,15 @@ if(/[?&]app=1\b/.test(location.search)||/#.*app=1/.test(location.hash))app=true;
 if(document.referrer&&/^android-app:/.test(document.referrer))app=true;
 try{if(app)localStorage.setItem('bg2-inapp','1');else if(localStorage.getItem('bg2-inapp')==='1'&&/Android/i.test(ua)&&!/Chrome\/[\d.]+ Mobile Safari\/[\d.]+$/.test(ua))app=true}catch(e){}
 if(app)h.classList.add('in-app')}catch(e){}})();</script>
-<script>/* Báo thức gốc Android (chỉ hoạt động trong bản APK Capacitor) */
+<script>/* Báo thức và thông báo đồng hồ chạy (chỉ hoạt động trong bản APK Capacitor) */
 window.NA=(function(){
   function LN(){try{var C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.LocalNotifications||null}catch(e){return null}}
-  var base={eng:100,cook:200},prev={},q=Promise.resolve(),ready=null;
+  function TN(){try{var C=window.Capacitor;return C&&C.Plugins&&C.Plugins.TimerNotif||null}catch(e){return null}}
+  var base={eng:100,cook:200},prev={},prevLive={},q=Promise.resolve(),ready=null;
   function init(l){
     if(ready)return ready;
     ready=l.checkPermissions().then(function(p){return p.display==='granted'?p:l.requestPermissions()})
-      .then(function(){return l.createChannel({id:'timer',name:'Hết giờ',description:'Báo khi hết giờ',importance:5,visibility:1,vibration:true,lights:true})})
+      .then(function(){return l.createChannel({id:'timer2',name:'Hết giờ',description:'Báo chuông khi hết giờ',importance:5,visibility:1,vibration:true,lights:true,sound:'alarm.wav'})})
       .catch(function(){});
     return ready;
   }
@@ -59,11 +60,31 @@ window.NA=(function(){
     }).then(function(){
       if(!items.length)return;
       return l.schedule({notifications:items.map(function(x,i){
-        return {id:base[g]+i,title:x.title,body:x.body||' ',channelId:'timer',schedule:{at:new Date(x.at),allowWhileIdle:true}};
+        return {id:base[g]+i,title:x.title,body:x.body||' ',channelId:'timer2',sound:'alarm.wav',
+          smallIcon:'ic_stat_timer',iconColor:'#2DBE9D',largeIcon:'notif_large',
+          schedule:{at:new Date(x.at),allowWhileIdle:true}};
       })});
     }).catch(function(){});
   }
-  return {sync:sync,get on(){return !!LN()}};
+  /* Thông báo đang chạy: tự đếm giờ ngay trên thanh thông báo */
+  function live(g,list){
+    var l=LN(),t=TN();if(!l||!t)return;
+    list=list||[];
+    var old=prevLive[g]||{},cur={},changed=false;
+    list.forEach(function(x){cur[x.id]=x});
+    Object.keys(cur).forEach(function(id){var a=old[id],b=cur[id];if(!a||a.title!==b.title||a.text!==b.text||Math.abs(a.when-b.when)>2000)changed=true});
+    Object.keys(old).forEach(function(id){if(!cur[id])changed=true});
+    if(!changed)return;
+    prevLive[g]=cur;
+    q=q.then(function(){return init(l)}).then(function(){
+      Object.keys(old).forEach(function(id){if(!cur[id])t.cancel({id:+id}).catch(function(){})});
+      Object.keys(cur).forEach(function(id){
+        var b=cur[id];
+        t.show({id:+id,title:b.title,text:b.text,when:Math.round(b.when),countdown:!!b.countdown,timeout:Math.round(b.timeout||0)}).catch(function(){});
+      });
+    }).catch(function(){});
+  }
+  return {sync:sync,live:live,get on(){return !!LN()}};
 })();</script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#eef3f4" media="(prefers-color-scheme: light)">
@@ -1605,29 +1626,36 @@ html{overscroll-behavior-y:contain}
     if(running&&ENG[m])tick();
   }
 
-  /* Đặt báo thức gốc cho các bước sắp hết giờ (dùng khi app bị ẩn hoặc đã xoá khỏi đa nhiệm) */
+  /* Báo thức gốc + thông báo đang chạy (dùng khi app bị ẩn hoặc đã xoá khỏi đa nhiệm) */
   function nplan(){
-    var items=[],ms=Date.now(),pn=performance.now();
+    var items=[],live=[],ms=Date.now(),pn=performance.now();
+    var sw=(mode==='sw')?snap():STORE.sw;
+    if(sw&&sw.running){live.push({id:9001,title:'Bấm giờ',text:'Đang đo thời gian',when:ms-(sw.elapsed+(pn-sw.startAt)),countdown:false})}
+    var li=0;
     Object.keys(ENG).forEach(function(m){
       if(m==='sw')return;
       var st=(m===mode)?snap():STORE[m];
       if(!st||!st.running||!st.started||!st.cfg)return;
       var keep=mode;mode=m;
       try{
-        var e=st.acc+(pn-st.startAt),i=st.idx,p=phase(i,st.cfg),at=ms,n=0,first=true;
+        var e=st.acc+(pn-st.startAt),i=st.idx,p=phase(i,st.cfg),at=ms,n=0,first=true,firstAt=0,p0=p?p.name:'';
         while(p&&n<16){
-          at+=first?Math.max(0,p.ms-e):p.ms;first=false;
+          at+=first?Math.max(0,p.ms-e):p.ms;
+          if(first)firstAt=at;
+          first=false;
           var nx=phase(i+1,st.cfg);
-          items.push({at:at,title:nx?('Xong: '+p.name):'Hết giờ!',body:nx?('Tiếp theo: '+nx.name):(NAMES[m]||'')});
+          items.push({at:at,title:nx?('\u23F0 Xong: '+p.name):'\u23F0 Hết giờ!',body:nx?('Tiếp theo: '+nx.name):((NAMES[m]||'Đồng hồ')+' đã xong')});
           p=nx;i++;n++;
         }
+        var endAt=(m==='exam')?at:firstAt;
+        if(firstAt){live.push({id:9002+li,title:NAMES[m]||'Đồng hồ',text:(p0&&p0!==NAMES[m])?p0:'Thời gian còn lại',when:endAt,countdown:true,timeout:Math.max(0,endAt-ms)});li++}
       }catch(x){}
       mode=keep;
     });
     items.sort(function(a,b){return a.at-b.at});
-    return items;
+    return {items:items,live:live};
   }
-  setInterval(function(){try{if(window.NA&&window.NA.on)window.NA.sync('eng',nplan())}catch(e){}},1000);
+  setInterval(function(){try{if(window.NA&&window.NA.on){var r=nplan();window.NA.sync('eng',r.items);window.NA.live('eng',r.live)}}catch(e){}},1000);
 
   mainBtn.addEventListener('click',toggle);
   sideBtn.addEventListener('click',side);
@@ -1826,10 +1854,17 @@ html{overscroll-behavior-y:contain}
   setInterval(function(){
     try{
       if(!window.NA||!window.NA.on)return;
-      var ms=Date.now(),items=[];
-      timers.forEach(function(t){if(t.run&&!t.done)items.push({at:ms+Math.max(0,rem(t)),title:'Xong rồi: '+t.name,body:'Món đã đủ giờ'})});
+      var ms=Date.now(),items=[],live=[];
+      timers.forEach(function(t,k){
+        if(t.run&&!t.done){
+          var r=Math.max(0,rem(t));
+          items.push({at:ms+r,title:'\uD83C\uDF73 Xong rồi: '+t.name,body:'Món đã đủ giờ'});
+          live.push({id:9100+k,title:'Nấu ăn',text:t.name,when:ms+r,countdown:true,timeout:r});
+        }
+      });
       items.sort(function(a,b){return a.at-b.at});
       window.NA.sync('cook',items);
+      window.NA.live('cook',live);
     }catch(e){}
   },1000);
 
