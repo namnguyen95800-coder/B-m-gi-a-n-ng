@@ -1,4 +1,4 @@
-<div align="center">
+here<div align="center">
 
 # 🕒 Bấm giờ
 
@@ -36,7 +36,15 @@ Nhiều loại đồng hồ trong một nơi: dùng ngay trên trình duyệt ho
 | 🔔 **Nhắc nhở** | Nhắc lặp lại theo chu kỳ |
 | 🌍 **Giờ thế giới** | Xem giờ nhiều thành phố |
 | 😴 **Tính giờ ngủ** | Gợi ý giờ đi ngủ hoặc thức dậy |
-| 🧮 **Tính ngày** | Số ngày giữa hai ngày, cộng trừ ngày |
+| 📆 **Tính ngày** | Số ngày giữa hai ngày, cộng trừ ngày |
+| 🌙 **Âm lịch** | Đổi dương lịch và âm lịch, xem Tết và can chi |
+| 🎂 **Tính tuổi** | Tuổi chính xác, số ngày đến sinh nhật |
+| ➕ **Cộng trừ giờ** | Khoảng giờ giữa hai mốc, cộng trừ giờ phút |
+| 🖥️ **Đồng hồ để bàn** | Số lớn, toàn màn hình, giữ sáng màn hình |
+| 💵 **Tính lương giờ** | Ước tính lương và tiền tăng ca |
+| 🔥 **Chuỗi thói quen** | Đánh dấu mỗi ngày, đếm ngày liên tiếp |
+| 🌅 **Mặt trời mọc lặn** | Giờ mặt trời mọc, lặn, giờ vàng chụp ảnh |
+| 🎵 **Máy gõ nhịp** | Chỉnh BPM, số phách, gõ nhịp tự đo |
 
 Ngoài ra còn có: nhiều giao diện, âm báo và âm nền, lưu mẫu cài đặt, thống kê theo ngày và tuần, xuất CSV, chế độ tập trung toàn màn hình, tiếng Việt và tiếng Anh.
 
