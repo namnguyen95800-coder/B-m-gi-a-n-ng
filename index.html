@@ -31,6 +31,40 @@ if(/[?&]app=1\b/.test(location.search)||/#.*app=1/.test(location.hash))app=true;
 if(document.referrer&&/^android-app:/.test(document.referrer))app=true;
 try{if(app)localStorage.setItem('bg2-inapp','1');else if(localStorage.getItem('bg2-inapp')==='1'&&/Android/i.test(ua)&&!/Chrome\/[\d.]+ Mobile Safari\/[\d.]+$/.test(ua))app=true}catch(e){}
 if(app)h.classList.add('in-app')}catch(e){}})();</script>
+<script>/* Báo thức gốc Android (chỉ hoạt động trong bản APK Capacitor) */
+window.NA=(function(){
+  function LN(){try{var C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.LocalNotifications||null}catch(e){return null}}
+  var base={eng:100,cook:200},prev={},q=Promise.resolve(),ready=null;
+  function init(l){
+    if(ready)return ready;
+    ready=l.checkPermissions().then(function(p){return p.display==='granted'?p:l.requestPermissions()})
+      .then(function(){return l.createChannel({id:'timer',name:'Hết giờ',description:'Báo khi hết giờ',importance:5,visibility:1,vibration:true,lights:true})})
+      .catch(function(){});
+    return ready;
+  }
+  function same(a,b){
+    if(a.length!==b.length)return false;
+    for(var i=0;i<a.length;i++){if(a[i].title!==b[i].title||a[i].body!==b[i].body||Math.abs(a[i].at-b[i].at)>2000)return false}
+    return true;
+  }
+  function sync(g,items){
+    var l=LN();if(!l||base[g]==null)return;
+    items=(items||[]).slice(0,40);
+    var old=prev[g]||[];
+    if(same(old,items))return;
+    prev[g]=items;
+    q=q.then(function(){return init(l)}).then(function(){
+      var ids=[];for(var i=0;i<40;i++)ids.push({id:base[g]+i});
+      return l.cancel({notifications:ids});
+    }).then(function(){
+      if(!items.length)return;
+      return l.schedule({notifications:items.map(function(x,i){
+        return {id:base[g]+i,title:x.title,body:x.body||' ',channelId:'timer',schedule:{at:new Date(x.at),allowWhileIdle:true}};
+      })});
+    }).catch(function(){});
+  }
+  return {sync:sync,get on(){return !!LN()}};
+})();</script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#eef3f4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0d1a20" media="(prefers-color-scheme: dark)">
@@ -1109,7 +1143,7 @@ html{overscroll-behavior-y:contain}
 <body>
 <main>
   <div class="top"><h1>Bấm giờ</h1><div class="tb"><button id="langBtn" type="button" aria-label="Switch language">ENG</button><button id="shr">Chia sẻ</button><button id="inst">Cài về màn hình</button></div></div>
-  <a id="dlApk" href="Dousob_-_Manage_your_time_v1_0_0_1.APK" download hidden>📲 Tải app Android (APK)</a>
+  <a id="dlApk" href="https://github.com/namnguyen95800-coder/B-m-gi-a-n-ng/releases/download/latest/Dousob.apk" hidden>📲 Tải app Android (APK)</a>
 
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
@@ -1571,6 +1605,30 @@ html{overscroll-behavior-y:contain}
     if(running&&ENG[m])tick();
   }
 
+  /* Đặt báo thức gốc cho các bước sắp hết giờ (dùng khi app bị ẩn hoặc đã xoá khỏi đa nhiệm) */
+  function nplan(){
+    var items=[],ms=Date.now(),pn=performance.now();
+    Object.keys(ENG).forEach(function(m){
+      if(m==='sw')return;
+      var st=(m===mode)?snap():STORE[m];
+      if(!st||!st.running||!st.started||!st.cfg)return;
+      var keep=mode;mode=m;
+      try{
+        var e=st.acc+(pn-st.startAt),i=st.idx,p=phase(i,st.cfg),at=ms,n=0,first=true;
+        while(p&&n<16){
+          at+=first?Math.max(0,p.ms-e):p.ms;first=false;
+          var nx=phase(i+1,st.cfg);
+          items.push({at:at,title:nx?('Xong: '+p.name):'Hết giờ!',body:nx?('Tiếp theo: '+nx.name):(NAMES[m]||'')});
+          p=nx;i++;n++;
+        }
+      }catch(x){}
+      mode=keep;
+    });
+    items.sort(function(a,b){return a.at-b.at});
+    return items;
+  }
+  setInterval(function(){try{if(window.NA&&window.NA.on)window.NA.sync('eng',nplan())}catch(e){}},1000);
+
   mainBtn.addEventListener('click',toggle);
   sideBtn.addEventListener('click',side);
   $('tabs').addEventListener('click',function(e){var b=e.target.closest('button');if(b)setMode(b.getAttribute('data-m'))});
@@ -1764,6 +1822,16 @@ html{overscroll-behavior-y:contain}
     });
     if(changed&&cur==='cook')drawCook();
   },250);
+
+  setInterval(function(){
+    try{
+      if(!window.NA||!window.NA.on)return;
+      var ms=Date.now(),items=[];
+      timers.forEach(function(t){if(t.run&&!t.done)items.push({at:ms+Math.max(0,rem(t)),title:'Xong rồi: '+t.name,body:'Món đã đủ giờ'})});
+      items.sort(function(a,b){return a.at-b.at});
+      window.NA.sync('cook',items);
+    }catch(e){}
+  },1000);
 
   /* Hít thở */
   var PAT=[
@@ -2814,7 +2882,7 @@ html{overscroll-behavior-y:contain}
     function backToast(msg){var t=$('toast');if(!t)return;t.textContent=msg;t.hidden=false;t.classList.remove('show');void t.offsetWidth;t.classList.add('show');setTimeout(function(){t.hidden=true},1800)}
     try{history.replaceState({bg:0},'');history.pushState({bg:1},'')}catch(e){}
     window.addEventListener('popstate',function(){
-      if(exitArmed){clearTimeout(exitT);try{history.back()}catch(e){}return}
+      if(exitArmed){clearTimeout(exitT);var A=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.App;if(A&&A.exitApp){A.exitApp()}else{try{history.back()}catch(e){}}return}
       try{history.pushState({bg:1},'')}catch(e){}
       if(window.alertOpen){document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return}
       if(!sheet.hidden){closeSheet();return}
