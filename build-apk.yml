@@ -1,0 +1,415 @@
+name: Build APK
+
+# Chạy thủ công: vào tab Actions > Build APK > Run workflow
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      RUN: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Tạo dự án Capacitor
+        run: |
+          mkdir app && cd app
+          npm init -y
+          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 @capacitor/local-notifications@7 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7
+          mkdir www
+          echo '<!doctype html><meta charset="utf-8"><title>Dousob</title><body style="background:#0b1020"></body>' > www/index.html
+          cp ../index.html ../manifest.json ../icon-192.png ../icon-512.png ../og-image.png ../ung-ho-mb.png ../ung-ho-momo.png www/ || true
+          cat > capacitor.config.json <<'JSON'
+          {
+            "appId": "com.dousob.bamgio",
+            "appName": "Dousob - Manage your time",
+            "webDir": "www",
+            "backgroundColor": "#0b1020",
+            "server": {
+              "url": "https://namnguyen95800-coder.github.io/",
+              "errorPath": "index.html"
+            },
+            "android": {
+              "adjustMarginsForEdgeToEdge": "auto"
+            },
+            "plugins": {
+              "LocalNotifications": {
+                "smallIcon": "ic_stat_timer",
+                "iconColor": "#2DBE9D"
+              }
+            }
+          }
+          JSON
+          npx cap add android
+
+      - name: Chuông, icon, màn hình khởi động và plugin Android
+        run: |
+          A=app/android/app/src/main
+          mkdir -p $A/res/raw $A/res/drawable $A/java/com/dousob/bamgio
+          if [ -f icon-192.png ]; then cp icon-192.png $A/res/drawable/notif_large.png; fi
+          python3 - <<'PY'
+          import wave, struct, math
+          sr = 22050
+          def tone(freq, dur, vol=0.8):
+              n = int(sr * dur)
+              out = []
+              for i in range(n):
+                  t = i / sr
+                  a = min(1.0, t / 0.01) * math.exp(-3.0 * t / dur)
+                  v = math.sin(2*math.pi*freq*t) + 0.35*math.sin(2*math.pi*freq*2*t) + 0.15*math.sin(2*math.pi*freq*3*t)
+                  out.append(vol * a * v / 1.5)
+              return out
+          def silence(dur):
+              return [0.0] * int(sr * dur)
+          seq = []
+          for rep in range(3):
+              for f in (880, 1175, 1568):
+                  seq += tone(f, 0.28)
+                  seq += silence(0.04)
+              seq += tone(1568, 0.5)
+              seq += silence(0.9)
+          w = wave.open('app/android/app/src/main/res/raw/alarm.wav', 'wb')
+          w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr)
+          for s in seq:
+              w.writeframes(struct.pack('<h', int(max(-1, min(1, s)) * 32000)))
+          w.close()
+          PY
+          python3 - <<'PY'
+          import glob, struct, zlib
+          def ch(t, d):
+              return struct.pack('>I', len(d)) + t + d + struct.pack('>I', zlib.crc32(t + d) & 0xffffffff)
+          png = b'\x89PNG\r\n\x1a\n' + ch(b'IHDR', struct.pack('>IIBBBBB', 1, 1, 8, 2, 0, 0, 0)) + ch(b'IDAT', zlib.compress(b'\x00' + bytes((11, 16, 32)))) + ch(b'IEND', b'')
+          files = glob.glob('app/android/app/src/main/res/**/splash.png', recursive=True)
+          for f in files:
+              open(f, 'wb').write(png)
+          print('splash thay:', len(files))
+          PY
+          cat > $A/res/drawable/ic_stat_timer.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="24dp" android:height="24dp"
+              android:viewportWidth="24" android:viewportHeight="24">
+            <path android:fillColor="#FFFFFFFF"
+                android:pathData="M15,1L9,1v2h6L15,1zM11,14h2L13,8h-2v6zM19.03,7.39l1.42,-1.42c-0.43,-0.51 -0.9,-0.99 -1.41,-1.41l-1.42,1.42C16.07,4.74 14.12,4 12,4c-4.97,0 -9,4.03 -9,9s4.02,9 9,9 9,-4.03 9,-9c0,-2.12 -0.74,-4.07 -1.97,-5.61zM12,20c-3.87,0 -7,-3.13 -7,-7s3.13,-7 7,-7 7,3.13 7,7 -3.13,7 -7,7z"/>
+          </vector>
+          XML
+          cat > $A/java/com/dousob/bamgio/MainActivity.java <<'JAVA'
+          package com.dousob.bamgio;
+
+          import android.os.Bundle;
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  registerPlugin(TimerNotifPlugin.class);
+                  super.onCreate(savedInstanceState);
+              }
+          }
+          JAVA
+          cat > $A/java/com/dousob/bamgio/TimerNotifPlugin.java <<'JAVA'
+          package com.dousob.bamgio;
+
+          import android.app.Notification;
+          import android.app.NotificationChannel;
+          import android.app.NotificationManager;
+          import android.app.PendingIntent;
+          import android.content.Context;
+          import android.content.Intent;
+          import android.content.pm.ActivityInfo;
+          import android.media.AudioAttributes;
+          import android.net.Uri;
+          import android.os.Build;
+          import android.view.Window;
+          import android.view.WindowManager;
+          import androidx.core.app.NotificationCompat;
+          import androidx.core.view.WindowCompat;
+          import androidx.core.view.WindowInsetsCompat;
+          import androidx.core.view.WindowInsetsControllerCompat;
+          import com.getcapacitor.JSObject;
+          import com.getcapacitor.Plugin;
+          import com.getcapacitor.PluginCall;
+          import com.getcapacitor.PluginMethod;
+          import com.getcapacitor.annotation.CapacitorPlugin;
+
+          @CapacitorPlugin(name = "TimerNotif")
+          public class TimerNotifPlugin extends Plugin {
+              private static final String CH = "running";
+
+              @PluginMethod
+              public void show(PluginCall call) {
+                  try {
+                      Context ctx = getContext();
+                      JSObject d = call.getData();
+                      int id = d.optInt("id", 9001);
+                      String title = d.optString("title", "");
+                      String text = d.optString("text", "");
+                      long when = d.optLong("when", System.currentTimeMillis());
+                      boolean countdown = d.optBoolean("countdown", false);
+                      long timeout = d.optLong("timeout", 0);
+
+                      NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                          NotificationChannel ch = new NotificationChannel(CH, "\u0110\u1ed3ng h\u1ed3 \u0111ang ch\u1ea1y", NotificationManager.IMPORTANCE_LOW);
+                          ch.setSound(null, null);
+                          ch.setShowBadge(false);
+                          nm.createNotificationChannel(ch);
+                      }
+                      Intent open = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
+                      if (open == null) open = new Intent();
+                      PendingIntent pi = PendingIntent.getActivity(ctx, 0, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                      int icon = ctx.getResources().getIdentifier("ic_stat_timer", "drawable", ctx.getPackageName());
+                      if (icon == 0) icon = ctx.getApplicationInfo().icon;
+
+                      NotificationCompat.Builder b = new NotificationCompat.Builder(ctx, CH)
+                          .setSmallIcon(icon)
+                          .setContentTitle(title)
+                          .setContentText(text)
+                          .setContentIntent(pi)
+                          .setOngoing(true)
+                          .setOnlyAlertOnce(true)
+                          .setShowWhen(true)
+                          .setWhen(when)
+                          .setUsesChronometer(true)
+                          .setColor(0xFF2DBE9D)
+                          .setCategory(NotificationCompat.CATEGORY_PROGRESS)
+                          .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                      if (countdown) {
+                          b.setChronometerCountDown(true);
+                          if (timeout > 0) b.setTimeoutAfter(timeout);
+                      }
+                      nm.notify(id, b.build());
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+
+              @PluginMethod
+              public void cancel(PluginCall call) {
+                  try {
+                      NotificationManager nm = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                      nm.cancel(call.getData().optInt("id", 9001));
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+
+              @PluginMethod
+              public void alarmChannel(PluginCall call) {
+                  try {
+                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                          Context ctx = getContext();
+                          NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+                          NotificationChannel ch = new NotificationChannel("alarm3", "H\u1ebft gi\u1edd", NotificationManager.IMPORTANCE_HIGH);
+                          ch.setDescription("Chu\u00f4ng b\u00e1o khi h\u1ebft gi\u1edd");
+                          ch.enableVibration(true);
+                          ch.setVibrationPattern(new long[] {0, 500, 250, 500, 250, 500});
+                          ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                          int raw = ctx.getResources().getIdentifier("alarm", "raw", ctx.getPackageName());
+                          if (raw != 0) {
+                              AudioAttributes aa = new AudioAttributes.Builder()
+                                  .setUsage(AudioAttributes.USAGE_ALARM)
+                                  .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                  .build();
+                              ch.setSound(Uri.parse("android.resource://" + ctx.getPackageName() + "/" + raw), aa);
+                          }
+                          nm.createNotificationChannel(ch);
+                      }
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+
+              @PluginMethod
+              public void keepAwake(final PluginCall call) {
+                  final boolean on = call.getData().optBoolean("on", true);
+                  getActivity().runOnUiThread(new Runnable() {
+                      @Override
+                      public void run() {
+                          try {
+                              Window w = getActivity().getWindow();
+                              if (on) {
+                                  w.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                              } else {
+                                  w.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                              }
+                              call.resolve();
+                          } catch (Exception e) {
+                              call.reject(String.valueOf(e.getMessage()));
+                          }
+                      }
+                  });
+              }
+
+              @PluginMethod
+              public void immersive(final PluginCall call) {
+                  final boolean on = call.getData().optBoolean("on", true);
+                  final boolean land = call.getData().optBoolean("landscape", false);
+                  getActivity().runOnUiThread(new Runnable() {
+                      @Override
+                      public void run() {
+                          try {
+                              Window w = getActivity().getWindow();
+                              WindowInsetsControllerCompat c = WindowCompat.getInsetsController(w, w.getDecorView());
+                              if (on) {
+                                  if (Build.VERSION.SDK_INT >= 28) {
+                                      WindowManager.LayoutParams p = w.getAttributes();
+                                      p.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+                                      w.setAttributes(p);
+                                  }
+                                  c.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                                  c.hide(WindowInsetsCompat.Type.systemBars());
+                                  if (land) getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                              } else {
+                                  c.show(WindowInsetsCompat.Type.systemBars());
+                                  getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                              }
+                              call.resolve();
+                          } catch (Exception e) {
+                              call.reject(String.valueOf(e.getMessage()));
+                          }
+                      }
+                  });
+              }
+          }
+          JAVA
+
+      - name: Quyền, phiên bản và khoá ký
+        run: |
+          python3 - <<'PY'
+          import re, os
+          run = os.environ.get('RUN', '1')
+          # 1) Manifest: quyền
+          p = 'app/android/app/src/main/AndroidManifest.xml'
+          m = open(p, encoding='utf-8').read()
+          perms = ['android.permission.POST_NOTIFICATIONS', 'android.permission.USE_EXACT_ALARM', 'android.permission.RECEIVE_BOOT_COMPLETED', 'android.permission.VIBRATE']
+          add = ''.join('    <uses-permission android:name="%s" />\n' % x for x in perms)
+          add += '    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />\n'
+          assert '<application' in m
+          m = m.replace('<application', add + '    <application', 1)
+          open(p, 'w', encoding='utf-8').write(m)
+          # 2) build.gradle: phiên bản, ký bản release, bỏ kiểm tra lint chặn build
+          p = 'app/android/app/build.gradle'
+          g = open(p, encoding='utf-8').read()
+          g = re.sub(r'versionCode\s*=?\s*\d+', 'versionCode ' + run, g, count=1)
+          g = re.sub(r'versionName\s*=?\s*"[^"]*"', 'versionName "1.0.' + run + '"', g, count=1)
+          sign = """    signingConfigs {
+                  release {
+                      storeFile file(System.getProperty('user.home') + '/.android/debug.keystore')
+                      storePassword 'android'
+                      keyAlias 'androiddebugkey'
+                      keyPassword 'android'
+                  }
+              }
+              lint {
+                  checkReleaseBuilds = false
+                  abortOnError = false
+              }
+          """
+          if 'signingConfigs' not in g:
+              g, n = re.subn(r'(\n\s*buildTypes\s*\{)', '\n' + sign + r'\1', g, count=1)
+              print('signingConfigs chen:', n)
+          g, n2 = re.subn(r'(buildTypes\s*\{\s*release\s*\{)', r'\1\n            signingConfig signingConfigs.release', g, count=1)
+          print('signingConfig gan:', n2)
+          open(p, 'w', encoding='utf-8').write(g)
+          PY
+          grep -n "uses-permission" app/android/app/src/main/AndroidManifest.xml
+          grep -n "versionCode\|versionName\|signingConfig" app/android/app/build.gradle
+
+      - name: Icon app (lấy icon-512.png hoặc icon-192.png của web)
+        run: |
+          SRC=""
+          for f in icon-512.png icon-192.png; do
+            if [ -f "$f" ]; then SRC="$f"; break; fi
+          done
+          if [ -n "$SRC" ]; then
+            RES=app/android/app/src/main/res
+            rm -f $RES/mipmap-anydpi-v26/ic_launcher.xml $RES/mipmap-anydpi-v26/ic_launcher_round.xml
+            for d in $RES/mipmap-*dpi; do
+              cp "$SRC" "$d/ic_launcher.png"
+              cp "$SRC" "$d/ic_launcher_round.png"
+              cp "$SRC" "$d/ic_launcher_foreground.png"
+            done
+            echo "Đã dùng icon: $SRC"
+          else
+            echo "Không thấy icon, dùng icon mặc định"
+          fi
+
+      - name: Khoá ký cố định (để lần sau cài đè được)
+        run: |
+          mkdir -p ~/.android
+          base64 -d > ~/.android/debug.keystore <<'EOF'
+          /u3+7QAAAAIAAAABAAAAAQAPYW5kcm9pZGRlYnVna2V5AAABoXC77ksAAAT/MIIE+zAMBgorBgEE
+          ASoCEQEBBIIE6WKFkBR4DD2EVm0G0zPjZqmjsHyN8txWC0JGMhLGM3lT11P6szcRnzA1xrwOAkQ+
+          bQJBq8jzr2dFSvNknnbfuPzI3lOxEs5qbcqN2yVczrLSql3tQceAnBdggORb2Oon9XPi6xkC+4ER
+          kcWFViZCeBbB3wbQbZE4dEujutkdZxqz77k3046+K3W91EX82HsosKIYkfajYTWsDC5odPG2azgG
+          XJnVvWBRwGqDBRhNJu9+x8S7n8iGKtBjZvYXQnKLbvIt77K2656MKULV3PmZ2RG59VQJ3ItzcPmH
+          vEnSJ/vGzIDMpncAnP96IHc2zwrHngxbBS9q/9/KN5F66TzUt8KLQ+TT25DXlS3JUL6pHZQtUg+y
+          9g8d1PTxkuFJIgImnH8bVtyg6MhNHZjGxIxByaA/tEouL93pgfXV09U4UHIMz4wYCQ4XYHpfQE9e
+          jmXReyRCZN7PcyuLESdMiSeQC5YEEEMgCsT3nAuiNYNeFA/zheC4RpsP9BbDmyezRlAWaQePeTzK
+          EMF3JDh5erkHh+8+SwXJHCUxY+uRjFSrrRawoM7x06oj175cG/QOGds4PRWaqrwQSrUxRZPhQIb3
+          w83yXNc8l5Q5SEtNEBN8bAoEnR78/J/w1h31IvyfEnaMvnzXCm69I146bbm5jEyTmHSfwk95x2Ra
+          fj+k2wlkIXpXHVB2zbTyyeEIX33hmWSX/Zc3+437Eu5t/e4+uBYWLcgu7e8hYaFQgjTddN85TYk+
+          LAfuXicGf6NTXCH7zd+Kit96C7My2R5f2VFmT5gzF7hl1r+RDf04auZWaCrwBvLB6K3RyZEFOv3r
+          S8VJvruk675Sh0GBGo+JhkYwVceAcbsl0AdAexKRoE1CkvhGPJBrlo7LLtv7GRAzLYb4uEcDwS5p
+          +gHXKhwnO5JwCjG3OIWXOIe1i4ptvmh3M7RF8GFyxWs7/rTfzxNFjmQlwPjvAyrw2AoYx5Clha9L
+          RIaWZoXGzwcv2DuAtF5H5yoNRpiDCczzQCM31JmRUM2/uc5ydy65rSjzxkbHbEgJ+cOH3nNIbVqP
+          vUYeNWDyH82WFJQYcBshWkwJQ9SB4Lh+26cDJUKv9WDtltqR63LpSkRuvPCFJ1iIiU52DJFwT6ds
+          mNFipSBqdTn2bRGgsilpbnHBOw3N8lrNQ9ch3f0nzUJyGdp6GeW7EllBIwR2ttR8YYRtZ19PqLx3
+          6PWuhqMvmllDtrRY01NT86N/0B/sJQiBOa8AORnlmMqe0/S6/awCr0U7/6u4hZrW/LizYn6n6Lj/
+          fXQI4p3rIrhFsENiZEPJ1qURc3GTLj432uHyrTb65krKsAXgeWMh8jsHr/tZNUkC8rjwtNdHphi+
+          HYN+u72OPOeYxiRa9hQFK6V3ow/7ZOaKH1JP6UuLdsDqBH9hdD72cPwZbS2a8mRILYityXWD7Y1q
+          73L6hE2DeQ/nD1W4/JyHNoTHQVkIMQGTrqsVV1WzsisCSbcMwiu/JWSA+Lp3hCwSlI99QHEzS1HA
+          NQKivJG/ra/n1g7hSK2VsGzpJwg4zqi0Qee/m7MzgBzvUuPUsEcCKmm57TfL7IU4hT1Qxd9fjo8X
+          I7AGtyjyRo5GSQlwHLjoftNGzMVYuhIkCjaEIQX5bI9PM46NnH0hii8AHLTWyHRHaZ4EZz3W3S9p
+          BKWryXcocoCdmH2vRgAAAAEABVguNTA5AAADGDCCAxQwggH8oAMCAQICCQDIfVVT4zi7ZTANBgkq
+          hkiG9w0BAQwFADA3MQswCQYDVQQGEwJVUzEQMA4GA1UEChMHQW5kcm9pZDEWMBQGA1UEAxMNQW5k
+          cm9pZCBEZWJ1ZzAgFw0yNjEwMjUwMTQ1MjZaGA8yMDU0MDMxMjAxNDUyNlowNzELMAkGA1UEBhMC
+          VVMxEDAOBgNVBAoTB0FuZHJvaWQxFjAUBgNVBAMTDUFuZHJvaWQgRGVidWcwggEiMA0GCSqGSIb3
+          DQEBAQUAA4IBDwAwggEKAoIBAQCmRZKXW+2J5ynmzEqi3lEbGyPtaiti0BXi4aYaBXGl7GvW0kxH
+          OAC618z740rtPssV53pdEyb9sKRsnB2/7icsoF2NQL0simaAKxu4nUcPcleY9XKziLQQVKTkaG4x
+          75rZrQX0g0hOUvgi0KUhRhCs4ZBIV23xQrLMABGTqtDVPex8FU5giGrvMiLJydMdzP9VE4jAOdzQ
+          vE6qA8z6BjTfDOO2VKMN1rylw4gXG4dmxV59PDUoJUBpJfZ2a2u9+reU5Yl4jNYVu0sACiNzEeDL
+          tSXVln7lOsmLheN8I8wRD4k08L7/E9ix6zkWYYLwvjZB4Ne+KJby9Fik8hSUcfNNAgMBAAGjITAf
+          MB0GA1UdDgQWBBSiLlUNvqr5mjSWh1QB0wuNB6lN1zANBgkqhkiG9w0BAQwFAAOCAQEAMYN4VIby
+          HejZ+yju8PPzF1E8tCQuZpOwlMa0qzKvDfqAuLuJkMvS6c5mn3MglO/q0m579tPzPv0ZvVxPw3lj
+          5VKauV5b8/6IZZY2jdgn6/O4wKS5op7TxB/x/So5ihHOFeHRmkOOkHs7iNMC/mBzbWmG3p7qqTB0
+          foZMxprJmh/mtW7jYY5hiUSmo46Fd6gp8RDImdp3+iwA2ZA84K3+T1IFzE6Kv3/SqOx0a4Mt5lqD
+          KpUI8NTlscrLS4dOjPTm6Rt1OT0TVcs8tiAOJMYoezC8sNNxx5qjnCU28zxZ1dQhAll5YGGLZm9X
+          Y/pQnLEeAm4EYmywJ3g0dEy2kOIQSJQLuYDxWZp2fO3nkzYn4Opw6bTb
+          EOF
+
+      - name: Build APK
+        run: |
+          cd app/android
+          if grep -q 'signingConfig signingConfigs.release' app/build.gradle; then
+            ./gradlew assembleRelease --no-daemon && OUT=app/build/outputs/apk/release/app-release.apk || { echo 'Build release lỗi, thử build debug'; ./gradlew assembleDebug --no-daemon && OUT=app/build/outputs/apk/debug/app-debug.apk; }
+          else
+            ./gradlew assembleDebug --no-daemon && OUT=app/build/outputs/apk/debug/app-debug.apk
+          fi
+          cp "$OUT" ../../Dousob.apk
+          echo "Đã tạo APK từ: $OUT"
+
+      - name: Đăng APK lên Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest Dousob.apk --title "APK mới nhất" --notes "build:${RUN}
+
+          Bản APK Android mới nhất của Bấm giờ." --latest
