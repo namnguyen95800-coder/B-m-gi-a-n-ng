@@ -35,11 +35,15 @@ if(app)h.classList.add('in-app')}catch(e){}})();</script>
 window.NA=(function(){
   function LN(){try{var C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.LocalNotifications||null}catch(e){return null}}
   function TN(){try{var C=window.Capacitor;return C&&C.Plugins&&C.Plugins.TimerNotif||null}catch(e){return null}}
-  var base={eng:100,cook:200},prev={},prevLive={},q=Promise.resolve(),ready=null;
+  var base={eng:100,cook:200},prev={},prevLive={},q=Promise.resolve(),ready=null,chan='timer2',holds={},awake=false;
   function init(l){
     if(ready)return ready;
     ready=l.checkPermissions().then(function(p){return p.display==='granted'?p:l.requestPermissions()})
-      .then(function(){return l.createChannel({id:'timer2',name:'Hết giờ',description:'Báo chuông khi hết giờ',importance:5,visibility:1,vibration:true,lights:true,sound:'alarm.wav'})})
+      .then(function(){
+        var t=TN(),old=function(){return l.createChannel({id:'timer2',name:'Hết giờ',description:'Báo chuông khi hết giờ',importance:5,visibility:1,vibration:true,lights:true,sound:'alarm.wav'})};
+        if(t&&t.alarmChannel)return t.alarmChannel().then(function(){chan='alarm3'}).catch(old);
+        return old();
+      })
       .catch(function(){});
     return ready;
   }
@@ -60,7 +64,7 @@ window.NA=(function(){
     }).then(function(){
       if(!items.length)return;
       return l.schedule({notifications:items.map(function(x,i){
-        return {id:base[g]+i,title:x.title,body:x.body||' ',channelId:'timer2',sound:'alarm.wav',
+        return {id:base[g]+i,title:x.title,body:x.body||' ',channelId:chan,sound:'alarm.wav',
           smallIcon:'ic_stat_timer',iconColor:'#2DBE9D',largeIcon:'notif_large',
           schedule:{at:new Date(x.at),allowWhileIdle:true}};
       })});
@@ -84,9 +88,63 @@ window.NA=(function(){
       });
     }).catch(function(){});
   }
-  return {sync:sync,live:live,get on(){return !!LN()}};
+  function hold(k,on){
+    var t=TN();if(!t||!t.keepAwake)return;
+    holds[k]=!!on;var any=false;for(var x in holds)if(holds[x])any=true;
+    if(any!==awake){awake=any;try{t.keepAwake({on:any}).catch(function(){})}catch(e){}}
+  }
+  return {sync:sync,live:live,hold:hold,get on(){return !!LN()}};
 })();</script>
 <script>window.PX={lunar:1,age:1,hms:1,desk:1,wage:1,habit:1,sun:1,metro:1};window.PXR={};
+window.FS=(function(){
+  var fake=null;
+  function app(){return document.documentElement.classList.contains('in-app')}
+  function tn(){try{var C=window.Capacitor;return C&&C.Plugins&&C.Plugins.TimerNotif||null}catch(e){return null}}
+  function imm(on,ls){try{var t=tn();if(t&&t.immersive)t.immersive({on:on,landscape:!!ls}).catch(function(){})}catch(e){}}
+  function fire(){try{document.dispatchEvent(new Event('fullscreenchange'))}catch(e){}}
+  function active(){return !!fake||!!document.fullscreenElement}
+  function ok(){return app()||(!!document.documentElement.requestFullscreen&&document.fullscreenEnabled!==false)}
+  function enter(el,o){
+    if(app()){if(!fake){fake=el;if(el!==document.documentElement)el.classList.add('fsx');imm(true,o&&o.landscape);fire()}return Promise.resolve()}
+    var f=el.requestFullscreen||el.webkitRequestFullscreen;if(!f)return Promise.reject(new Error('no'));var r=f.call(el);return r&&r.then?r:Promise.resolve()}
+  function exit(){
+    if(fake){fake.classList.remove('fsx');fake=null;imm(false);fire();return Promise.resolve()}
+    if(document.fullscreenElement)return document.exitFullscreen();return Promise.resolve()}
+  return {enter:enter,exit:exit,active:active,ok:ok,el:function(){return fake}}
+})();
+window.SAVE=function(name,data,mime){
+  try{
+    var C=window.Capacitor,P=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins;
+    if(!(P&&P.Filesystem&&P.Share))return false;
+    new Promise(function(res,rej){
+      if(typeof data==='string'){res(btoa(unescape(encodeURIComponent(data))));return}
+      var r=new FileReader();r.onload=function(){res(String(r.result).split(',')[1])};r.onerror=rej;r.readAsDataURL(data)
+    }).then(function(b){return P.Filesystem.writeFile({path:name,data:b,directory:'CACHE'})})
+      .then(function(r){return P.Share.share({title:name,files:[r.uri]})})
+      .catch(function(){});
+    return true;
+  }catch(e){return false}
+};
+/* Báo có bản APK mới (chỉ trong app) */
+window.addEventListener('load',function(){
+  setTimeout(function(){try{
+    var C=window.Capacitor,P=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins;
+    if(!(P&&P.App&&P.App.getInfo)||!window.fetch)return;
+    var last=+localStorage.getItem('bg2x-upchk')||0;if(Date.now()-last<6*3600*1000)return;
+    localStorage.setItem('bg2x-upchk',String(Date.now()));
+    P.App.getInfo().then(function(info){
+      return fetch('https://api.github.com/repos/namnguyen95800-coder/namnguyen95800-coder.github.io/releases/tags/latest').then(function(r){return r.json()}).then(function(j){
+        var m=/build:(\d+)/.exec(j&&j.body||'');if(!m)return;
+        if(+m[1]>(+info.build||0)){
+          var b=document.createElement('div');b.setAttribute('role','status');
+          b.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 96px);z-index:99998;padding:12px 14px;border-radius:14px;background:#12302b;color:#e8fff7;border:1px solid #2dbe9d;font-size:15px;display:flex;gap:10px;align-items:center';
+          b.innerHTML='<span style="flex:1">'+(document.documentElement.lang==='en'?'A new app version is available.':'Có bản app mới, cập nhật để dùng tính năng mới.')+'</span><a href="https://github.com/namnguyen95800-coder/namnguyen95800-coder.github.io/releases/download/latest/Dousob.apk" style="color:#2dbe9d;font-weight:700;text-decoration:none">'+(document.documentElement.lang==='en'?'Update':'Cập nhật')+'</a><button type="button" style="background:none;border:0;color:inherit;font-size:18px" aria-label="x">✕</button>';
+          b.querySelector('button').onclick=function(){b.remove()};document.body.appendChild(b);
+        }
+      });
+    }).catch(function(){});
+  }catch(e){}},4000);
+});
 (function(){
 var $=function(i){return document.getElementById(i)},EN=function(){return document.documentElement.lang==='en'},T=function(v,e){return EN()?e:v},pad=function(n){return(n<10?'0':'')+n};
 var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
@@ -161,6 +219,7 @@ function dkCss(){if($('dk-css'))return;var s=document.createElement('style');s.i
 '.fp .ft{top:0;border-radius:10px 10px 0 0;transform-origin:50% 100%;animation:fpt .28s ease-in forwards;z-index:3}.fp .ft span{top:0}'+
 '.fp .fb{bottom:0;border-radius:0 0 10px 10px;background:#17171c;transform-origin:50% 0;transform:rotateX(90deg);animation:fpb .28s .28s ease-out forwards;z-index:3}.fp .fb span{bottom:0}'+
 '@keyframes fpt{to{transform:rotateX(-90deg)}}@keyframes fpb{to{transform:rotateX(0)}}#dk-c svg{width:min(80vw,56vh);height:auto}'+
+'#dk-c.fsx{position:fixed;inset:0;z-index:99999;width:100vw;height:100dvh;min-height:0;border-radius:0;margin:0}.fsx-x{display:none}.fsx .fsx-x{display:block;position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:12px;z-index:100000;min-width:44px;min-height:44px;border-radius:22px;font-size:20px;opacity:.7}'+
 '.dkc{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.dkc button[aria-pressed="true"]{outline:2px solid #2dbe9d;outline-offset:1px}';
 document.head.appendChild(s)}
 function mkFp(v){return '<div class="fp" data-v="'+v+'"><div class="h t"><span>'+v+'</span></div><div class="h b"><span>'+v+'</span></div></div>'}
@@ -178,7 +237,7 @@ PXR.desk=function(){
   function build(){var c=$('dk-c'),q=now(),h='';c.className='card dk-'+th;
     if(th==='flip')h='<div class="fr" style="--H:min('+(sec?30:40)+'vw,50vh)">'+mkFp(pad(q.hh))+'<i>:</i>'+mkFp(pad(q.m))+(sec?'<i>:</i>'+mkFp(pad(q.s)):'')+'</div>';
     else if(th==='analog')h=dkSvg();else h='<div class="dt" id="dk-t"></div>';
-    c.innerHTML=h+'<div class="dd" id="dk-d"></div>';
+    c.innerHTML=h+'<div class="dd" id="dk-d"></div><button class="fsx-x" id="dk-x" type="button" aria-label="'+T('Thoát toàn màn hình','Exit fullscreen')+'">✕</button>';
     var b=document.querySelectorAll('[data-th]');for(var i=0;i<b.length;i++)b[i].setAttribute('aria-pressed',b[i].getAttribute('data-th')===th?'true':'false')}
   function rot(id,a){var e=$(id);if(e)e.setAttribute('transform','rotate('+a+' 100 100)')}
   function upd(){var c=$('dk-c');if(!c){stop();return}var q=now();
@@ -191,10 +250,13 @@ PXR.desk=function(){
     if(t){th=t;ls('dkt',th);build();upd()}
     else if(id==='dk-h'){h12=!h12;ls('h12',h12);build();upd()}
     else if(id==='dk-s'){sec=!sec;ls('dks',sec);build();upd()}
-    else if(id==='dk-f'){try{var c=$('dk-c');(c.requestFullscreen||c.webkitRequestFullscreen).call(c)}catch(x){}}
+    else if(id==='dk-f'){try{FS.enter($('dk-c')).catch(function(){})}catch(x){}}
+    else if(id==='dk-x'){FS.exit()}
   });
   build();upd();tick=setInterval(upd,1000);
-  try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(w){wl=w;window.__mt=function(){try{wl.release()}catch(e){}window.__mt=null}}).catch(function(){})}catch(e){}
+  try{if(window.NA)window.NA.hold('desk',true)}catch(e){}
+  window.__mt=function(){try{if(window.NA)window.NA.hold('desk',false)}catch(e){}try{if(wl)wl.release()}catch(e){}window.__mt=null};
+  try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(w){wl=w}).catch(function(){})}catch(e){}
 };
 /* ---- Tính lương theo giờ ---- */
 PXR.wage=function(){
@@ -1311,13 +1373,21 @@ html.seen .start-guide{display:none}
 }
 /* Đồng hồ cờ vua ở chế độ ngang toàn màn hình */
 #panel:fullscreen{background:var(--bg);color:var(--ink);width:100%;height:100%;padding:10px;overflow:hidden;}
+#panel.fsx{background:var(--bg);color:var(--ink);width:100%;height:100%;padding:10px;overflow:hidden;}
 #panel:fullscreen .chess{height:100%;min-height:0;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-rows:1fr;align-items:stretch;gap:10px;}
+#panel.fsx .chess{height:100%;min-height:0;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-rows:1fr;align-items:stretch;gap:10px;}
 #panel:fullscreen .side{height:100%;min-height:0;font-size:clamp(28px,8vh,72px);padding:8px 2px;}
+#panel.fsx .side{height:100%;min-height:0;font-size:clamp(28px,8vh,72px);padding:8px 2px;}
 #panel:fullscreen .mid{grid-template-columns:1fr;align-content:center;gap:8px;}
+#panel.fsx .mid{grid-template-columns:1fr;align-content:center;gap:8px;}
 #panel:fullscreen .mid button{font-size:clamp(11px,2.3vh,16px);min-height:40px;padding:7px;white-space:nowrap;}
+#panel.fsx .mid button{font-size:clamp(11px,2.3vh,16px);min-height:40px;padding:7px;white-space:nowrap;}
 #panel:fullscreen .side.flip{transform:rotate(180deg)!important;}
+#panel.fsx .side.flip{transform:rotate(180deg)!important;}
 #panel:fullscreen .chess{touch-action:manipulation;}
+#panel.fsx .chess{touch-action:manipulation;}
 @media (orientation:landscape) and (max-height:520px){#panel:fullscreen{padding:6px}#panel:fullscreen .chess{gap:6px}#panel:fullscreen .side{font-size:clamp(28px,9vh,64px)}}
+@media (orientation:landscape) and (max-height:520px){#panel.fsx{padding:6px}#panel.fsx .chess{gap:6px}#panel.fsx .side{font-size:clamp(28px,9vh,64px)}}
 /* === Bản dùng trong app (APK) === */
 .in-app #shr,.in-app #inst,.in-app .notify-tools,.in-app #notifyStatus,.in-app #dlApk{display:none!important}
 #dlApk{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;margin:-8px 0 16px;padding:10px 16px;border-radius:14px;background:var(--go);color:var(--go-ink);font-weight:800;font-size:14px;text-decoration:none;box-shadow:0 4px 12px rgba(12,40,50,.12)}
@@ -1325,6 +1395,7 @@ html{overscroll-behavior-y:contain}
 .in-app body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .in-app input,.in-app textarea,.in-app select{-webkit-user-select:text;user-select:text}
 @media(max-width:620px){main{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important}}
+#panel.fsx{position:fixed;inset:0;z-index:99999;box-sizing:border-box;width:100vw;height:100dvh;margin:0;border-radius:0}
 </style>
 </head>
 <body>
@@ -1489,6 +1560,7 @@ html{overscroll-behavior-y:contain}
           cap.textContent=q.n;cap.style.cssText='margin-top:6px;font-weight:600;color:var(--ink)';
           var sv=document.createElement('a');
           sv.href=q.f;sv.download='ma-qr-'+q.f;sv.textContent='⬇ Lưu mã QR';
+          sv.addEventListener('click',function(ev){var C=window.Capacitor;if(window.SAVE&&C&&C.isNativePlatform&&C.isNativePlatform()){ev.preventDefault();fetch(q.f).then(function(r){return r.blob()}).then(function(b){window.SAVE('ma-qr-'+q.f,b,'image/png')}).catch(function(){})}});
           sv.style.cssText='display:inline-block;margin-top:8px;padding:10px 16px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-weight:600;font-size:15px;text-decoration:none';
           fig.appendChild(img);fig.appendChild(cap);fig.appendChild(sv);list.appendChild(fig);
           img.onerror=function(){
@@ -1829,7 +1901,7 @@ html{overscroll-behavior-y:contain}
     items.sort(function(a,b){return a.at-b.at});
     return {items:items,live:live};
   }
-  setInterval(function(){try{if(window.NA&&window.NA.on){var r=nplan();window.NA.sync('eng',r.items);window.NA.live('eng',r.live)}}catch(e){}},1000);
+  setInterval(function(){try{if(window.NA&&window.NA.on){var r=nplan();window.NA.sync('eng',r.items);window.NA.live('eng',r.live);window.NA.hold('eng',r.live.length>0)}}catch(e){}},1000);
 
   mainBtn.addEventListener('click',toggle);
   sideBtn.addEventListener('click',side);
@@ -1919,8 +1991,8 @@ html{overscroll-behavior-y:contain}
   vol.addEventListener('input',function(){window.vol=vol.value/100;ls('bg-vol',vol.value)});
   vol.addEventListener('change',function(){bp(1,0.25)});
   var fs=$('fs');function note(){var o=fs.textContent;fs.textContent='Máy này không hỗ trợ';setTimeout(function(){fs.textContent=o},2500)}
-  if(!document.documentElement.requestFullscreen||document.fullscreenEnabled===false)fs.hidden=true;
-  fs.addEventListener('click',function(){if(document.fullscreenElement)document.exitFullscreen();else{try{var pr=document.documentElement.requestFullscreen();if(pr&&pr.catch)pr.catch(note)}catch(x){note()}}});
+  if(!window.FS.ok())fs.hidden=true;
+  fs.addEventListener('click',function(){if(window.FS.active())window.FS.exit();else{try{window.FS.enter(document.documentElement).catch(note)}catch(x){note()}}});
 
   /* Cờ vua */
   var ch=null;
@@ -1952,19 +2024,18 @@ html{overscroll-behavior-y:contain}
   }
   async function toggleChessFullscreen(){
     try{
-      if(document.fullscreenElement){
-        await document.exitFullscreen();
+      if(window.FS.active()){
+        await window.FS.exit();
         try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock()}catch(e){}
       }else{
-        if(panel.requestFullscreen) await panel.requestFullscreen();
-        else if(document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+        await window.FS.enter(panel,{landscape:true});
         try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock('landscape')}catch(e){}
       }
     }catch(e){showAlert('Không thể bật toàn màn hình','Trình duyệt có thể chưa hỗ trợ chế độ này. Hãy thử mở website bằng Chrome.');}
   }
   document.addEventListener('fullscreenchange',function(){
     var b=panel.querySelector('[data-a="fs"]');
-    if(b)b.textContent=document.fullscreenElement?'⤢ Thoát toàn màn hình':'⛶ Toàn màn hình';
+    if(b)b.textContent=window.FS.active()?'⤢ Thoát toàn màn hình':'⛶ Toàn màn hình';
   });
   function chFlag(){ch.t[ch.a]=0;ch.over=ch.a;ch.a=-1;bp(4,0.6);if(window.logStat)window.logStat('chess',Math.max(0,2*(ch.b||0)-ch.t[0]-ch.t[1]))}
   function chLoop(){
@@ -2038,7 +2109,7 @@ html{overscroll-behavior-y:contain}
       });
       items.sort(function(a,b){return a.at-b.at});
       window.NA.sync('cook',items);
-      window.NA.live('cook',live);
+      window.NA.live('cook',live);window.NA.hold('cook',live.length>0);
     }catch(e){}
   },1000);
 
@@ -2088,6 +2159,7 @@ html{overscroll-behavior-y:contain}
   }
 
   window.panelMode=function(m){
+    if(window.FS&&window.FS.active()&&window.FS.el()&&window.FS.el()!==document.documentElement)window.FS.exit();
     cancelAnimationFrame(raf);
     cur=m;
     var isP=m==='chess'||m==='cook'||m==='breath'||m==='days'||m==='rem'||m==='world'||m==='sleep'||m==='dcalc'||window.PX[m];
@@ -2521,6 +2593,8 @@ html{overscroll-behavior-y:contain}
       });
       if(!count){toast('Chưa có dữ liệu trong khoảng thời gian này.');return;}
       var csv=rows.map(function(r){return r.map(function(x){return '"'+String(x).replace(/"/g,'""')+'"'}).join(',')}).join('\r\n');
+      var fname='thong-ke-bam-gio'+(limit?'-'+limit+'-ngay':'')+'.csv';
+      if(window.SAVE&&window.SAVE(fname,'\ufeff'+csv,'text/csv')){toast('Đã xuất '+count+' dòng thống kê.');return;}
       var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
       var url=URL.createObjectURL(blob),a=document.createElement('a');
       a.href=url;a.download='thong-ke-bam-gio'+(limit?'-'+limit+'-ngay':'')+'.csv';
@@ -3093,6 +3167,7 @@ html{overscroll-behavior-y:contain}
     window.addEventListener('popstate',function(){
       if(exitArmed){clearTimeout(exitT);var A=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.App;if(A&&A.exitApp){A.exitApp()}else{try{history.back()}catch(e){}}return}
       try{history.pushState({bg:1},'')}catch(e){}
+      if(window.FS&&window.FS.active()){window.FS.exit();return}
       if(window.alertOpen){document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return}
       if(!sheet.hidden){closeSheet();return}
       if(document.body.classList.contains('focus')){setFocus(false);return}
