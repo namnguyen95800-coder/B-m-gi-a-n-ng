@@ -405,7 +405,7 @@ jobs:
           cp "$OUT" ../../Dousob.apk
           echo "Đã tạo APK từ: $OUT"
 
-      - nname: Build APK
+      - name: Build APK
 
 # Chạy thủ công: vào tab Actions > Build APK > Run workflow
 on:
