@@ -76,7 +76,7 @@ window.NA=(function(){
     list=list||[];
     var old=prevLive[g]||{},cur={},changed=false;
     list.forEach(function(x){cur[x.id]=x});
-    Object.keys(cur).forEach(function(id){var a=old[id],b=cur[id];if(!a||a.title!==b.title||a.text!==b.text||Math.abs(a.when-b.when)>2000)changed=true});
+    Object.keys(cur).forEach(function(id){var a=old[id],b=cur[id];if(!a||a.title!==b.title||a.text!==b.text||a.paused!==b.paused||a.st!==b.st||a.next!==b.next||Math.abs(a.when-b.when)>2000)changed=true});
     Object.keys(old).forEach(function(id){if(!cur[id])changed=true});
     if(!changed)return;
     prevLive[g]=cur;
@@ -84,7 +84,7 @@ window.NA=(function(){
       Object.keys(old).forEach(function(id){if(!cur[id])t.cancel({id:+id}).catch(function(){})});
       Object.keys(cur).forEach(function(id){
         var b=cur[id];
-        t.show({id:+id,title:b.title,text:b.text,when:Math.round(b.when),countdown:!!b.countdown,timeout:Math.round(b.timeout||0)}).catch(function(){});
+        t.show({id:+id,key:b.key||'',title:b.title,text:b.text,when:Math.round(b.when||0),countdown:!!b.countdown,timeout:Math.round(b.timeout||0),paused:!!b.paused,st:b.st||'',pauseOn:b.pauseOn!==false,next:b.next||''}).catch(function(){});
       });
     }).catch(function(){});
   }
@@ -93,7 +93,26 @@ window.NA=(function(){
     holds[k]=!!on;var any=false;for(var x in holds)if(holds[x])any=true;
     if(any!==awake){awake=any;try{t.keepAwake({on:any}).catch(function(){})}catch(e){}}
   }
-  return {sync:sync,live:live,hold:hold,get on(){return !!LN()}};
+  var NAH={};
+  function setup(){
+    var t=TN();if(!t||!t.addListener||setup.d)return;setup.d=true;
+    try{t.addListener('action',function(e){try{
+      var k=(e&&e.key)||'',a=e&&e.act;
+      if(k.indexOf('cook:')===0){if(NAH.cook)NAH.cook(+k.slice(5),a)}else if(NAH.eng)NAH.eng(k,a);
+    }catch(x){}})}catch(x){}
+  }
+  function reset(){
+    var l=LN(),t=TN();if(!l)return;
+    var ids=[];for(var i=0;i<40;i++){ids.push({id:100+i});ids.push({id:200+i})}
+    try{l.cancel({notifications:ids}).catch(function(){})}catch(e){}
+    try{if(t&&t.cancelAll)t.cancelAll().catch(function(){})}catch(e){}
+    prev={};prevLive={};
+  }
+  function boot(){
+    setup();var t=TN();
+    if(t&&t.takePending)t.takePending().then(function(p){if(p&&p.act)reset()}).catch(function(){});
+  }
+  return {sync:sync,live:live,hold:hold,boot:boot,reset:reset,h:NAH,get on(){return !!LN()}};
 })();</script>
 <script>window.PX={lunar:1,age:1,hms:1,desk:1,wage:1,habit:1,sun:1,metro:1};window.PXR={};
 window.FS=(function(){
@@ -127,6 +146,7 @@ window.SAVE=function(name,data,mime){
 };
 /* Báo có bản APK mới (chỉ trong app) */
 window.addEventListener('load',function(){
+  setTimeout(function(){try{if(window.NA&&window.NA.boot)window.NA.boot()}catch(e){}},1500);
   setTimeout(function(){try{
     var C=window.Capacitor,P=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins;
     if(!(P&&P.App&&P.App.getInfo)||!window.fetch)return;
@@ -1873,35 +1893,56 @@ html{overscroll-behavior-y:contain}
   }
 
   /* Báo thức gốc + thông báo đang chạy (dùng khi app bị ẩn hoặc đã xoá khỏi đa nhiệm) */
+  function fmtT(ms){ms=Math.max(0,Math.round(ms/1000));var h=Math.floor(ms/3600),m=Math.floor(ms%3600/60),s=ms%60;return (h?h+':'+('0'+m).slice(-2):m)+':'+('0'+s).slice(-2)}
+  var NID={cd:9002,pomo:9003,iv:9004,seq:9005,exam:9006};
   function nplan(){
     var items=[],live=[],ms=Date.now(),pn=performance.now();
     var sw=(mode==='sw')?snap():STORE.sw;
-    if(sw&&sw.running){live.push({id:9001,title:'Bấm giờ',text:'Đang đo thời gian',when:ms-(sw.elapsed+(pn-sw.startAt)),countdown:false})}
-    var li=0;
+    if(sw){
+      if(sw.running)live.push({key:'sw',id:9001,title:'Bấm giờ',text:'Đang chạy',when:ms-(sw.elapsed+(pn-sw.startAt)),countdown:false,paused:false,pauseOn:true,next:'lap'});
+      else if(sw.elapsed>0)live.push({key:'sw',id:9001,title:'Bấm giờ',text:'Tạm dừng',when:0,countdown:false,paused:true,st:fmtT(sw.elapsed),pauseOn:false,next:''});
+    }
     Object.keys(ENG).forEach(function(m){
       if(m==='sw')return;
       var st=(m===mode)?snap():STORE[m];
-      if(!st||!st.running||!st.started||!st.cfg)return;
+      if(!st||!st.started||st.done||!st.cfg)return;
       var keep=mode;mode=m;
       try{
-        var e=st.acc+(pn-st.startAt),i=st.idx,p=phase(i,st.cfg),at=ms,n=0,first=true,firstAt=0,p0=p?p.name:'';
+        var run=!!st.running,e=st.acc+(run?pn-st.startAt:0),i=st.idx,p=phase(i,st.cfg),at=ms,n=0,first=true,firstAt=0,p0=p?p.name:'',hasNext=!!phase(i+1,st.cfg);
         while(p&&n<16){
           at+=first?Math.max(0,p.ms-e):p.ms;
           if(first)firstAt=at;
           first=false;
           var nx=phase(i+1,st.cfg);
-          items.push({at:at,title:nx?('\u23F0 Xong: '+p.name):'\u23F0 Hết giờ!',body:nx?('Tiếp theo: '+nx.name):((NAMES[m]||'Đồng hồ')+' đã xong')});
+          if(run)items.push({at:at,title:nx?('\u23F0 Xong: '+p.name):'\u23F0 Hết giờ!',body:nx?('Tiếp theo: '+nx.name):((NAMES[m]||'Đồng hồ')+' đã xong')});
           p=nx;i++;n++;
         }
-        var endAt=(m==='exam')?at:firstAt;
-        if(firstAt){live.push({id:9002+li,title:NAMES[m]||'Đồng hồ',text:(p0&&p0!==NAMES[m])?p0:'Thời gian còn lại',when:endAt,countdown:true,timeout:Math.max(0,endAt-ms)});li++}
+        if(firstAt){
+          var endAt=(m==='exam')?at:firstAt,nm=NAMES[m]||'Đồng hồ',txt=(p0&&p0!==NAMES[m])?p0:'Thời gian còn lại',nxt=(m==='cd'||m==='exam'||!hasNext)?'':'skip';
+          if(run)live.push({key:m,id:NID[m]||9010,title:nm,text:txt,when:endAt,countdown:true,timeout:Math.max(0,endAt-ms),paused:false,pauseOn:true,next:nxt});
+          else live.push({key:m,id:NID[m]||9010,title:nm,text:txt+' (tạm dừng)',when:0,countdown:true,paused:true,st:fmtT(endAt-ms),pauseOn:false,next:nxt});
+        }
       }catch(x){}
       mode=keep;
     });
     items.sort(function(a,b){return a.at-b.at});
     return {items:items,live:live};
   }
-  setInterval(function(){try{if(window.NA&&window.NA.on){var r=nplan();window.NA.sync('eng',r.items);window.NA.live('eng',r.live);window.NA.hold('eng',r.live.length>0)}}catch(e){}},1000);
+  /* Nút Dừng, Chuyển, Tắt trên thông báo */
+  function skipPhase(){
+    if(mode==='sw'||!started)return;
+    var p=phase(idx+1,cfg);
+    if(!p){finish(true);return}
+    idx++;acc=0;startAt=performance.now();beep(2,0.4);render();
+  }
+  if(window.NA&&window.NA.h)window.NA.h.eng=function(key,act){
+    if(!ENG[key])return;
+    if(key!==mode)setMode(key);
+    if(act==='pause'){if(key==='sw'||started)toggle()}
+    else if(act==='next'){if(key==='sw'){if(running)lap()}else skipPhase()}
+    else if(act==='off'){reset()}
+  };
+  setInterval(function(){try{if(window.NA&&window.NA.on){var r=nplan();window.NA.sync('eng',r.items);window.NA.live('eng',r.live);window.NA.hold('eng',r.live.some(function(x){return !x.paused}))}}catch(e){}},1000);
 
   mainBtn.addEventListener('click',toggle);
   sideBtn.addEventListener('click',side);
@@ -2101,17 +2142,25 @@ html{overscroll-behavior-y:contain}
       if(!window.NA||!window.NA.on)return;
       var ms=Date.now(),items=[],live=[];
       timers.forEach(function(t,k){
-        if(t.run&&!t.done){
-          var r=Math.max(0,rem(t));
+        if(t.done)return;
+        var r=Math.max(0,rem(t));
+        if(t.run){
           items.push({at:ms+r,title:'\uD83C\uDF73 Xong rồi: '+t.name,body:'Món đã đủ giờ'});
-          live.push({id:9100+k,title:'Nấu ăn',text:t.name,when:ms+r,countdown:true,timeout:r});
-        }
+          live.push({key:'cook:'+k,id:9100+k,title:'Nấu ăn',text:t.name,when:ms+r,countdown:true,timeout:r,paused:false,pauseOn:true,next:''});
+        }else live.push({key:'cook:'+k,id:9100+k,title:'Nấu ăn',text:t.name+' (tạm dừng)',when:0,countdown:true,paused:true,st:mmss(r),pauseOn:false,next:''});
       });
       items.sort(function(a,b){return a.at-b.at});
       window.NA.sync('cook',items);
-      window.NA.live('cook',live);window.NA.hold('cook',live.length>0);
+      window.NA.live('cook',live);window.NA.hold('cook',live.some(function(x){return !x.paused}));
     }catch(e){}
   },1000);
+
+  if(window.NA&&window.NA.h)window.NA.h.cook=function(i,act){
+    var t=timers[i];if(!t)return;var n=performance.now();
+    if(act==='pause'){if(!t.done){if(t.run){t.left=rem(t);t.run=false}else{t.run=true;t.start=n}}}
+    else if(act==='off'){timers.splice(i,1)}
+    if(cur==='cook')drawCook();
+  };
 
   /* Hít thở */
   var PAT=[
