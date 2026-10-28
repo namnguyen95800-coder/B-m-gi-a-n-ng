@@ -114,7 +114,7 @@ window.NA=(function(){
   }
   return {sync:sync,live:live,hold:hold,boot:boot,reset:reset,h:NAH,get on(){return !!LN()}};
 })();</script>
-<script>window.PX={lunar:1,age:1,hms:1,desk:1,wage:1,habit:1,sun:1,metro:1};window.PXR={};
+<script>window.PX={lunar:1,age:1,hms:1,desk:1,wage:1,habit:1,sun:1,metro:1,music:1};window.PXR={};
 window.FS=(function(){
   var fake=null;
   function app(){return document.documentElement.classList.contains('in-app')}
@@ -146,7 +146,6 @@ window.SAVE=function(name,data,mime){
 };
 /* Báo có bản APK mới (chỉ trong app) */
 window.addEventListener('load',function(){
-  setTimeout(function(){try{if(window.NA&&window.NA.boot)window.NA.boot()}catch(e){}},1500);
   setTimeout(function(){try{
     var C=window.Capacitor,P=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins;
     if(!(P&&P.App&&P.App.getInfo)||!window.fetch)return;
@@ -314,22 +313,202 @@ PXR.sun=function(){
     $('su-r').innerHTML='<div class="big">🌅 '+f(a)+' &nbsp; 🌇 '+f(b)+'</div><div class="nm">'+T('Ngày dài ','Daylight ')+Math.floor((b-a)/60)+' '+T('giờ','h')+' '+Math.round((b-a)%60)+' '+T('phút','min')+'</div><div class="nm">'+T('Giờ vàng chụp ảnh: ','Golden hour: ')+f(a)+'–'+f(a+60)+' · '+f(b-60)+'–'+f(b)+'</div>';
   });$('panel').oninput();
 };
-/* ---- Máy gõ nhịp ---- */
+/* ---- Máy gõ nhịp: phách mạnh nhẹ tuỳ chỉnh, chia nhịp, 4 âm sắc, tăng tốc dần ---- */
+function mtCss(){if($('mt-css'))return;var s=document.createElement('style');s.id='mt-css';s.textContent=
+'.mtb{min-width:44px;min-height:44px;border-radius:50%;font-size:20px;padding:0;margin:3px}.mtb.s2{outline:2px solid #2dbe9d}.mtb.s0{opacity:.4}.mtb.on{background:#2dbe9d;color:#04231c}'+
+'.mtp{position:relative;height:24px;margin:10px 8px;border-radius:12px;background:rgba(127,127,127,.2)}.mtp i{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#2dbe9d}'+
+'.mtr{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin:8px 0}.mtr button{min-height:40px;padding:6px 12px}.mtr button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}';
+document.head.appendChild(s)}
+var TSIG=[['2/4',[2,1]],['3/4',[2,1,1]],['4/4',[2,1,1,1]],['5/4',[2,1,1,2,1]],['6/8',[2,1,1,2,1,1]]];
+function tname(b){return b<40?'Grave':b<60?'Largo':b<66?'Larghetto':b<76?'Adagio':b<108?'Andante':b<120?'Moderato':b<156?'Allegro':b<176?'Vivace':b<200?'Presto':'Prestissimo'}
 PXR.metro=function(){
-  stop();var bpm=ls('bpm')||100,bt=ls('bt')||4,on=false,ctx=null,nx=0,bi=0,taps=[],timer=null;
-  mount('<div class="card" style="text-align:center"><div id="mt-b" class="big" style="font-size:56px">'+bpm+'</div><div class="nm">BPM</div><div id="mt-d" style="font-size:30px;letter-spacing:6px;margin:8px 0;min-height:36px"></div></div><div class="row"><input id="mt-s" type="range" min="30" max="240" value="'+bpm+'" style="flex:1"></div><div class="row"><label>'+T('Số phách mỗi ô nhịp','Beats per bar')+'<select id="mt-n">'+[2,3,4,5,6,7,8].map(function(n){return '<option'+(n===bt?' selected':'')+'>'+n+'</option>'}).join('')+'</select></label><button id="mt-g" type="button">▶ '+T('Bắt đầu','Start')+'</button><button id="mt-t" type="button">'+T('Gõ nhịp','Tap tempo')+'</button></div>',function(e){
-    if(e.target.id==='mt-s'){bpm=+e.target.value;ls('bpm',bpm);$('mt-b').textContent=bpm}if(e.target.id==='mt-n'){bt=+e.target.value;ls('bt',bt);bi=0}
-  },function(e){
-    var id=e.target.id;
-    if(id==='mt-t'){var n=Date.now();if(taps.length&&n-taps[taps.length-1]>2000)taps=[];taps.push(n);if(taps.length>1){var v=Math.round(60000/((taps[taps.length-1]-taps[0])/(taps.length-1)));bpm=Math.max(30,Math.min(240,v));$('mt-s').value=bpm;$('mt-b').textContent=bpm;ls('bpm',bpm)}}
-    if(id==='mt-g'){on?halt():go()}
-  });
-  function click(t,acc){var o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=acc?1500:1000;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.9,t+0.002);g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+0.06)}
-  function dots(i){var s='';for(var k=0;k<bt;k++)s+=k===i?'●':'○';var d=$('mt-d');if(d)d.textContent=s}
-  function go(){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();ctx.resume()}catch(e){return}on=true;bi=0;nx=ctx.currentTime+0.05;$('mt-g').textContent='■ '+T('Dừng','Stop');
-    timer=setInterval(function(){if(!$('mt-g')){halt();return}while(nx<ctx.currentTime+0.12){var acc=bi%bt===0;click(nx,acc);(function(i,t){setTimeout(function(){if(on)dots(i)},Math.max(0,(t-ctx.currentTime)*1000))})(bi%bt,nx);nx+=60/bpm;bi++}},25);window.__mt=halt}
-  function halt(){on=false;clearInterval(timer);var g=$('mt-g');if(g)g.textContent='▶ '+T('Bắt đầu','Start');dots(-1);window.__mt=null}
-  dots(-1);
+  stop();mtCss();
+  var S=ls('metro')||{},D={bpm:100,bt:4,sub:1,snd:'click',vol:0.8,hap:false,tr:false,ts:5,tb:4,tm:160};
+  for(var k in D)if(S[k]===undefined)S[k]=D[k];
+  var on=false,ctx=null,nx=0,step=0,bars=0,timer=null,taps=[],flip=0,cur=-1;
+  function save(){ls('metro',S)}
+  function fix(){var a=S.acc||[];while(a.length<S.bt)a.push(a.length?1:2);a.length=S.bt;S.acc=a}
+  function dots(){fix();return S.acc.map(function(a,i){return '<button type="button" class="mtb s'+a+(i===cur?' on':'')+'" data-i="'+i+'" aria-label="'+T('Phách ','Beat ')+(i+1)+'">'+(a===2?'●':a===1?'○':'·')+'</button>'}).join('')}
+  function opts(arr,v){return arr.map(function(x){return '<option value="'+x[0]+'"'+(String(x[0])===String(v)?' selected':'')+'>'+x[1]+'</option>'}).join('')}
+  function nums(n){var r=[];for(var i=1;i<=n;i++)r.push([i,i]);return r}
+  function upd(){var b=$('mt-b');if(b)b.textContent=S.bpm;var n=$('mt-n');if(n)n.textContent=tname(S.bpm);var sl=$('mt-s');if(sl)sl.value=S.bpm}
+  function render(){
+    fix();
+    mount('<div class="card" style="text-align:center"><div id="mt-b" class="big" style="font-size:64px"></div><div class="nm" id="mt-n"></div><div class="mtp"><i id="mt-p"></i></div><div id="mt-d">'+dots()+'</div></div>'+
+    '<div class="mtr"><button type="button" id="mt-m5">−5</button><button type="button" id="mt-m1">−1</button><input id="mt-s" type="range" min="30" max="240" value="'+S.bpm+'" style="flex:1;min-width:100px"><button type="button" id="mt-p1">+1</button><button type="button" id="mt-p5">+5</button></div>'+
+    '<div class="mtr">'+TSIG.map(function(x){return '<button type="button" data-ts="'+x[0]+'">'+x[0]+'</button>'}).join('')+'</div>'+
+    '<div class="mtr"><label>'+T('Số phách','Beats')+'<select id="mt-bt">'+opts(nums(12),S.bt)+'</select></label><label>'+T('Chia nhỏ','Subdivide')+'<select id="mt-u">'+opts([[1,'♩'],[2,'♪♪'],[3,'♪♪♪'],[4,'♬♬']],S.sub)+'</select></label><label>'+T('Âm sắc','Sound')+'<select id="mt-w">'+opts([['click',T('Tích tắc','Click')],['wood',T('Gỗ','Wood')],['drum',T('Trống','Drum')],['bell',T('Chuông','Bell')]],S.snd)+'</select></label></div>'+
+    '<div class="mtr"><label style="flex:1;min-width:140px">'+T('Âm lượng','Volume')+'<input id="mt-v" type="range" min="0.1" max="1" step="0.05" value="'+S.vol+'"></label><button type="button" id="mt-hp" aria-pressed="'+!!S.hap+'">📳 '+T('Rung','Haptics')+'</button><button type="button" id="mt-tr" aria-pressed="'+!!S.tr+'">🚀 '+T('Tăng tốc dần','Speed up')+'</button></div>'+
+    (S.tr?'<div class="mtr"><label>+BPM<input id="mt-ts" value="'+S.ts+'" inputmode="numeric" style="width:64px"></label><label>'+T('mỗi (ô nhịp)','every (bars)')+'<input id="mt-tb" value="'+S.tb+'" inputmode="numeric" style="width:64px"></label><label>'+T('tối đa','max')+'<input id="mt-tm" value="'+S.tm+'" inputmode="numeric" style="width:72px"></label></div>':'')+
+    '<div class="mtr"><button id="mt-g" type="button">'+(on?'■ '+T('Dừng','Stop'):'▶ '+T('Bắt đầu','Start'))+'</button><button id="mt-t" type="button">'+T('Gõ nhịp','Tap tempo')+'</button></div>'+
+    '<div class="nm">'+T('Bấm vào từng chấm để đổi phách: ● mạnh, ○ thường, · tắt tiếng.','Tap each dot to change the beat: ● strong, ○ normal, · muted.')+'</div>',
+    function(e){
+      var id=e.target.id,v=e.target.value;
+      if(id==='mt-s'){S.bpm=+v;upd()}
+      else if(id==='mt-v')S.vol=+v;
+      else if(id==='mt-bt'){S.bt=+v;fix();var d=$('mt-d');if(d)d.innerHTML=dots()}
+      else if(id==='mt-u')S.sub=+v;
+      else if(id==='mt-w')S.snd=v;
+      else if(id==='mt-ts')S.ts=Math.max(1,Math.min(40,parseInt(v,10)||5));
+      else if(id==='mt-tb')S.tb=Math.max(1,Math.min(64,parseInt(v,10)||4));
+      else if(id==='mt-tm')S.tm=Math.max(40,Math.min(240,parseInt(v,10)||160));
+      save();
+    },function(e){
+      var b=e.target.closest('button');if(!b)return;var id=b.id,ts=b.getAttribute('data-ts'),di=b.getAttribute('data-i');
+      var nudge={'mt-m5':-5,'mt-m1':-1,'mt-p1':1,'mt-p5':5};
+      if(id in nudge){S.bpm=Math.max(30,Math.min(240,S.bpm+nudge[id]));upd();save()}
+      else if(ts){TSIG.forEach(function(x){if(x[0]===ts){S.acc=x[1].slice();S.bt=x[1].length}});save();render()}
+      else if(di!==null){var a=S.acc[+di];S.acc[+di]=a===2?1:a===1?0:2;save();var d=$('mt-d');if(d)d.innerHTML=dots()}
+      else if(id==='mt-hp'){S.hap=!S.hap;save();render()}
+      else if(id==='mt-tr'){S.tr=!S.tr;save();render()}
+      else if(id==='mt-t'){var n=Date.now();if(taps.length&&n-taps[taps.length-1]>2000)taps=[];taps.push(n);if(taps.length>1){S.bpm=Math.max(30,Math.min(240,Math.round(60000/((taps[taps.length-1]-taps[0])/(taps.length-1)))));upd();save()}}
+      else if(id==='mt-g'){on?halt():go()}
+    });
+    upd();
+  }
+  function play(t,strong,sub){
+    var o=ctx.createOscillator(),g=ctx.createGain(),v=Math.max(0.001,S.vol*(sub?0.35:1)*(strong?1:0.75)),f,d;
+    if(S.snd==='wood'){o.type='triangle';f=strong?1100:800;d=0.06}
+    else if(S.snd==='drum'){o.type='sine';f=strong?180:130;d=0.14}
+    else if(S.snd==='bell'){o.type='sine';f=strong?1320:880;d=0.45}
+    else{o.type='sine';f=strong?1500:1000;d=0.05}
+    if(sub)f*=1.25;
+    if(S.snd==='drum'){o.frequency.setValueAtTime(f*1.8,t);o.frequency.exponentialRampToValueAtTime(f*0.5,t+d)}else o.frequency.setValueAtTime(f,t);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+0.003);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+d+0.02);
+  }
+  function hit(b,strong){
+    cur=b;var d=$('mt-d');if(d)d.innerHTML=dots();
+    var p=$('mt-p');if(p){p.style.transition='left '+(60/S.bpm)+'s linear';p.style.left=(flip++%2)?'2px':'calc(100% - 22px)'}
+    if(S.hap){try{if(navigator.vibrate)navigator.vibrate(strong?40:20)}catch(e){}}
+    upd();
+  }
+  function go(){
+    try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();ctx.resume()}catch(e){return}
+    on=true;step=0;bars=0;cur=-1;nx=ctx.currentTime+0.06;var g=$('mt-g');if(g)g.textContent='■ '+T('Dừng','Stop');
+    try{if(window.NA)window.NA.hold('metro',true)}catch(e){}
+    timer=setInterval(function(){
+      if(!$('mt-g')){halt();return}
+      while(nx<ctx.currentTime+0.12){
+        var beat=Math.floor(step/S.sub)%S.bt,sp=step%S.sub,a=S.acc[beat];
+        if(a>0)play(nx,a===2,sp>0);
+        if(sp===0){
+          (function(b,t,st){setTimeout(function(){if(on)hit(b,st)},Math.max(0,(t-ctx.currentTime)*1000))})(beat,nx,a===2);
+          if(beat===0){bars++;if(S.tr&&bars>1&&(bars-1)%S.tb===0&&S.bpm<S.tm){S.bpm=Math.min(S.tm,S.bpm+S.ts);save()}}
+        }
+        nx+=60/S.bpm/S.sub;step++;
+      }
+    },25);
+    window.__mt=halt;
+  }
+  function halt(){
+    on=false;clearInterval(timer);cur=-1;var g=$('mt-g');if(g)g.textContent='▶ '+T('Bắt đầu','Start');
+    var d=$('mt-d');if(d)d.innerHTML=dots();
+    try{if(window.NA)window.NA.hold('metro',false)}catch(e){}
+    window.__mt=null;
+  }
+  render();
+};
+/* ---- Nhạc của tôi: phát file nhạc có sẵn trong máy làm nhạc nền ---- */
+var MU=(function(){
+  var S=ls('mus')||{};var D={vol:0.7,rep:'all',shuf:false,link:false};for(var k in D)if(S[k]===undefined)S[k]=D[k];
+  var TR=[],curId=null,A=null,url=null,loaded=false,linkWas=false,idbp=null;
+  function save(){ls('mus',S)}
+  function db(){if(idbp)return idbp;idbp=new Promise(function(res,rej){try{var r=indexedDB.open('bgmusic',1);r.onupgradeneeded=function(){r.result.createObjectStore('t',{keyPath:'id'})};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}}catch(e){rej(e)}});return idbp}
+  function op(mode,fn){return db().then(function(d){return new Promise(function(res,rej){var t=d.transaction('t',mode),o=fn(t.objectStore('t'));t.oncomplete=function(){res(o&&o.result)};t.onerror=function(){rej(t.error)};t.onabort=function(){rej(t.error)}})})}
+  function list(){return op('readonly',function(s){return s.getAll()}).then(function(a){TR=(a||[]).sort(function(x,y){return x.id-y.id});loaded=true;return TR})}
+  function vol(){return Math.max(0,Math.min(1,S.vol*(window.vol==null?1:window.vol)))}
+  function idx(){for(var i=0;i<TR.length;i++)if(TR[i].id===curId)return i;return -1}
+  function audio(){if(!A){A=new Audio();A.preload='auto';A.addEventListener('ended',ended)}return A}
+  function ended(){if(S.rep==='one'){A.currentTime=0;A.play().catch(function(){})}else nextTrack(true)}
+  function playAt(i){
+    var t=TR[i];if(!t)return Promise.resolve();
+    curId=t.id;if(url){try{URL.revokeObjectURL(url)}catch(e){}}
+    url=URL.createObjectURL(t.blob);var a=audio();a.src=url;a.volume=vol();
+    return a.play().catch(function(){});
+  }
+  function playing(){return !!A&&!A.paused&&!A.ended}
+  function play(){
+    if(!loaded){return list().then(play).catch(function(){})}
+    if(!TR.length)return;
+    if(!A||curId===null||!A.src)playAt(S.shuf?Math.floor(Math.random()*TR.length):0);else A.play().catch(function(){});
+  }
+  function pause(){if(A&&!A.paused)A.pause()}
+  function toggle(){if(playing())pause();else play()}
+  function nextTrack(auto){
+    if(!TR.length)return;var n,c=idx();
+    if(S.shuf&&TR.length>1){do{n=Math.floor(Math.random()*TR.length)}while(n===c)}
+    else{n=c+1;if(n>=TR.length){if(S.rep==='all'||!auto)n=0;else return}}
+    playAt(n);
+  }
+  function prevTrack(){if(!TR.length)return;if(A&&A.currentTime>3){A.currentTime=0;return}var c=idx();playAt(c>0?c-1:TR.length-1)}
+  function add(files){
+    var base=Date.now(),n=0,arr=Array.prototype.slice.call(files);
+    return arr.reduce(function(p,f,i){return p.then(function(){
+      if(!(f.type&&f.type.indexOf('audio')===0)&&!/\.(mp3|m4a|aac|wav|ogg|oga|flac|opus|wma)$/i.test(f.name))return;
+      return op('readwrite',function(s){return s.put({id:base+i,name:f.name.replace(/\.[^.]+$/,''),type:f.type,size:f.size,blob:f})}).then(function(){n++});
+    })},Promise.resolve()).then(list).then(function(){return n});
+  }
+  function remove(id){
+    if(id===curId){pause();if(A){A.removeAttribute('src');A.load()}curId=null}
+    return op('readwrite',function(s){return s.delete(id)}).then(list);
+  }
+  function init(){
+    if(init.d)return;init.d=true;
+    try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+    list().catch(function(){});
+    setInterval(function(){
+      if(A)A.volume=vol();
+      if(S.link&&window.engPhase){var p=window.engPhase(),want=!!(p&&p.run&&p.work);if(want!==linkWas){linkWas=want;if(want)play();else pause()}}
+    },700);
+  }
+  return {S:S,save:save,init:init,add:add,remove:remove,toggle:toggle,play:play,pause:pause,next:function(){nextTrack(false)},prev:prevTrack,
+    playAt:playAt,playing:playing,tracks:function(){return TR},curId:function(){return curId},audio:function(){return A},idx:idx};
+})();
+window.MU=MU;
+document.addEventListener('DOMContentLoaded',function(){try{MU.init()}catch(e){}});
+PXR.music=function(){
+  MU.init();mtCss();
+  var S=MU.S;
+  function fmt(x){x=Math.max(0,Math.floor(x||0));return Math.floor(x/60)+':'+pad(x%60)}
+  function mb(n){return n>=1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
+  var RP={all:'🔁 '+T('Cả danh sách','Repeat all'),one:'🔂 '+T('Một bài','Repeat one'),off:'➡ '+T('Không lặp','No repeat')};
+  function draw(){
+    var tr=MU.tracks(),c=MU.idx(),now=c>=0?tr[c]:null;
+    mount('<div class="card" style="text-align:center"><div id="mu-now" style="font-weight:700;font-size:18px">'+(now?esc(now.name):T('Chưa chọn bài','No track selected'))+'</div><div class="nm" id="mu-t">0:00 / 0:00</div><input id="mu-pos" type="range" min="0" max="1000" value="0" style="width:100%">'+
+    '<div class="mtr" style="justify-content:center"><button type="button" id="mu-pr" aria-label="Prev">⏮</button><button type="button" id="mu-pl" style="min-width:64px;font-size:22px">'+(MU.playing()?'⏸':'▶')+'</button><button type="button" id="mu-nx" aria-label="Next">⏭</button></div>'+
+    '<div class="mtr" style="justify-content:center"><button type="button" id="mu-sh" aria-pressed="'+!!S.shuf+'">🔀 '+T('Ngẫu nhiên','Shuffle')+'</button><button type="button" id="mu-rp">'+RP[S.rep]+'</button></div></div>'+
+    '<div class="mtr"><button type="button" id="mu-add">➕ '+T('Thêm nhạc từ máy','Add music from device')+'</button></div><input id="mu-f" type="file" accept="audio/*" multiple hidden>'+
+    '<div class="mtr"><label style="flex:1;min-width:150px">'+T('Âm lượng nhạc','Music volume')+'<input id="mu-v" type="range" min="0" max="1" step="0.05" value="'+S.vol+'"></label><button type="button" id="mu-lk" aria-pressed="'+!!S.link+'">🍅 '+T('Theo Pomodoro','Follow Pomodoro')+'</button></div>'+
+    (tr.length?tr.map(function(t,i){return '<div class="card" style="display:flex;gap:10px;align-items:center;margin:6px 0"><button type="button" data-p="'+i+'" style="flex:1;text-align:left;min-width:0"><b>'+(i===c&&MU.playing()?'▶ ':'')+esc(t.name)+'</b><div class="nm">'+mb(t.size)+'</div></button><button type="button" data-x="'+t.id+'" aria-label="'+T('Xoá','Delete')+'">✕</button></div>'}).join(''):'<div class="card">'+T('Chưa có bài nào. Bấm "Thêm nhạc từ máy" để chọn file mp3, m4a, flac... trong điện thoại.','No tracks yet. Tap "Add music from device" to pick audio files.')+'</div>')+
+    '<div class="nm">'+T('Nhạc được lưu ngay trong app, không tải lên mạng. "Theo Pomodoro": nhạc tự phát lúc làm việc và tự dừng lúc nghỉ. Nếu tắt màn hình mà nhạc dừng, hãy mở lại app và bấm ▶.','Music is stored inside the app, never uploaded. "Follow Pomodoro" plays during work and pauses on breaks. If music stops when the screen is off, reopen the app and tap play.')+'</div>',
+    function(e){
+      var id=e.target.id;
+      if(id==='mu-f'){var f=e.target.files;if(f&&f.length)MU.add(f).then(function(n){draw();var t=$('toast');if(t){t.textContent=T('Đã thêm '+n+' bài.','Added '+n+' track(s).');t.hidden=false;t.classList.remove('show');void t.offsetWidth;t.classList.add('show');setTimeout(function(){t.hidden=true},2500)}}).catch(function(){})}
+      else if(id==='mu-v'){S.vol=+e.target.value;MU.save();var a=MU.audio();if(a)a.volume=Math.max(0,Math.min(1,S.vol*(window.vol==null?1:window.vol)))}
+      else if(id==='mu-pos'){var a2=MU.audio();if(a2&&a2.duration)a2.currentTime=(+e.target.value)/1000*a2.duration}
+    },function(e){
+      var b=e.target.closest('button');if(!b)return;var id=b.id,p=b.getAttribute('data-p'),x=b.getAttribute('data-x');
+      if(id==='mu-add')$('mu-f').click();
+      else if(id==='mu-pl'){MU.toggle();setTimeout(draw,150)}
+      else if(id==='mu-nx'){MU.next();setTimeout(draw,200)}
+      else if(id==='mu-pr'){MU.prev();setTimeout(draw,200)}
+      else if(id==='mu-sh'){S.shuf=!S.shuf;MU.save();draw()}
+      else if(id==='mu-rp'){S.rep=S.rep==='all'?'one':S.rep==='one'?'off':'all';MU.save();draw()}
+      else if(id==='mu-lk'){S.link=!S.link;MU.save();draw()}
+      else if(p!==null){MU.playAt(+p);setTimeout(draw,200)}
+      else if(x!==null&&confirm(T('Xoá bài này khỏi app?','Remove this track from the app?')))MU.remove(+x).then(draw);
+    });
+  }
+  draw();
+  var tm=setInterval(function(){
+    var pos=$('mu-pos');if(!pos){clearInterval(tm);return}
+    var a=MU.audio();if(!a)return;
+    if(a.duration&&document.activeElement!==pos)pos.value=Math.round(a.currentTime/a.duration*1000);
+    var t=$('mu-t');if(t)t.textContent=fmt(a.currentTime)+' / '+fmt(a.duration);
+    var pl=$('mu-pl');if(pl)pl.textContent=MU.playing()?'⏸':'▶';
+    var n=$('mu-now'),tr=MU.tracks(),c=MU.idx();if(n&&c>=0&&n.textContent!==tr[c].name)n.textContent=tr[c].name;
+  },500);
 };
 try{var ll=document.documentElement.lang;new MutationObserver(function(){var l=document.documentElement.lang;if(l===ll)return;ll=l;var m=document.body.getAttribute('data-m');if(window.PX[m]&&PXR[m])PXR[m]()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']})}catch(x){}
 })();
@@ -1415,6 +1594,8 @@ html{overscroll-behavior-y:contain}
 .in-app body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .in-app input,.in-app textarea,.in-app select{-webkit-user-select:text;user-select:text}
 @media(max-width:620px){main{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important}}
+#ob{transition:background-color .6s,box-shadow .6s}#ob.ph-i{background:#5ab8ff;box-shadow:0 0 60px rgba(90,184,255,.55)}#ob.ph-f{background:#b388ff;box-shadow:0 0 60px rgba(179,136,255,.5)}#ob.ph-o{background:#2dbe9d;box-shadow:0 0 60px rgba(45,190,157,.5)}#ob.ph-e{background:#8899aa;box-shadow:0 0 40px rgba(136,153,170,.4)}
+.bopt{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 2px}.bopt button{min-height:40px;padding:6px 12px;font-size:14px}.bopt button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 #panel.fsx{position:fixed;inset:0;z-index:99999;box-sizing:border-box;width:100vw;height:100dvh;margin:0;border-radius:0}
 </style>
 </head>
@@ -1485,6 +1666,7 @@ html{overscroll-behavior-y:contain}
     <button role="tab" data-m="habit" aria-selected="false">Chuỗi thói quen</button>
     <button role="tab" data-m="sun" aria-selected="false">Mặt trời mọc lặn</button>
     <button role="tab" data-m="metro" aria-selected="false">Máy gõ nhịp</button>
+    <button role="tab" data-m="music" aria-selected="false">Nhạc của tôi</button>
   </div>
   <div class="wrap"><div class="left">
   <div class="display" id="disp" role="timer" data-state="idle">
@@ -1519,7 +1701,7 @@ html{overscroll-behavior-y:contain}
   <div class="foot"><label>Âm lượng <input type="range" id="vol" min="0" max="100" value="90" aria-label="Âm lượng"></label><button id="fs">Toàn màn hình</button></div>
   <div class="foot"><label>Tiếng báo <select id="snd" aria-label="Tiếng báo"></select></label></div>
   <div class="foot sound-tools"><span class="sound-help">Nghe thử âm báo đang chọn</span><button type="button" id="testSound">▶ Thử âm báo</button></div>
-  <div class="foot"><label>Âm nền <select id="amb" aria-label="Âm nền"><option value="off">Tắt</option><option value="rain">Tiếng mưa</option><option value="white">Ồn trắng</option><option value="brown">Ồn nâu</option></select></label></div>
+  <div class="foot"><label>Âm nền <select id="amb" aria-label="Âm nền"><option value="off">Tắt</option><option value="rain">Tiếng mưa</option><option value="white">Ồn trắng</option><option value="brown">Ồn nâu</option><option value="ocean">Sóng biển</option><option value="wind">Gió</option><option value="fire">Lửa trại</option></select></label></div>
   <div class="foot notify-tools"><label class="chk"><input type="checkbox" id="notifyToggle"> Thông báo khi hết giờ</label><button type="button" id="notifyPermission">Bật thông báo</button></div><p class="notify-note" id="notifyStatus" role="status">Thông báo trình duyệt đang tắt.</p>
   <div class="foot"><label>Giao diện <select id="thm" aria-label="Giao diện"><option value="auto">Tự động</option><option value="light">Sáng</option><option value="dark">Tối</option><option value="ocean">Biển</option><option value="forest">Rừng</option><option value="rose">Hồng</option><option value="mint">Mint Studio</option><option value="midnight">Midnight Luxe</option><option value="aurora">Aurora Pop</option><option value="glass">Glass Luxe</option></select></label><label class="chk"><input type="checkbox" id="big"> Chữ to</label><label class="chk"><input type="checkbox" id="hap"> Rung nhẹ</label></div>
   <section class="stats"><h2>Thống kê</h2><div id="st-goal"></div><div id="st-today"></div><div id="st-sum" class="sum"></div>
@@ -1649,7 +1831,7 @@ html{overscroll-behavior-y:contain}
     breath:'Phím tắt: Space bắt đầu hoặc dừng. To ra là hít vào, nhỏ lại là thở ra.',
     rem:'Nhắc lặp lại theo chu kỳ, ví dụ cứ 20 phút nghỉ mắt. Cần để trang mở, màn hình được giữ sáng khi có nhắc nhở đang chạy. Enter để thêm.',
     sleep:'Chọn giờ cần thức dậy để xem nên đi ngủ lúc nào, hoặc chọn giờ đi ngủ để xem nên dậy lúc nào. Tính theo chu kỳ ngủ khoảng 90 phút.',
-    dcalc:'Tính số ngày giữa hai ngày, hoặc cộng trừ ngày, tuần, tháng, năm từ một ngày bất kỳ.',lunar:'Đổi qua lại giữa dương lịch và âm lịch, xem Tết và ngày âm hôm nay.',age:'Tính tuổi chính xác theo năm, tháng, ngày và số ngày đến sinh nhật.',hms:'Tính khoảng giờ giữa hai mốc, cộng trừ giờ và phút.',desk:'Đồng hồ số lớn để bàn, giữ sáng màn hình.',wage:'Ước tính lương theo giờ và tiền tăng ca.',habit:'Đánh dấu mỗi ngày và theo dõi chuỗi ngày liên tiếp.',sun:'Giờ mặt trời mọc, lặn và giờ vàng chụp ảnh.',metro:'Máy gõ nhịp cho người tập nhạc.',
+    dcalc:'Tính số ngày giữa hai ngày, hoặc cộng trừ ngày, tuần, tháng, năm từ một ngày bất kỳ.',lunar:'Đổi qua lại giữa dương lịch và âm lịch, xem Tết và ngày âm hôm nay.',age:'Tính tuổi chính xác theo năm, tháng, ngày và số ngày đến sinh nhật.',hms:'Tính khoảng giờ giữa hai mốc, cộng trừ giờ và phút.',desk:'Đồng hồ số lớn để bàn, giữ sáng màn hình.',wage:'Ước tính lương theo giờ và tiền tăng ca.',habit:'Đánh dấu mỗi ngày và theo dõi chuỗi ngày liên tiếp.',sun:'Giờ mặt trời mọc, lặn và giờ vàng chụp ảnh.',metro:'Máy gõ nhịp cho người tập nhạc.',music:'Phát nhạc có sẵn trong máy làm nhạc nền, nối với Pomodoro.',
     world:'Xem giờ nhiều thành phố cùng lúc. Chọn thành phố rồi bấm Thêm. Chênh lệch giờ tính so với múi giờ của máy bạn.',
     seq:'Tạo quy trình gồm nhiều bước nối nhau, ví dụ buổi sáng: đánh răng, tập, ăn sáng. Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Có thể lưu thành mẫu.',
     exam:'Đặt tổng thời gian làm bài và các mốc báo (số phút còn lại). Mốc lớn hơn hoặc bằng tổng thời gian sẽ bị bỏ qua, để 0 là không dùng. Phím tắt: Space bắt đầu hoặc dừng, R đặt lại.'
@@ -1663,7 +1845,7 @@ html{overscroll-behavior-y:contain}
     pomo:grp('Làm việc',field('s1','Phút',25,999),field('s2','Giây',0,59))+grp('Nghỉ ngắn',field('s3','Phút',5,999),field('s4','Giây',0,59))+grp('Nghỉ dài',field('s5','Phút',15,999),field('s6','Giây',0,59)),
     iv:field('s1','Tập (giây)',30,3600)+field('s2','Nghỉ (giây)',10,3600)+field('s3','Số vòng',8,99),
     chess:grp('Mỗi bên',field('s1','Phút',10,999),field('s3','Giây',0,59))+field('s2','Cộng thêm mỗi nước (giây)',0,60),
-    cook:'',breath:'',days:'',rem:'',world:'',sleep:'',dcalc:'',lunar:'',age:'',hms:'',desk:'',wage:'',habit:'',sun:'',metro:'',seq:'<div id="seqbox" class="sq"></div>',exam:grp('Tổng thời gian',field('s1','Phút',90,999),field('s2','Giây',0,59))+grp('Báo khi còn',field('s3','Mốc 1 (phút)',30,999),field('s4','Mốc 2 (phút)',15,999))+grp('',field('s5','Mốc 3 (phút)',5,999),field('s6','Mốc 4 (phút)',1,999))
+    cook:'',breath:'',days:'',rem:'',world:'',sleep:'',dcalc:'',lunar:'',age:'',hms:'',desk:'',wage:'',habit:'',sun:'',metro:'',music:'',seq:'<div id="seqbox" class="sq"></div>',exam:grp('Tổng thời gian',field('s1','Phút',90,999),field('s2','Giây',0,59))+grp('Báo khi còn',field('s3','Mốc 1 (phút)',30,999),field('s4','Mốc 2 (phút)',15,999))+grp('',field('s5','Mốc 3 (phút)',5,999),field('s6','Mốc 4 (phút)',1,999))
   };
 
   function pad(n,l){n=String(n);while(n.length<l)n='0'+n;return n}
@@ -1928,6 +2110,7 @@ html{overscroll-behavior-y:contain}
     items.sort(function(a,b){return a.at-b.at});
     return {items:items,live:live};
   }
+  window.engPhase=function(){var st=(mode==='pomo')?snap():STORE.pomo;if(!st||!st.started||st.done)return null;return {run:!!st.running,work:st.idx%2===0}};
   /* Nút Dừng, Chuyển, Tắt trên thông báo */
   function skipPhase(){
     if(mode==='sw'||!started)return;
@@ -2162,46 +2345,76 @@ html{overscroll-behavior-y:contain}
     if(cur==='cook')drawCook();
   };
 
-  /* Hít thở */
+  /* Hít thở: nhiều kiểu thở, chọn thời lượng, chuông nhẹ, rung, màu đổi theo pha */
   var PAT=[
     {n:'4-7-8',p:[['Hít vào',4,'i'],['Giữ hơi',7,'f'],['Thở ra',8,'o']]},
     {n:'Hộp 4-4-4-4',p:[['Hít vào',4,'i'],['Giữ hơi',4,'f'],['Thở ra',4,'o'],['Giữ hơi',4,'e']]},
-    {n:'Đều 5-5',p:[['Hít vào',5,'i'],['Thở ra',5,'o']]}
+    {n:'Đều 5-5',p:[['Hít vào',5,'i'],['Thở ra',5,'o']]},
+    {n:'Thư giãn 4-6',p:[['Hít vào',4,'i'],['Thở ra',6,'o']]},
+    {n:'Cân bằng 6-6',p:[['Hít vào',6,'i'],['Thở ra',6,'o']]},
+    {n:'Thở dài 2+1+6',p:[['Hít vào',2,'i',.45,.8],['Hít thêm',1,'i',.8,1],['Thở ra',6,'o']]}
   ];
-  var bi=0,bStart=0,lastPh=-1,bOn=false;
+  var bi=0,bStart=0,lastPh=-1,lastC=0,bOn=false,bAc=null;
+  function bget(k,d){var v=parseInt(ls(k),10);return isNaN(v)?d:v}
+  function bToast(m){var t=$('toast');if(!t)return;t.textContent=m;t.hidden=false;t.classList.remove('show');void t.offsetWidth;t.classList.add('show');setTimeout(function(){t.hidden=true},3600)}
+  function bTone(f,d){try{
+    if(!bAc)bAc=new (window.AudioContext||window.webkitAudioContext)();if(bAc.resume)bAc.resume();
+    var o=bAc.createOscillator(),g=bAc.createGain(),t=bAc.currentTime;
+    o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.18,t+0.08);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    o.connect(g);g.connect(bAc.destination);o.start(t);o.stop(t+d+0.05);
+  }catch(e){}}
   function drawChips(){
     $('bp').innerHTML=PAT.map(function(x,i){return '<button data-q="'+i+'" aria-pressed="'+(i===bi)+'">'+x.n+'</button>'}).join('');
+    var d=bget('bg-breath-d',3),sn=bget('bg-breath-s',1),hp=bget('bg-breath-h',1);
+    $('bo').innerHTML=[1,3,5,10,0].map(function(m){return '<button data-d="'+m+'" aria-pressed="'+(m===d)+'">'+(m?m+' phút':'Không giới hạn')+'</button>'}).join('')+'<button data-t="s" aria-pressed="'+(sn===1)+'">🔔 Âm thanh</button><button data-t="h" aria-pressed="'+(hp===1)+'">📳 Rung</button>';
   }
-  function bStop(){bOn=false;
+  function bStop(ms){
+    var was=bOn;bOn=false;
     cancelAnimationFrame(raf);
     var g=$('bgo');if(g){g.textContent='Bắt đầu';g.className='go'}
     if($('bl'))$('bl').textContent='Sẵn sàng';
-    if($('ob'))$('ob').style.transform='scale(.45)';
+    if($('ob')){$('ob').style.transform='scale(.45)';$('ob').className='ph-e'}
+    if(was&&bStart){var t=(typeof ms==='number')?ms:performance.now()-bStart;if(t>=20000&&window.logStat)window.logStat('breath',Math.round(t))}
+  }
+  function bFinish(c,ms){
+    bStop(ms);
+    if(window.celebrate)window.celebrate(false);
+    if(bget('bg-breath-s',1)===1){bTone(523,1.2);setTimeout(function(){bTone(659,1.4)},350)}
+    bToast('Xong rồi 🌿 '+c+' vòng, '+mmss(ms)+'. Bạn làm tốt lắm!');
+    try{if(navigator.vibrate)navigator.vibrate([60,60,60])}catch(x){}
   }
   function bLoop(){
-    var P=PAT[bi].p,cyc=0;
+    var P=PAT[bi].p,cyc=0,dur=bget('bg-breath-d',3);
     P.forEach(function(x){cyc+=x[1]*1000});
     var e=performance.now()-bStart,c=Math.floor(e/cyc),r=e%cyc,i=0,acc=0;
+    if(c!==lastC){if(dur>0&&e>=dur*60000){bFinish(c,c*cyc);return}lastC=c}
     while(i<P.length-1&&r>=acc+P[i][1]*1000){acc+=P[i][1]*1000;i++}
-    var f=(r-acc)/(P[i][1]*1000),ty=P[i][2];
-    var sc=ty==='i'?0.45+0.55*f:ty==='o'?1-0.55*f:ty==='f'?1:0.45;
-    $('ob').style.transform='scale('+sc+')';
-    $('bl').innerHTML=P[i][0]+' '+Math.ceil(P[i][1]-(r-acc)/1000)+'<small>Vòng '+(c+1)+'</small>';
+    var ph=P[i],f=(r-acc)/(ph[1]*1000),ty=ph[2];
+    var s0=ph[3]!==undefined?ph[3]:(ty==='i'||ty==='e')?.45:1,s1=ph[4]!==undefined?ph[4]:(ty==='i'||ty==='f')?(ty==='i'?1:1):(ty==='o'?.45:.45);
+    var ob=$('ob'),sc=s0+(s1-s0)*f;
+    ob.style.transform='scale('+sc+')';if(ob.className!=='ph-'+ty)ob.className='ph-'+ty;
+    $('bl').innerHTML=ph[0]+' '+Math.ceil(ph[1]-(r-acc)/1000)+'<small>Vòng '+(c+1)+(dur>0?' · còn '+mmss(Math.max(0,dur*60000-e)):'')+'</small>';
     var key=c*10+i;
-    if(key!==lastPh){lastPh=key;try{if(navigator.vibrate)navigator.vibrate(40)}catch(x){}}
+    if(key!==lastPh){
+      lastPh=key;
+      if(bget('bg-breath-h',1)===1){try{if(navigator.vibrate)navigator.vibrate(40)}catch(x){}}
+      if(bget('bg-breath-s',1)===1)bTone(ty==='i'?392:ty==='o'?262:330,ty==='o'?0.9:0.6);
+    }
     raf=requestAnimationFrame(bLoop);
   }
   function breath(){
     cancelAnimationFrame(raf);
     var s=parseInt(ls('bg-breath-p'),10);bi=s>=0&&s<PAT.length?s:0;
-    panel.innerHTML='<div class="chips2" id="bp"></div><div class="orb"><div id="ob"></div></div><div class="bl" id="bl">Sẵn sàng</div><button id="bgo" class="go" data-a="go">Bắt đầu</button>';if(bOn){$('bgo').textContent='Dừng';$('bgo').className='stop';bLoop()}
+    panel.innerHTML='<div class="chips2" id="bp"></div><div class="bopt" id="bo"></div><div class="orb"><div id="ob" class="ph-e"></div></div><div class="bl" id="bl">Sẵn sàng</div><button id="bgo" class="go" data-a="go">Bắt đầu</button>';if(bOn){$('bgo').textContent='Dừng';$('bgo').className='stop';bLoop()}
     drawChips();
     panel.onclick=function(e){
       var b=e.target.closest('button');if(!b)return;
-      var q=b.getAttribute('data-q');
+      var q=b.getAttribute('data-q'),d=b.getAttribute('data-d'),t=b.getAttribute('data-t');
       if(q!==null){bi=+q;ls('bg-breath-p',bi);drawChips();bStop();return}
+      if(d!==null){ls('bg-breath-d',+d);drawChips();return}
+      if(t!==null){var k='bg-breath-'+t;ls(k,bget(k,1)===1?0:1);drawChips();return}
       if(b.getAttribute('data-a')==='go'){
-        if(b.className==='go'){bStart=performance.now();lastPh=-1;bOn=true;b.textContent='Dừng';b.className='stop';bLoop()}
+        if(b.className==='go'){bStart=performance.now();lastPh=-1;lastC=0;bOn=true;b.textContent='Dừng';b.className='stop';bLoop()}
         else bStop();
       }
     };
@@ -2526,22 +2739,34 @@ html{overscroll-behavior-y:contain}
   });
   bgc.checked=ls('bg2-big')==='1';
   bgc.addEventListener('change',function(){document.documentElement.classList.toggle('big',bgc.checked);ls('bg2-big',bgc.checked?'1':'0')});
-  var ambSrc=null,ambGain=null,ambBase=0;
+  var ambSrc=null,ambGain=null,ambBase=0,ambX=[];
   function ambVol(){if(ambGain)ambGain.gain.value=ambBase*(window.vol==null?1:window.vol)}
-  function ambStop(){if(ambSrc){try{ambSrc.stop()}catch(x){}ambSrc=null}}
+  function ambStop(){if(ambSrc){try{ambSrc.stop()}catch(x){}ambSrc=null}ambX.forEach(function(n){try{n.stop()}catch(x){}});ambX=[]}
   amb.addEventListener('change',function(){
     ambStop();
     var kind=amb.value;if(kind==='off')return;
     un();
     var ac=window.getAC&&window.getAC();if(!ac)return;
-    var len=ac.sampleRate*3,buf=ac.createBuffer(1,len,ac.sampleRate),d=buf.getChannelData(0),last=0;
-    for(var i=0;i<len;i++){var w=Math.random()*2-1;if(kind==='brown'){last=(last+0.02*w)/1.02;d[i]=last*3.5}else d[i]=w}
+    var len=ac.sampleRate*3,buf=ac.createBuffer(1,len,ac.sampleRate),d=buf.getChannelData(0),last=0,crack=0;
+    for(var i=0;i<len;i++){
+      var w=Math.random()*2-1;
+      if(kind==='brown'){last=(last+0.02*w)/1.02;d[i]=last*3.5}
+      else if(kind==='fire'){last=(last+0.02*w)/1.02;if(Math.random()<0.0006)crack=1;d[i]=last*2.2+w*crack*0.7;crack*=0.992}
+      else d[i]=w;
+    }
     var src=ac.createBufferSource();src.buffer=buf;src.loop=true;
-    ambGain=ac.createGain();ambBase=kind==='brown'?0.5:kind==='rain'?0.2:0.08;ambVol();
+    ambGain=ac.createGain();ambBase=kind==='brown'?0.5:kind==='rain'?0.2:kind==='ocean'?0.4:kind==='wind'?0.3:kind==='fire'?0.5:0.08;ambVol();
+    function lfo(hz,depth,target){var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=hz;g.gain.value=depth;o.connect(g);g.connect(target);o.start();ambX.push(o)}
     if(kind==='rain'){
       var hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=700;
       var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=7000;
       src.connect(hp);hp.connect(lp);lp.connect(ambGain);
+    }else if(kind==='ocean'){
+      var lo=ac.createBiquadFilter();lo.type='lowpass';lo.frequency.value=750;
+      src.connect(lo);lo.connect(ambGain);lfo(0.11,ambBase*0.8,ambGain.gain);
+    }else if(kind==='wind'){
+      var bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=480;bp.Q.value=1.1;
+      src.connect(bp);bp.connect(ambGain);lfo(0.07,260,bp.frequency);lfo(0.13,ambBase*0.5,ambGain.gain);
     }else src.connect(ambGain);
     ambGain.connect(ac.destination);src.start();ambSrc=src;
   });
@@ -3070,19 +3295,19 @@ html{overscroll-behavior-y:contain}
   window.setFocus=setFocus;
   fb.addEventListener('click',function(){setFocus(!document.body.classList.contains('focus'))});
   /* Thanh điều hướng dưới */
-  var ICON={sw:'⏱️',cd:'⏳',pomo:'🍅',iv:'💪',seq:'📋',exam:'📝',days:'📅',chess:'♟️',cook:'🍳',breath:'🌬️',rem:'🔔',world:'🌍',sleep:'😴',dcalc:'📆',lunar:'🌙',age:'🎂',hms:'➕',desk:'🖥️',wage:'💵',habit:'🔥',sun:'🌅',metro:'🎵'};
-  var EXTRA=['seq','exam','days','chess','cook','breath','rem','world','sleep','dcalc','lunar','age','hms','desk','wage','habit','sun','metro'];
-  var ALL=['sw','cd','pomo','iv','seq','exam','days','chess','cook','breath','rem','world','sleep','dcalc','lunar','age','hms','desk','wage','habit','sun','metro'];
-  var DESCR={sw:'Đo thời gian đã trôi qua, ghi vòng',cd:'Đặt phút giây và báo khi hết giờ',pomo:'Học tập trung xen kẽ thời gian nghỉ',iv:'Tập luyện theo vòng tập và nghỉ',seq:'Chia công việc thành nhiều bước',exam:'Canh giờ làm bài và mốc báo',days:'Đếm đến kỳ thi, sinh nhật, sự kiện',chess:'Đồng hồ cho hai người chơi cờ',cook:'Hẹn giờ nhiều món ăn cùng lúc',breath:'Hít thở chậm để thư giãn',rem:'Nhắc nghỉ mắt hoặc việc định kỳ',world:'Xem giờ ở nhiều thành phố',sleep:'Gợi ý giờ đi ngủ hoặc thức dậy theo chu kỳ',dcalc:'Số ngày giữa hai ngày, cộng trừ ngày tháng',lunar:'Đổi dương lịch sang âm lịch và ngược lại',age:'Tuổi chính xác và ngày đến sinh nhật',hms:'Cộng trừ giờ phút, khoảng giữa hai mốc giờ',desk:'Đồng hồ số lớn để bàn, toàn màn hình',wage:'Ước tính lương giờ và tăng ca',habit:'Theo dõi chuỗi ngày làm thói quen',sun:'Mặt trời mọc, lặn, giờ vàng',metro:'Máy gõ nhịp, chỉnh BPM'};
+  var ICON={sw:'⏱️',cd:'⏳',pomo:'🍅',iv:'💪',seq:'📋',exam:'📝',days:'📅',chess:'♟️',cook:'🍳',breath:'🌬️',rem:'🔔',world:'🌍',sleep:'😴',dcalc:'📆',lunar:'🌙',age:'🎂',hms:'➕',desk:'🖥️',wage:'💵',habit:'🔥',sun:'🌅',metro:'🎵',music:'🎧'};
+  var EXTRA=['seq','exam','days','chess','cook','breath','rem','world','sleep','dcalc','lunar','age','hms','desk','wage','habit','sun','metro','music'];
+  var ALL=['sw','cd','pomo','iv','seq','exam','days','chess','cook','breath','rem','world','sleep','dcalc','lunar','age','hms','desk','wage','habit','sun','metro','music'];
+  var DESCR={sw:'Đo thời gian đã trôi qua, ghi vòng',cd:'Đặt phút giây và báo khi hết giờ',pomo:'Học tập trung xen kẽ thời gian nghỉ',iv:'Tập luyện theo vòng tập và nghỉ',seq:'Chia công việc thành nhiều bước',exam:'Canh giờ làm bài và mốc báo',days:'Đếm đến kỳ thi, sinh nhật, sự kiện',chess:'Đồng hồ cho hai người chơi cờ',cook:'Hẹn giờ nhiều món ăn cùng lúc',breath:'Hít thở chậm để thư giãn',rem:'Nhắc nghỉ mắt hoặc việc định kỳ',world:'Xem giờ ở nhiều thành phố',sleep:'Gợi ý giờ đi ngủ hoặc thức dậy theo chu kỳ',dcalc:'Số ngày giữa hai ngày, cộng trừ ngày tháng',lunar:'Đổi dương lịch sang âm lịch và ngược lại',age:'Tuổi chính xác và ngày đến sinh nhật',hms:'Cộng trừ giờ phút, khoảng giữa hai mốc giờ',desk:'Đồng hồ số lớn để bàn, toàn màn hình',wage:'Ước tính lương giờ và tăng ca',habit:'Theo dõi chuỗi ngày làm thói quen',sun:'Mặt trời mọc, lặn, giờ vàng',metro:'Máy gõ nhịp, chỉnh BPM',music:'Nhạc từ máy, nghe nền khi làm việc'};
   var tabs=$('tabs'),nav=$('bnav'),more=$('bmore'),sheet=$('sheet'),grid=$('sgrid');
   var search=$('toolSearch'),favGrid=$('favGrid'),recentGrid=$('recentGrid');
   var favs=[],recent=[],activeFilter='all';
-  var CATS={sw:'timer',cd:'timer',pomo:'study',iv:'daily',seq:'study',exam:'study',days:'daily',chess:'games',cook:'daily',breath:'relax',rem:'daily',world:'daily',sleep:'relax',dcalc:'daily',lunar:'daily',age:'daily',hms:'daily',desk:'relax',wage:'daily',habit:'daily',sun:'daily',metro:'daily'};
-  var ALIASES={sw:'stopwatch lap split đo thời gian bấm giờ',cd:'hẹn giờ đếm lùi báo thức đếm ngược',pomo:'học bài tập trung nghỉ pomodoro học tập',iv:'tập thể dục workout vận động nghỉ',seq:'các bước quy trình việc cần làm checklist',exam:'kiểm tra kiểm tra bài thi làm bài thời lượng',days:'sinh nhật kỳ thi tết sự kiện ngày còn lại',chess:'cờ vua cờ đồng hồ hai người chơi',cook:'nấu ăn trứng mì món ăn bếp',breath:'thở thư giãn bình tĩnh hít thở',rem:'nhắc nhở nghỉ mắt uống nước định kỳ',world:'múi giờ quốc tế giờ các nước thành phố',sleep:'ngủ giờ đi ngủ thức dậy chu kỳ ngủ báo thức sleep cycle bedtime wake',dcalc:'tính ngày cộng ngày trừ ngày cộng trừ ngày khoảng cách số ngày tuần tháng năm date calculator days between',lunar:'âm lịch dương lịch lịch âm tết rằm mùng một can chi lunar calendar',age:'tuổi sinh nhật ngày sinh tính tuổi age birthday',hms:'cộng trừ giờ phút tính giờ làm ca khoảng thời gian time calculator duration',desk:'đồng hồ để bàn đồng hồ số to clock desk digital',wage:'lương giờ tăng ca tính lương overtime salary pay',habit:'thói quen chuỗi ngày streak habit tracker mỗi ngày',sun:'mặt trời mọc lặn giờ vàng bình minh hoàng hôn sunrise sunset',metro:'gõ nhịp metronome bpm nhạc tempo guitar piano trống'};
+  var CATS={sw:'timer',cd:'timer',pomo:'study',iv:'daily',seq:'study',exam:'study',days:'daily',chess:'games',cook:'daily',breath:'relax',rem:'daily',world:'daily',sleep:'relax',dcalc:'daily',lunar:'daily',age:'daily',hms:'daily',desk:'relax',wage:'daily',habit:'daily',sun:'daily',metro:'daily',music:'relax'};
+  var ALIASES={sw:'stopwatch lap split đo thời gian bấm giờ',cd:'hẹn giờ đếm lùi báo thức đếm ngược',pomo:'học bài tập trung nghỉ pomodoro học tập',iv:'tập thể dục workout vận động nghỉ',seq:'các bước quy trình việc cần làm checklist',exam:'kiểm tra kiểm tra bài thi làm bài thời lượng',days:'sinh nhật kỳ thi tết sự kiện ngày còn lại',chess:'cờ vua cờ đồng hồ hai người chơi',cook:'nấu ăn trứng mì món ăn bếp',breath:'thở thư giãn bình tĩnh hít thở',rem:'nhắc nhở nghỉ mắt uống nước định kỳ',world:'múi giờ quốc tế giờ các nước thành phố',sleep:'ngủ giờ đi ngủ thức dậy chu kỳ ngủ báo thức sleep cycle bedtime wake',dcalc:'tính ngày cộng ngày trừ ngày cộng trừ ngày khoảng cách số ngày tuần tháng năm date calculator days between',lunar:'âm lịch dương lịch lịch âm tết rằm mùng một can chi lunar calendar',age:'tuổi sinh nhật ngày sinh tính tuổi age birthday',hms:'cộng trừ giờ phút tính giờ làm ca khoảng thời gian time calculator duration',desk:'đồng hồ để bàn đồng hồ số to clock desk digital',wage:'lương giờ tăng ca tính lương overtime salary pay',habit:'thói quen chuỗi ngày streak habit tracker mỗi ngày',sun:'mặt trời mọc lặn giờ vàng bình minh hoàng hôn sunrise sunset',metro:'gõ nhịp metronome bpm nhạc tempo guitar piano trống',music:'nhạc của tôi nghe nhạc mp3 nền tập trung playlist music player focus'};
   try{favs=JSON.parse(localStorage.getItem('bg2-favs')||'[]');if(!Array.isArray(favs))favs=[]}catch(e){favs=[]}
   try{recent=JSON.parse(localStorage.getItem('bg2-recent')||'[]');if(!Array.isArray(recent))recent=[]}catch(e){recent=[]}
   function tabOf(m){return tabs.querySelector('button[data-m="'+m+'"]')}
-  var NAMES={sw:'Bấm giờ',cd:'Đếm ngược',pomo:'Pomodoro — học tập trung',iv:'Tập luyện',seq:'Đồng hồ theo từng bước',exam:'Đồng hồ thi',days:'Đếm ngược đến ngày',chess:'Đồng hồ cờ vua',cook:'Đồng hồ nấu ăn',breath:'Bài tập hít thở',rem:'Nhắc nhở định kỳ',world:'Giờ thế giới',sleep:'Tính giờ ngủ',dcalc:'Tính ngày',lunar:'Âm lịch',age:'Tính tuổi',hms:'Cộng trừ giờ',desk:'Đồng hồ để bàn',wage:'Tính lương theo giờ',habit:'Chuỗi thói quen',sun:'Mặt trời mọc, lặn',metro:'Máy gõ nhịp'};
+  var NAMES={sw:'Bấm giờ',cd:'Đếm ngược',pomo:'Pomodoro — học tập trung',iv:'Tập luyện',seq:'Đồng hồ theo từng bước',exam:'Đồng hồ thi',days:'Đếm ngược đến ngày',chess:'Đồng hồ cờ vua',cook:'Đồng hồ nấu ăn',breath:'Bài tập hít thở',rem:'Nhắc nhở định kỳ',world:'Giờ thế giới',sleep:'Tính giờ ngủ',dcalc:'Tính ngày',lunar:'Âm lịch',age:'Tính tuổi',hms:'Cộng trừ giờ',desk:'Đồng hồ để bàn',wage:'Tính lương theo giờ',habit:'Chuỗi thói quen',sun:'Mặt trời mọc, lặn',metro:'Máy gõ nhịp',music:'Nhạc của tôi'};
   function toolName(m){return NAMES[m]||(function(){var t=tabOf(m);return t?t.textContent.trim():m})()}
   function go(m){var t=tabOf(m);if(t)t.click()}
   /* Thanh dưới: hiện tối đa 4 công cụ đã ghim (mới nhất bên phải), thiếu thì bù bằng 4 công cụ mặc định */
@@ -3249,6 +3474,17 @@ html{overscroll-behavior-y:contain}
     "Tập luyện": "Workout",
     "Nấu ăn": "Cooking",
     "Chia sẻ": "Share",
+    "Sóng biển": "Ocean waves",
+    "Gió": "Wind",
+    "Lửa trại": "Campfire",
+    "Nhạc của tôi": "My music",
+    "Thư giãn 4-6": "Relax 4-6",
+    "Cân bằng 6-6": "Balance 6-6",
+    "Thở dài 2+1+6": "Sigh 2+1+6",
+    "Hít thêm": "Inhale more",
+    "Không giới hạn": "No limit",
+    "🔔 Âm thanh": "🔔 Sound",
+    "📳 Rung": "📳 Haptics",
     "📲 Tải app Android (APK)": "📲 Get Android app (APK)",
     "Bấm Quay lại lần nữa để thoát": "Press back again to exit",
     "☕ Ủng hộ người làm": "☕ Support the maker",
