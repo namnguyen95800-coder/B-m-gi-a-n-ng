@@ -408,6 +408,7 @@ PXR.metro=function(){
     window.__mt=null;
   }
   render();
+  window.MTR={toggle:function(){on?halt():go()},nudge:function(d){S.bpm=Math.max(30,Math.min(240,S.bpm+d));upd();save();var s2=$('mt-s');if(s2)s2.value=S.bpm},tap:function(){var n=Date.now();if(taps.length&&n-taps[taps.length-1]>2000)taps=[];taps.push(n);if(taps.length>1){S.bpm=Math.max(30,Math.min(240,Math.round(60000/((taps[taps.length-1]-taps[0])/(taps.length-1)))));upd();save()}}};
 };
 /* ---- Nhạc của tôi: phát file nhạc có sẵn trong máy làm nhạc nền ---- */
 var MU=(function(){
@@ -463,7 +464,7 @@ var MU=(function(){
     },700);
   }
   return {S:S,save:save,init:init,add:add,remove:remove,toggle:toggle,play:play,pause:pause,next:function(){nextTrack(false)},prev:prevTrack,
-    playAt:playAt,playing:playing,tracks:function(){return TR},curId:function(){return curId},audio:function(){return A},idx:idx};
+    seek:function(d){if(A&&A.duration)A.currentTime=Math.max(0,Math.min(A.duration,A.currentTime+d))},volume:function(d){S.vol=Math.max(0,Math.min(1,Math.round((S.vol+d)*20)/20));save();if(A)A.volume=vol();var v=document.getElementById('mu-v');if(v)v.value=S.vol},playAt:playAt,playing:playing,tracks:function(){return TR},curId:function(){return curId},audio:function(){return A},idx:idx};
 })();
 window.MU=MU;
 document.addEventListener('DOMContentLoaded',function(){try{MU.init()}catch(e){}});
@@ -510,7 +511,67 @@ PXR.music=function(){
     var n=$('mu-now'),tr=MU.tracks(),c=MU.idx();if(n&&c>=0&&n.textContent!==tr[c].name)n.textContent=tr[c].name;
   },500);
 };
-try{var ll=document.documentElement.lang;new MutationObserver(function(){var l=document.documentElement.lang;if(l===ll)return;ll=l;var m=document.body.getAttribute('data-m');if(window.PX[m]&&PXR[m])PXR[m]()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']})}catch(x){}
+/* ---- Phím tắt trên máy tính ---- */
+function curM(){var b=document.querySelector('#tabs [aria-selected="true"]');return b?b.getAttribute('data-m'):''}
+function goTab(m){var b=document.querySelector('#tabs [data-m="'+m+'"]');if(b)b.click()}
+function tabList(){return Array.prototype.slice.call(document.querySelectorAll('#tabs [data-m]')).map(function(b){return b.getAttribute('data-m')})}
+function showKeys(){
+  var old=$('kb-help');if(old){old.remove();return}
+  var rows=[
+    [T('Chung','General'),[['Space',T('Bắt đầu hoặc dừng','Start or pause')],['R',T('Đặt lại','Reset')],['L',T('Ghi vòng (Bấm giờ)','Lap (Stopwatch)')],['F',T('Chế độ tập trung','Focus mode')],['Esc',T('Thoát, đóng bảng','Exit, close dialogs')],['1 … 9, 0',T('Chuyển nhanh sang 10 công cụ đầu','Jump to the first 10 tools')],['[  ]',T('Công cụ trước, sau','Previous, next tool')],['/',T('Mở danh sách công cụ','Open the tool list')],['?',T('Xem bảng phím tắt này','Show this shortcut list')]]],
+    [T('Nhạc (dùng ở mọi công cụ)','Music (works everywhere)'),[['M',T('Phát hoặc dừng nhạc','Play or pause music')],['N',T('Bài sau','Next track')],['B',T('Bài trước','Previous track')],['← →',T('Tua 10 giây (trong Nhạc của tôi)','Seek 10 s (in My music)')],['↑ ↓',T('Âm lượng nhạc (trong Nhạc của tôi)','Music volume (in My music)')],['S',T('Ngẫu nhiên','Shuffle')]]],
+    [T('Máy gõ nhịp','Metronome'),[['Space',T('Bắt đầu hoặc dừng','Start or stop')],['↑ ↓',T('±1 BPM (Shift: ±5)','±1 BPM (Shift: ±5)')],['T',T('Gõ nhịp','Tap tempo')]]],
+    [T('Đồng hồ để bàn','Desk clock'),[['F',T('Toàn màn hình','Fullscreen')],['T',T('Đổi kiểu đồng hồ','Change style')],['H',T('Đổi 12 hoặc 24 giờ','12 or 24 hour')],['S',T('Hiện hoặc ẩn giây','Show or hide seconds')]]],
+    [T('Cờ vua','Chess'),[['Space',T('Kết thúc nước đi','End your move')],['P',T('Tạm dừng','Pause')],['R',T('Đặt lại','Reset')]]]
+  ];
+  var d=document.createElement('div');d.id='kb-help';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
+  d.style.cssText='position:fixed;inset:0;z-index:100001;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px';
+  d.innerHTML='<div style="max-width:520px;width:100%;max-height:88vh;overflow:auto;background:var(--card,#1d2a3a);color:var(--ink,#fff);border-radius:16px;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,.5)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:18px">⌨ '+T('Phím tắt trên máy tính','Keyboard shortcuts')+'</b><button type="button" id="kb-x" aria-label="Close" style="min-width:40px;min-height:40px">✕</button></div>'+
+    rows.map(function(g){return '<div style="margin:12px 0 4px;opacity:.75;font-size:13px;font-weight:700">'+g[0]+'</div>'+g[1].map(function(r){return '<div style="display:flex;gap:12px;padding:5px 0;border-bottom:1px solid rgba(127,127,127,.2)"><kbd style="min-width:84px;text-align:center;padding:2px 8px;border-radius:6px;border:1px solid rgba(127,127,127,.5);font-family:inherit;font-size:13px">'+esc(r[0])+'</kbd><span style="flex:1">'+r[1]+'</span></div>'}).join('')}).join('')+'</div>';
+  d.addEventListener('click',function(e){if(e.target===d||e.target.id==='kb-x')d.remove()});
+  document.body.appendChild(d);
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){var h=$('kb-help');if(h){h.remove();e.preventDefault()}return}
+  if(e.ctrlKey||e.metaKey||e.altKey||e.defaultPrevented||window.alertOpen)return;
+  var t=e.target,tg=t&&t.tagName,k=e.key,m=curM();
+  if(tg==='TEXTAREA'||tg==='SELECT')return;
+  if(tg==='INPUT'){if(k==='Enter'&&t.id==='hb-n'){var a=$('hb-add');if(a)a.click()}return}
+  var onBtn=(tg==='BUTTON'||tg==='A'||tg==='SUMMARY'),lk=k.toLowerCase(),done=false;
+  if(k==='?'){showKeys();e.preventDefault();return}
+  if(lk==='m'){if(window.MU){MU.toggle();done=true}}
+  else if(lk==='n'&&m!=='cook'){if(window.MU&&MU.tracks().length){MU.next();done=true}}
+  else if(lk==='b'){if(window.MU&&MU.tracks().length){MU.prev();done=true}}
+  else if(k>='0'&&k<='9'&&!e.shiftKey){var tl=tabList(),ix=k==='0'?9:(+k-1);if(tl[ix]){goTab(tl[ix]);done=true}}
+  else if(k==='['||k===']'){var tl2=tabList(),i2=tl2.indexOf(m);if(i2>=0){goTab(tl2[(i2+(k===']'?1:-1)+tl2.length)%tl2.length]);done=true}}
+  else if(k==='/'){var mb=$('bmore');if(mb){mb.click();setTimeout(function(){var si=document.querySelector('#sheet input');if(si)si.focus()},80);done=true}}
+  else if(m==='music'){
+    if(e.code==='Space'&&!onBtn){MU.toggle();setTimeout(function(){var p=$('mu-pl');if(p)p.textContent=MU.playing()?'⏸':'▶'},150);done=true}
+    else if(k==='ArrowLeft'){MU.seek(-10);done=true}
+    else if(k==='ArrowRight'){MU.seek(10);done=true}
+    else if(k==='ArrowUp'){MU.volume(0.05);done=true}
+    else if(k==='ArrowDown'){MU.volume(-0.05);done=true}
+    else if(lk==='s'){var sh=$('mu-sh');if(sh)sh.click();done=true}
+    else if(lk==='l'){var rp=$('mu-rp');if(rp)rp.click();done=true}
+  }else if(m==='metro'&&window.MTR){
+    if(e.code==='Space'&&!onBtn){MTR.toggle();done=true}
+    else if(k==='ArrowUp'||k==='ArrowRight'){MTR.nudge(e.shiftKey?5:1);done=true}
+    else if(k==='ArrowDown'||k==='ArrowLeft'){MTR.nudge(e.shiftKey?-5:-1);done=true}
+    else if(lk==='t'){MTR.tap();done=true}
+  }else if(m==='desk'){
+    if(lk==='f'){if(window.FS&&FS.active())FS.exit();else{var f=$('dk-f');if(f)f.click()}done=true}
+    else if(lk==='t'){var ths=document.querySelectorAll('[data-th]'),ci=-1,i3;for(i3=0;i3<ths.length;i3++)if(ths[i3].getAttribute('aria-pressed')==='true')ci=i3;if(ths.length)ths[(ci+1)%ths.length].click();done=true}
+    else if(lk==='h'){var hh=$('dk-h');if(hh)hh.click();done=true}
+    else if(lk==='s'){var ss=$('dk-s');if(ss)ss.click();done=true}
+  }
+  if(done)e.preventDefault();
+});
+document.addEventListener('click',function(e){
+  var id=e.target&&e.target.id;
+  if(id==='kb-open')showKeys();
+  else if(id==='musBtn'){goTab('music');try{window.scrollTo({top:0,behavior:'smooth'})}catch(x){}}
+});
+try{var ll=document.documentElement.lang;new MutationObserver(function(){var l=document.documentElement.lang;if(l===ll)return;ll=l;var m=curM();if(window.PX[m]&&PXR[m])PXR[m]()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']})}catch(x){}
 })();
 </script>
 <link rel="manifest" href="manifest.json">
@@ -1641,7 +1702,7 @@ html{overscroll-behavior-y:contain}
     <div class="goal-foot" id="goalFoot" role="status">Mẹo: mục tiêu bạn chọn gần nhất sẽ được ghi nhớ trên thiết bị này.</div>
   </section>
 
-  <div class="section-label"><span>CHỌN CÔNG CỤ</span><span class="section-line"></span><span class="section-count">12 chế độ</span></div>
+  <div class="section-label"><span>CHỌN CÔNG CỤ</span><span class="section-line"></span><span class="section-count">23 chế độ</span></div>
 
   <div class="tabs" role="tablist" id="tabs">
     <button role="tab" data-m="sw" aria-selected="true">Bấm giờ</button>
@@ -1701,7 +1762,7 @@ html{overscroll-behavior-y:contain}
   <div class="foot"><label>Âm lượng <input type="range" id="vol" min="0" max="100" value="90" aria-label="Âm lượng"></label><button id="fs">Toàn màn hình</button></div>
   <div class="foot"><label>Tiếng báo <select id="snd" aria-label="Tiếng báo"></select></label></div>
   <div class="foot sound-tools"><span class="sound-help">Nghe thử âm báo đang chọn</span><button type="button" id="testSound">▶ Thử âm báo</button></div>
-  <div class="foot"><label>Âm nền <select id="amb" aria-label="Âm nền"><option value="off">Tắt</option><option value="rain">Tiếng mưa</option><option value="white">Ồn trắng</option><option value="brown">Ồn nâu</option><option value="ocean">Sóng biển</option><option value="wind">Gió</option><option value="fire">Lửa trại</option></select></label></div>
+  <div class="foot"><label>Âm nền <select id="amb" aria-label="Âm nền"><option value="off">Tắt</option><option value="rain">Tiếng mưa</option><option value="white">Ồn trắng</option><option value="brown">Ồn nâu</option><option value="ocean">Sóng biển</option><option value="wind">Gió</option><option value="fire">Lửa trại</option></select></label><button type="button" id="musBtn">🎧 Nhạc của tôi</button></div>
   <div class="foot notify-tools"><label class="chk"><input type="checkbox" id="notifyToggle"> Thông báo khi hết giờ</label><button type="button" id="notifyPermission">Bật thông báo</button></div><p class="notify-note" id="notifyStatus" role="status">Thông báo trình duyệt đang tắt.</p>
   <div class="foot"><label>Giao diện <select id="thm" aria-label="Giao diện"><option value="auto">Tự động</option><option value="light">Sáng</option><option value="dark">Tối</option><option value="ocean">Biển</option><option value="forest">Rừng</option><option value="rose">Hồng</option><option value="mint">Mint Studio</option><option value="midnight">Midnight Luxe</option><option value="aurora">Aurora Pop</option><option value="glass">Glass Luxe</option></select></label><label class="chk"><input type="checkbox" id="big"> Chữ to</label><label class="chk"><input type="checkbox" id="hap"> Rung nhẹ</label></div>
   <section class="stats"><h2>Thống kê</h2><div id="st-goal"></div><div id="st-today"></div><div id="st-sum" class="sum"></div>
@@ -1732,8 +1793,16 @@ html{overscroll-behavior-y:contain}
     <b>Cờ vua:</b> hai người, chạm nút bên mình sau khi đi.<br>
     <b>Nấu ăn, Nhắc nhở:</b> nhiều bộ đếm cùng lúc.<br>
     <b>Hít thở:</b> theo vòng tròn to nhỏ.<br>
-    <b>Giờ thế giới:</b> xem giờ nhiều thành phố.<br><b>Tính giờ ngủ:</b> gợi ý giờ đi ngủ hoặc thức dậy.<br><b>Tính ngày:</b> số ngày giữa hai ngày, cộng trừ ngày.</p>
-    <p><b>Mẹo:</b> bấm Lưu mẫu để dùng lại cài đặt, bấm Chia sẻ để gửi link cho bạn bè. Trên máy tính dùng phím Space (bắt đầu hoặc dừng), L (ghi vòng), R (đặt lại), F (chế độ tập trung). Trên điện thoại, bấm biểu tượng ở góc trên bên phải đồng hồ để vào chế độ tập trung. Cần để trang mở thì đồng hồ mới kêu đúng giờ, mở lại trang trong 24 giờ vẫn giữ đồng hồ đang chạy.</p>
+    <b>Giờ thế giới:</b> xem giờ nhiều thành phố.<br><b>Tính giờ ngủ:</b> gợi ý giờ đi ngủ hoặc thức dậy.<br><b>Tính ngày:</b> số ngày giữa hai ngày, cộng trừ ngày.<br>
+    <b>Âm lịch, Tính tuổi:</b> đổi dương lịch sang âm lịch, xem tuổi chính xác.<br>
+    <b>Cộng trừ giờ, Tính lương giờ:</b> tính khoảng giờ, cộng trừ giờ phút, ước tính lương và tăng ca.<br>
+    <b>Đồng hồ để bàn:</b> số lớn nhiều kiểu (lật, neon, kim), toàn màn hình.<br>
+    <b>Chuỗi thói quen:</b> đánh dấu mỗi ngày, đếm số ngày liên tiếp.<br>
+    <b>Mặt trời mọc lặn:</b> giờ mọc, lặn và giờ vàng chụp ảnh.<br>
+    <b>Máy gõ nhịp:</b> chỉnh BPM, chia nhịp, âm sắc, tăng tốc dần.<br>
+    <b>Nhạc của tôi:</b> thêm nhạc từ máy để nghe nền, tự phát lúc làm việc khi bật Theo Pomodoro.</p>
+    <p><b>Mẹo:</b> bấm Lưu mẫu để dùng lại cài đặt, bấm Chia sẻ để gửi link cho bạn bè. Trên máy tính dùng phím Space (bắt đầu hoặc dừng), L (ghi vòng), R (đặt lại), F (chế độ tập trung), M (phát hoặc dừng nhạc), các phím số 1 đến 9 và 0 (chuyển nhanh công cụ), dấu ? (xem tất cả phím tắt). Trên điện thoại, bấm biểu tượng ở góc trên bên phải đồng hồ để vào chế độ tập trung. Cần để trang mở thì đồng hồ mới kêu đúng giờ, mở lại trang trong 24 giờ vẫn giữ đồng hồ đang chạy.</p>
+    <p><button type="button" id="kb-open">⌨ Xem phím tắt trên máy tính</button></p>
   </div></details>
   <details class="help donate" id="donate">
     <summary>☕ Ủng hộ người làm</summary>
@@ -1831,7 +1900,7 @@ html{overscroll-behavior-y:contain}
     breath:'Phím tắt: Space bắt đầu hoặc dừng. To ra là hít vào, nhỏ lại là thở ra.',
     rem:'Nhắc lặp lại theo chu kỳ, ví dụ cứ 20 phút nghỉ mắt. Cần để trang mở, màn hình được giữ sáng khi có nhắc nhở đang chạy. Enter để thêm.',
     sleep:'Chọn giờ cần thức dậy để xem nên đi ngủ lúc nào, hoặc chọn giờ đi ngủ để xem nên dậy lúc nào. Tính theo chu kỳ ngủ khoảng 90 phút.',
-    dcalc:'Tính số ngày giữa hai ngày, hoặc cộng trừ ngày, tuần, tháng, năm từ một ngày bất kỳ.',lunar:'Đổi qua lại giữa dương lịch và âm lịch, xem Tết và ngày âm hôm nay.',age:'Tính tuổi chính xác theo năm, tháng, ngày và số ngày đến sinh nhật.',hms:'Tính khoảng giờ giữa hai mốc, cộng trừ giờ và phút.',desk:'Đồng hồ số lớn để bàn, giữ sáng màn hình.',wage:'Ước tính lương theo giờ và tiền tăng ca.',habit:'Đánh dấu mỗi ngày và theo dõi chuỗi ngày liên tiếp.',sun:'Giờ mặt trời mọc, lặn và giờ vàng chụp ảnh.',metro:'Máy gõ nhịp cho người tập nhạc.',music:'Phát nhạc có sẵn trong máy làm nhạc nền, nối với Pomodoro.',
+    dcalc:'Tính số ngày giữa hai ngày, hoặc cộng trừ ngày, tuần, tháng, năm từ một ngày bất kỳ.',lunar:'Đổi qua lại giữa dương lịch và âm lịch, xem Tết và ngày âm hôm nay.',age:'Tính tuổi chính xác theo năm, tháng, ngày và số ngày đến sinh nhật.',hms:'Tính khoảng giờ giữa hai mốc, cộng trừ giờ và phút.',desk:'Đồng hồ số lớn để bàn, giữ sáng màn hình. Phím tắt: F toàn màn hình, T đổi kiểu, H đổi 12 hoặc 24 giờ, S hiện hoặc ẩn giây.',wage:'Ước tính lương theo giờ và tiền tăng ca.',habit:'Đánh dấu mỗi ngày và theo dõi chuỗi ngày liên tiếp. Gõ tên rồi nhấn Enter để thêm.',sun:'Giờ mặt trời mọc, lặn và giờ vàng chụp ảnh.',metro:'Máy gõ nhịp cho người tập nhạc. Phím tắt: Space bắt đầu hoặc dừng, ↑ ↓ chỉnh BPM (Shift: ±5), T gõ nhịp.',music:'Phát nhạc có sẵn trong máy làm nhạc nền, nối với Pomodoro. Phím tắt: M phát hoặc dừng, N bài sau, B bài trước, ← → tua 10 giây, ↑ ↓ âm lượng.',
     world:'Xem giờ nhiều thành phố cùng lúc. Chọn thành phố rồi bấm Thêm. Chênh lệch giờ tính so với múi giờ của máy bạn.',
     seq:'Tạo quy trình gồm nhiều bước nối nhau, ví dụ buổi sáng: đánh răng, tập, ăn sáng. Phím tắt: Space bắt đầu hoặc dừng, R đặt lại. Có thể lưu thành mẫu.',
     exam:'Đặt tổng thời gian làm bài và các mốc báo (số phút còn lại). Mốc lớn hơn hoặc bằng tổng thời gian sẽ bị bỏ qua, để 0 là không dùng. Phím tắt: Space bắt đầu hoặc dừng, R đặt lại.'
@@ -3361,7 +3430,13 @@ html{overscroll-behavior-y:contain}
     ['chess','chess','♟️','Chơi cờ hai người','Đồng hồ cho hai bên'],
     ['world','world','🌍','Gọi người ở xa','Xem giờ nhiều thành phố'],
     ['dates','dcalc','📆','Tính số ngày','Giữa hai ngày, cộng trừ ngày'],
-    ['lap','sw','⏱️','Đo thời gian','Bấm giờ và ghi từng vòng']
+    ['lap','sw','⏱️','Đo thời gian','Bấm giờ và ghi từng vòng'],
+    ['music','music','🎧','Nghe nhạc nền','Nhạc trong máy, nối Pomodoro'],
+    ['metro','metro','🎵','Tập nhạc','Máy gõ nhịp, chỉnh BPM'],
+    ['lunar','lunar','🌙','Xem lịch âm','Đổi dương lịch và âm lịch'],
+    ['desk','desk','🖥️','Đồng hồ để bàn','Số lớn, kiểu lật, kiểu kim'],
+    ['habit','habit','🔥','Giữ thói quen','Đếm chuỗi ngày liên tiếp'],
+    ['wage','wage','💵','Tính lương giờ','Giờ làm và tăng ca']
   ];
   (function(){
     try{
@@ -3474,6 +3549,39 @@ html{overscroll-behavior-y:contain}
     "Tập luyện": "Workout",
     "Nấu ăn": "Cooking",
     "Chia sẻ": "Share",
+    "23 chế độ": "23 modes",
+    "🎧 Nhạc của tôi": "🎧 My music",
+    "Nghe nhạc nền": "Background music",
+    "Nhạc trong máy, nối Pomodoro": "Your music, linked to Pomodoro",
+    "Tập nhạc": "Practice music",
+    "Máy gõ nhịp, chỉnh BPM": "Metronome with adjustable BPM",
+    "Xem lịch âm": "Lunar calendar",
+    "Đổi dương lịch và âm lịch": "Convert solar and lunar dates",
+    "Đồng hồ để bàn": "Desk clock",
+    "Số lớn, kiểu lật, kiểu kim": "Big digits, flip or analog styles",
+    "Giữ thói quen": "Keep a habit",
+    "Đếm chuỗi ngày liên tiếp": "Count your daily streak",
+    "Tính lương giờ": "Hourly pay",
+    "Giờ làm và tăng ca": "Work hours and overtime",
+    "Âm lịch, Tính tuổi:": "Lunar calendar, Age:",
+    "đổi dương lịch sang âm lịch, xem tuổi chính xác.": "convert solar to lunar dates, see your exact age.",
+    "Cộng trừ giờ, Tính lương giờ:": "Time calculator, Hourly pay:",
+    "tính khoảng giờ, cộng trừ giờ phút, ước tính lương và tăng ca.": "time between two times, add or subtract hours, estimate pay and overtime.",
+    "Đồng hồ để bàn:": "Desk clock:",
+    "số lớn nhiều kiểu (lật, neon, kim), toàn màn hình.": "big digits in several styles (flip, neon, analog), fullscreen.",
+    "Chuỗi thói quen:": "Habit streaks:",
+    "đánh dấu mỗi ngày, đếm số ngày liên tiếp.": "check in daily and count your streak.",
+    "Mặt trời mọc lặn:": "Sunrise and sunset:",
+    "giờ mọc, lặn và giờ vàng chụp ảnh.": "sunrise, sunset and golden hour times.",
+    "Máy gõ nhịp:": "Metronome:",
+    "chỉnh BPM, chia nhịp, âm sắc, tăng tốc dần.": "adjust BPM, subdivisions, sounds and gradual speed-up.",
+    "Nhạc của tôi:": "My music:",
+    "thêm nhạc từ máy để nghe nền, tự phát lúc làm việc khi bật Theo Pomodoro.": "add music from your device to play in the background; with Follow Pomodoro it plays while you work.",
+    "⌨ Xem phím tắt trên máy tính": "⌨ View keyboard shortcuts",
+    "Máy gõ nhịp cho người tập nhạc. Phím tắt: Space bắt đầu hoặc dừng, ↑ ↓ chỉnh BPM (Shift: ±5), T gõ nhịp.": "A metronome for musicians. Shortcuts: Space to start/stop, ↑ ↓ to change BPM (Shift: ±5), T to tap tempo.",
+    "Phát nhạc có sẵn trong máy làm nhạc nền, nối với Pomodoro. Phím tắt: M phát hoặc dừng, N bài sau, B bài trước, ← → tua 10 giây, ↑ ↓ âm lượng.": "Play music from your device in the background, linked to Pomodoro. Shortcuts: M play/pause, N next, B previous, ← → seek 10 s, ↑ ↓ volume.",
+    "Đồng hồ số lớn để bàn, giữ sáng màn hình. Phím tắt: F toàn màn hình, T đổi kiểu, H đổi 12 hoặc 24 giờ, S hiện hoặc ẩn giây.": "A big desk clock that keeps the screen on. Shortcuts: F fullscreen, T change style, H 12/24 hour, S show/hide seconds.",
+    "Đánh dấu mỗi ngày và theo dõi chuỗi ngày liên tiếp. Gõ tên rồi nhấn Enter để thêm.": "Check in every day and track your streak. Type a name and press Enter to add.",
     "Sóng biển": "Ocean waves",
     "Gió": "Wind",
     "Lửa trại": "Campfire",
@@ -3655,7 +3763,7 @@ html{overscroll-behavior-y:contain}
     "Giờ thế giới:": "World clock:",
     "xem giờ nhiều thành phố.": "see the time in multiple cities.",
     "Mẹo:": "Tip:",
-    "bấm Lưu mẫu để dùng lại cài đặt, bấm Chia sẻ để gửi link cho bạn bè. Trên máy tính dùng phím Space (bắt đầu hoặc dừng), L (ghi vòng), R (đặt lại), F (chế độ tập trung). Trên điện thoại, bấm biểu tượng ở góc trên bên phải đồng hồ để vào chế độ tập trung. Cần để trang mở thì đồng hồ mới kêu đúng giờ, mở lại trang trong 24 giờ vẫn giữ đồng hồ đang chạy.": "press Save preset to reuse settings, or Share to send a link. On desktop use Space (start/pause), L (lap), R (reset), F (focus mode). On mobile, tap the icon at the top right of the clock for focus mode. Keep the page open for the alarm to sound; reopening within 24 hours restores a running timer.",
+    "bấm Lưu mẫu để dùng lại cài đặt, bấm Chia sẻ để gửi link cho bạn bè. Trên máy tính dùng phím Space (bắt đầu hoặc dừng), L (ghi vòng), R (đặt lại), F (chế độ tập trung), M (phát hoặc dừng nhạc), các phím số 1 đến 9 và 0 (chuyển nhanh công cụ), dấu ? (xem tất cả phím tắt). Trên điện thoại, bấm biểu tượng ở góc trên bên phải đồng hồ để vào chế độ tập trung. Cần để trang mở thì đồng hồ mới kêu đúng giờ, mở lại trang trong 24 giờ vẫn giữ đồng hồ đang chạy.": "press Save preset to reuse settings, or Share to send a link. On desktop use Space (start/pause), L (lap), R (reset), F (focus mode), M (play/pause music), number keys 1 to 9 and 0 (jump between tools), ? (all shortcuts). On mobile, tap the icon at the top right of the clock for focus mode. Keep the page open for the alarm to sound; reopening within 24 hours restores a running timer.",
     "Thêm": "Add",
     "Tìm công cụ phù hợp": "Find a suitable tool",
     "14 công cụ trong một nơi. Bấm ☆ để ghim tối đa 4 công cụ lên thanh dưới.": "14 tools in one place. Tap ☆ to pin up to 4 tools to the bottom bar.",
