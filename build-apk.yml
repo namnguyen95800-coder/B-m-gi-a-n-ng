@@ -1,0 +1,1486 @@
+name: Build APK
+
+# Chạy thủ công: vào tab Actions > Build APK > Run workflow
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      RUN: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Tạo dự án Capacitor
+        run: |
+          mkdir app && cd app
+          npm init -y
+          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 @capacitor/local-notifications@7 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7
+          mkdir www
+          echo '<!doctype html><meta charset="utf-8"><title>Dousob</title><body style="background:#0b1020"></body>' > www/index.html
+          cp ../index.html ../manifest.json ../icon-192.png ../icon-512.png ../og-image.png ../ung-ho-mb.png ../ung-ho-momo.png www/ || true
+          cat > capacitor.config.json <<'JSON'
+          {
+            "appId": "com.dousob.bamgio",
+            "appName": "Dousob - Manage your time",
+            "webDir": "www",
+            "backgroundColor": "#0b1020",
+            "server": {
+              "url": "https://namnguyen95800-coder.github.io/",
+              "errorPath": "index.html"
+            },
+            "android": {
+              "adjustMarginsForEdgeToEdge": "auto"
+            },
+            "plugins": {
+              "LocalNotifications": {
+                "smallIcon": "ic_stat_timer",
+                "iconColor": "#2DBE9D"
+              }
+            }
+          }
+          JSON
+          npx cap add android
+
+      - name: Chuông, icon, màn hình khởi động và plugin Android
+        run: |
+          A=app/android/app/src/main
+          mkdir -p $A/res/raw $A/res/drawable $A/java/com/dousob/bamgio
+          if [ -f icon-192.png ]; then cp icon-192.png $A/res/drawable/notif_large.png; fi
+          python3 - <<'PY'
+          import wave, struct, math
+          sr = 22050
+          def osc(kind, f, t):
+              p = (f * t) % 1.0
+              if kind == 'square':
+                  return 1.0 if p < 0.5 else -1.0
+              if kind == 'saw':
+                  return 2.0 * p - 1.0
+              if kind == 'tri':
+                  return 4.0 * abs(p - 0.5) - 1.0
+              return math.sin(2 * math.pi * f * t) + 0.35 * math.sin(4 * math.pi * f * t) + 0.15 * math.sin(6 * math.pi * f * t)
+          def tone(kind, f, dur, vol, decay):
+              n = int(sr * dur)
+              out = []
+              for i in range(n):
+                  t = i / sr
+                  a = min(1.0, t / 0.008) * math.exp(-decay * t / dur)
+                  out.append(vol * a * osc(kind, f, t))
+              return out
+          def gap(d):
+              return [0.0] * int(sr * d)
+          def save(name, seq):
+              w = wave.open('app/android/app/src/main/res/raw/' + name + '.wav', 'wb')
+              w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr)
+              for s in seq:
+                  w.writeframes(struct.pack('<h', int(max(-1, min(1, s)) * 30000)))
+              w.close()
+          # gi\u1ed1ng \u00f4 "Ti\u1ebfng b\u00e1o" trong app: B\u00edp, Chu\u00f4ng, C\u00f2i, Nh\u1eb9
+          seq = []
+          for r in range(3):
+              for k in range(4):
+                  seq += tone('square', 880, 0.12, 0.45, 0.5) + gap(0.08)
+              seq += gap(0.8)
+          save('alarm_beep', seq)
+          seq = []
+          for r in range(3):
+              for f in (660, 660, 880):
+                  seq += tone('sine', f, 0.7, 0.6, 2.5) + gap(0.1)
+              seq += gap(0.7)
+          save('alarm_bell', seq)
+          seq = []
+          for r in range(3):
+              for f in (520, 520):
+                  seq += tone('saw', f, 0.45, 0.4, 0.4) + gap(0.12)
+              seq += gap(0.9)
+          save('alarm_horn', seq)
+          seq = []
+          for r in range(3):
+              for f in (784, 988, 1175):
+                  seq += tone('tri', f, 0.3, 0.6, 1.5) + gap(0.06)
+              seq += tone('tri', 1568, 0.5, 0.6, 2.0) + gap(0.9)
+          save('alarm_soft', seq)
+          save('alarm', seq)
+          PY
+          python3 - <<'PY'
+          import glob, struct, zlib
+          def ch(t, d):
+              return struct.pack('>I', len(d)) + t + d + struct.pack('>I', zlib.crc32(t + d) & 0xffffffff)
+          png = b'\x89PNG\r\n\x1a\n' + ch(b'IHDR', struct.pack('>IIBBBBB', 1, 1, 8, 2, 0, 0, 0)) + ch(b'IDAT', zlib.compress(b'\x00' + bytes((11, 16, 32)))) + ch(b'IEND', b'')
+          files = glob.glob('app/android/app/src/main/res/**/splash.png', recursive=True)
+          for f in files:
+              open(f, 'wb').write(png)
+          print('splash thay:', len(files))
+          PY
+          cat > $A/res/drawable/ic_stat_timer.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="24dp" android:height="24dp"
+              android:viewportWidth="24" android:viewportHeight="24">
+            <path android:fillColor="#FFFFFFFF"
+                android:pathData="M15,1L9,1v2h6L15,1zM11,14h2L13,8h-2v6zM19.03,7.39l1.42,-1.42c-0.43,-0.51 -0.9,-0.99 -1.41,-1.41l-1.42,1.42C16.07,4.74 14.12,4 12,4c-4.97,0 -9,4.03 -9,9s4.02,9 9,9 9,-4.03 9,-9c0,-2.12 -0.74,-4.07 -1.97,-5.61zM12,20c-3.87,0 -7,-3.13 -7,-7s3.13,-7 7,-7 7,3.13 7,7 -3.13,7 -7,7z"/>
+          </vector>
+          XML
+          mkdir -p $A/res/xml
+          cat > $A/res/xml/shortcuts.xml <<'XML'
+          <?xml version="1.0" encoding="utf-8"?>
+          <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+              <shortcut android:shortcutId="sw" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/sc_sw" android:shortcutLongLabel="@string/sc_sw_l">
+                  <intent android:action="android.intent.action.VIEW" android:targetPackage="com.dousob.bamgio" android:targetClass="com.dousob.bamgio.MainActivity" android:data="https://namnguyen95800-coder.github.io/?tool=sw" />
+              </shortcut>
+              <shortcut android:shortcutId="cd" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/sc_cd" android:shortcutLongLabel="@string/sc_cd_l">
+                  <intent android:action="android.intent.action.VIEW" android:targetPackage="com.dousob.bamgio" android:targetClass="com.dousob.bamgio.MainActivity" android:data="https://namnguyen95800-coder.github.io/?tool=cd" />
+              </shortcut>
+              <shortcut android:shortcutId="pomo" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/sc_pomo" android:shortcutLongLabel="@string/sc_pomo_l">
+                  <intent android:action="android.intent.action.VIEW" android:targetPackage="com.dousob.bamgio" android:targetClass="com.dousob.bamgio.MainActivity" android:data="https://namnguyen95800-coder.github.io/?tool=pomo" />
+              </shortcut>
+              <shortcut android:shortcutId="music" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/sc_music" android:shortcutLongLabel="@string/sc_music_l">
+                  <intent android:action="android.intent.action.VIEW" android:targetPackage="com.dousob.bamgio" android:targetClass="com.dousob.bamgio.MainActivity" android:data="https://namnguyen95800-coder.github.io/?tool=music" />
+              </shortcut>
+          </shortcuts>
+          XML
+          cat > $A/res/values/sc_strings.xml <<'XML'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <string name="sc_sw">B\u1ea5m gi\u1edd</string>
+              <string name="sc_sw_l">M\u1edf B\u1ea5m gi\u1edd</string>
+              <string name="sc_cd">\u0110\u1ebfm ng\u01b0\u1ee3c</string>
+              <string name="sc_cd_l">M\u1edf \u0110\u1ebfm ng\u01b0\u1ee3c</string>
+              <string name="sc_pomo">Pomodoro</string>
+              <string name="sc_pomo_l">M\u1edf Pomodoro</string>
+              <string name="sc_music">Nh\u1ea1c</string>
+              <string name="sc_music_l">M\u1edf Nh\u1ea1c c\u1ee7a t\u00f4i</string>
+          </resources>
+          XML
+          cat > $A/java/com/dousob/bamgio/MusicService.java <<'JAVA'
+          package com.dousob.bamgio;
+
+          import android.app.Notification;
+          import android.app.NotificationChannel;
+          import android.app.NotificationManager;
+          import android.app.PendingIntent;
+          import android.app.Service;
+          import android.content.Context;
+          import android.content.Intent;
+          import android.content.pm.ServiceInfo;
+          import android.graphics.drawable.Icon;
+          import android.media.AudioAttributes;
+          import android.media.AudioManager;
+          import android.media.MediaMetadata;
+          import android.media.MediaPlayer;
+          import android.media.session.MediaSession;
+          import android.media.session.PlaybackState;
+          import android.net.Uri;
+          import android.os.Build;
+          import android.os.IBinder;
+          import android.os.PowerManager;
+          import java.util.ArrayList;
+          import java.util.List;
+          import java.util.Random;
+
+          public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, AudioManager.OnAudioFocusChangeListener {
+              static MusicService inst;
+              static final List<String> URIS = new ArrayList<String>();
+              static final List<String> NAMES = new ArrayList<String>();
+              static int IDX = -1;
+              static boolean SHUF = false;
+              static String REP = "all";
+              static float VOL = 0.7f;
+              static String ERR = "";
+              private static final int NID = 7001;
+              private static final String CH = "bgmusic";
+
+              private MediaPlayer mp;
+              private boolean prepared = false;
+              private boolean wantPlay = false;
+              private boolean resumeOnFocus = false;
+              private boolean ducked = false;
+              private int fails = 0;
+              private MediaSession session;
+              private AudioManager am;
+              private final Random rnd = new Random();
+
+              @Override
+              public IBinder onBind(Intent i) {
+                  return null;
+              }
+
+              @Override
+              public void onCreate() {
+                  super.onCreate();
+                  inst = this;
+                  am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                      NotificationChannel ch = new NotificationChannel(CH, "Nh\u1ea1c n\u1ec1n", NotificationManager.IMPORTANCE_LOW);
+                      ch.setShowBadge(false);
+                      ch.setSound(null, null);
+                      ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(ch);
+                  }
+                  session = new MediaSession(this, "bgmusic");
+                  session.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+                  session.setCallback(new MediaSession.Callback() {
+                      @Override
+                      public void onPlay() {
+                          command("resume", -1, 0);
+                      }
+
+                      @Override
+                      public void onPause() {
+                          command("pause", -1, 0);
+                      }
+
+                      @Override
+                      public void onSkipToNext() {
+                          command("next", -1, 0);
+                      }
+
+                      @Override
+                      public void onSkipToPrevious() {
+                          command("prev", -1, 0);
+                      }
+
+                      @Override
+                      public void onSeekTo(long pos) {
+                          command("seek", -1, pos);
+                      }
+
+                      @Override
+                      public void onStop() {
+                          command("stop", -1, 0);
+                      }
+                  });
+                  session.setActive(true);
+              }
+
+              @Override
+              public int onStartCommand(Intent i, int flags, int startId) {
+                  promote(buildNotification(false));
+                  if (i != null) {
+                      String cmd = i.getStringExtra("cmd");
+                      if (cmd != null) command(cmd, i.getIntExtra("index", -1), i.getLongExtra("ms", 0));
+                  }
+                  return START_NOT_STICKY;
+              }
+
+              @Override
+              public void onTaskRemoved(Intent rootIntent) {
+                  // Gi\u1eef nguy\u00ean: nh\u1ea1c v\u1eabn ph\u00e1t khi app b\u1ecb xo\u00e1 kh\u1ecfi \u0111a nhi\u1ec7m
+              }
+
+              @Override
+              public void onDestroy() {
+                  releasePlayer();
+                  try {
+                      session.setActive(false);
+                      session.release();
+                  } catch (Exception e) {
+                  }
+                  abandonFocus();
+                  if (inst == this) inst = null;
+                  super.onDestroy();
+              }
+
+              private void promote(Notification n) {
+                  try {
+                      if (Build.VERSION.SDK_INT >= 29) {
+                          startForeground(NID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+                      } else {
+                          startForeground(NID, n);
+                      }
+                  } catch (Exception e) {
+                      ERR = "startForeground: " + e;
+                  }
+              }
+
+              boolean isPlayingNow() {
+                  try {
+                      return mp != null && prepared && mp.isPlaying();
+                  } catch (Exception e) {
+                      return false;
+                  }
+              }
+
+              long positionMs() {
+                  try {
+                      return (mp != null && prepared) ? mp.getCurrentPosition() : 0;
+                  } catch (Exception e) {
+                      return 0;
+                  }
+              }
+
+              long durationMs() {
+                  try {
+                      return (mp != null && prepared) ? mp.getDuration() : 0;
+                  } catch (Exception e) {
+                      return 0;
+                  }
+              }
+
+              void command(String cmd, int index, long ms) {
+                  try {
+                      if ("play".equals(cmd)) {
+                          if (index >= 0 && index < URIS.size()) {
+                              IDX = index;
+                          } else if (IDX < 0 && !URIS.isEmpty()) {
+                              IDX = SHUF ? rnd.nextInt(URIS.size()) : 0;
+                          }
+                          startTrack();
+                      } else if ("toggle".equals(cmd)) {
+                          if (isPlayingNow()) {
+                              pausePlayback();
+                          } else if (mp != null && prepared) {
+                              resumePlayback();
+                          } else {
+                              if (IDX < 0 && !URIS.isEmpty()) IDX = 0;
+                              startTrack();
+                          }
+                      } else if ("resume".equals(cmd)) {
+                          if (mp != null && prepared) resumePlayback();
+                          else startTrack();
+                      } else if ("pause".equals(cmd)) {
+                          pausePlayback();
+                      } else if ("next".equals(cmd)) {
+                          advance(false);
+                      } else if ("prev".equals(cmd)) {
+                          previous();
+                      } else if ("seek".equals(cmd)) {
+                          if (mp != null && prepared) mp.seekTo((int) ms);
+                      } else if ("stop".equals(cmd)) {
+                          stopAll();
+                          return;
+                      }
+                  } catch (Exception e) {
+                      ERR = "command " + cmd + ": " + e;
+                  }
+                  refresh();
+              }
+
+              void applyVolume() {
+                  try {
+                      if (mp != null && prepared) {
+                          float v = ducked ? VOL * 0.3f : VOL;
+                          mp.setVolume(v, v);
+                      }
+                  } catch (Exception e) {
+                  }
+              }
+
+              private void startTrack() {
+                  releasePlayer();
+                  if (IDX < 0 || IDX >= URIS.size()) {
+                      wantPlay = false;
+                      return;
+                  }
+                  requestFocus();
+                  try {
+                      mp = new MediaPlayer();
+                      mp.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+                      mp.setAudioAttributes(new AudioAttributes.Builder()
+                          .setUsage(AudioAttributes.USAGE_MEDIA)
+                          .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                          .build());
+                      mp.setDataSource(this, Uri.parse(URIS.get(IDX)));
+                      mp.setOnPreparedListener(this);
+                      mp.setOnCompletionListener(this);
+                      mp.setOnErrorListener(this);
+                      prepared = false;
+                      wantPlay = true;
+                      mp.prepareAsync();
+                  } catch (Exception e) {
+                      ERR = "m\u1edf file: " + e;
+                      prepared = false;
+                      fails++;
+                      if (fails > URIS.size()) {
+                          wantPlay = false;
+                          fails = 0;
+                      } else {
+                          advance(true);
+                      }
+                  }
+              }
+
+              private void releasePlayer() {
+                  prepared = false;
+                  if (mp != null) {
+                      try {
+                          mp.release();
+                      } catch (Exception e) {
+                      }
+                      mp = null;
+                  }
+              }
+
+              private void pausePlayback() {
+                  wantPlay = false;
+                  try {
+                      if (mp != null && prepared && mp.isPlaying()) mp.pause();
+                  } catch (Exception e) {
+                  }
+              }
+
+              private void resumePlayback() {
+                  wantPlay = true;
+                  requestFocus();
+                  try {
+                      if (mp != null && prepared) mp.start();
+                  } catch (Exception e) {
+                  }
+              }
+
+              private void advance(boolean auto) {
+                  int n = URIS.size();
+                  if (n == 0) return;
+                  int next;
+                  if (SHUF && n > 1) {
+                      do {
+                          next = rnd.nextInt(n);
+                      } while (next == IDX);
+                  } else {
+                      next = IDX + 1;
+                      if (next >= n) {
+                          if ("all".equals(REP) || !auto) {
+                              next = 0;
+                          } else {
+                              wantPlay = false;
+                              releasePlayer();
+                              refresh();
+                              return;
+                          }
+                      }
+                  }
+                  IDX = next;
+                  startTrack();
+              }
+
+              private void previous() {
+                  int n = URIS.size();
+                  if (n == 0) return;
+                  if (mp != null && prepared && positionMs() > 3000) {
+                      mp.seekTo(0);
+                      return;
+                  }
+                  IDX = IDX > 0 ? IDX - 1 : n - 1;
+                  startTrack();
+              }
+
+              private void stopAll() {
+                  wantPlay = false;
+                  releasePlayer();
+                  abandonFocus();
+                  try {
+                      stopForeground(true);
+                  } catch (Exception e) {
+                  }
+                  stopSelf();
+              }
+
+              private void requestFocus() {
+                  try {
+                      am.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+                  } catch (Exception e) {
+                  }
+              }
+
+              private void abandonFocus() {
+                  try {
+                      am.abandonAudioFocus(this);
+                  } catch (Exception e) {
+                  }
+              }
+
+              @Override
+              public void onAudioFocusChange(int c) {
+                  if (c == AudioManager.AUDIOFOCUS_LOSS) {
+                      resumeOnFocus = false;
+                      pausePlayback();
+                      refresh();
+                  } else if (c == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+                      resumeOnFocus = isPlayingNow();
+                      pausePlayback();
+                      refresh();
+                  } else if (c == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+                      ducked = true;
+                      applyVolume();
+                  } else if (c == AudioManager.AUDIOFOCUS_GAIN) {
+                      ducked = false;
+                      applyVolume();
+                      if (resumeOnFocus) {
+                          resumeOnFocus = false;
+                          resumePlayback();
+                          refresh();
+                      }
+                  }
+              }
+
+              @Override
+              public void onPrepared(MediaPlayer p) {
+                  prepared = true;
+                  fails = 0;
+                  ERR = "";
+                  applyVolume();
+                  try {
+                      if (wantPlay) p.start();
+                  } catch (Exception e) {
+                  }
+                  refresh();
+              }
+
+              @Override
+              public void onCompletion(MediaPlayer p) {
+                  if ("one".equals(REP)) {
+                      try {
+                          p.seekTo(0);
+                          p.start();
+                      } catch (Exception e) {
+                      }
+                  } else {
+                      advance(true);
+                  }
+                  refresh();
+              }
+
+              @Override
+              public boolean onError(MediaPlayer p, int what, int extra) {
+                  ERR = "MediaPlayer " + what + "/" + extra;
+                  prepared = false;
+                  fails++;
+                  if (fails > URIS.size()) {
+                      wantPlay = false;
+                      fails = 0;
+                      releasePlayer();
+                      refresh();
+                  } else {
+                      advance(true);
+                  }
+                  return true;
+              }
+
+              private void refresh() {
+                  boolean pl = isPlayingNow() || (wantPlay && !prepared);
+                  updateSession(pl);
+                  Notification n = buildNotification(pl);
+                  if (pl) {
+                      promote(n);
+                  } else {
+                      try {
+                          stopForeground(false);
+                      } catch (Exception e) {
+                      }
+                      ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NID, n);
+                  }
+              }
+
+              private void updateSession(boolean pl) {
+                  try {
+                      String t = (IDX >= 0 && IDX < NAMES.size()) ? NAMES.get(IDX) : "Nh\u1ea1c c\u1ee7a t\u00f4i";
+                      session.setMetadata(new MediaMetadata.Builder()
+                          .putString(MediaMetadata.METADATA_KEY_TITLE, t)
+                          .putString(MediaMetadata.METADATA_KEY_ARTIST, "B\u1ea5m gi\u1edd")
+                          .putLong(MediaMetadata.METADATA_KEY_DURATION, durationMs())
+                          .build());
+                      long acts = PlaybackState.ACTION_PLAY | PlaybackState.ACTION_PAUSE | PlaybackState.ACTION_PLAY_PAUSE
+                          | PlaybackState.ACTION_SKIP_TO_NEXT | PlaybackState.ACTION_SKIP_TO_PREVIOUS
+                          | PlaybackState.ACTION_SEEK_TO | PlaybackState.ACTION_STOP;
+                      session.setPlaybackState(new PlaybackState.Builder()
+                          .setActions(acts)
+                          .setState(pl ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED, positionMs(), 1.0f)
+                          .build());
+                  } catch (Exception e) {
+                  }
+              }
+
+              private int rid(String type, String name) {
+                  return getResources().getIdentifier(name, type, getPackageName());
+              }
+
+              private Notification.Action action(String icon, String title, String cmd, int n) {
+                  Intent i = new Intent(this, MusicService.class);
+                  i.putExtra("cmd", cmd);
+                  PendingIntent pi;
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                      pi = PendingIntent.getForegroundService(this, 700 + n, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                  } else {
+                      pi = PendingIntent.getService(this, 700 + n, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                  }
+                  return new Notification.Action.Builder(Icon.createWithResource(this, rid("drawable", icon)), title, pi).build();
+              }
+
+              private Notification buildNotification(boolean pl) {
+                  Notification.Builder b;
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                      b = new Notification.Builder(this, CH);
+                  } else {
+                      b = new Notification.Builder(this);
+                  }
+                  String t = (IDX >= 0 && IDX < NAMES.size()) ? NAMES.get(IDX) : "Nh\u1ea1c c\u1ee7a t\u00f4i";
+                  Intent open = getPackageManager().getLaunchIntentForPackage(getPackageName());
+                  if (open == null) open = new Intent();
+                  PendingIntent content = PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                  int icon = rid("drawable", "ic_stat_timer");
+                  if (icon == 0) icon = getApplicationInfo().icon;
+                  b.setSmallIcon(icon)
+                      .setContentTitle(t)
+                      .setContentText("B\u1ea5m gi\u1edd \u00b7 Nh\u1ea1c c\u1ee7a t\u00f4i")
+                      .setContentIntent(content)
+                      .setOngoing(pl)
+                      .setShowWhen(false)
+                      .setColor(0xFF2DBE9D)
+                      .setCategory(Notification.CATEGORY_TRANSPORT)
+                      .setVisibility(Notification.VISIBILITY_PUBLIC);
+                  b.addAction(action("ic_nt_prev", "B\u00e0i tr\u01b0\u1edbc", "prev", 1));
+                  b.addAction(action(pl ? "ic_nt_pause" : "ic_nt_play", pl ? "D\u1eebng" : "Ph\u00e1t", "toggle", 2));
+                  b.addAction(action("ic_nt_next", "B\u00e0i sau", "next", 3));
+                  b.setStyle(new Notification.MediaStyle().setMediaSession(session.getSessionToken()).setShowActionsInCompactView(0, 1, 2));
+                  return b.build();
+              }
+          }
+          JAVA
+          cat > $A/java/com/dousob/bamgio/MusicPlugin.java <<'JAVA'
+          package com.dousob.bamgio;
+
+          import android.content.ClipData;
+          import android.content.ContentResolver;
+          import android.content.Context;
+          import android.content.Intent;
+          import android.database.Cursor;
+          import android.net.Uri;
+          import android.os.Build;
+          import android.provider.OpenableColumns;
+          import android.provider.Settings;
+          import androidx.activity.result.ActivityResult;
+          import com.getcapacitor.JSArray;
+          import com.getcapacitor.JSObject;
+          import com.getcapacitor.Plugin;
+          import com.getcapacitor.PluginCall;
+          import com.getcapacitor.PluginMethod;
+          import com.getcapacitor.annotation.ActivityCallback;
+          import com.getcapacitor.annotation.CapacitorPlugin;
+          import java.util.ArrayList;
+          import java.util.List;
+          import org.json.JSONObject;
+
+          @CapacitorPlugin(name = "BgMusic")
+          public class MusicPlugin extends Plugin {
+
+              @PluginMethod
+              public void pick(PluginCall call) {
+                  Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                  i.addCategory(Intent.CATEGORY_OPENABLE);
+                  i.setType("audio/*");
+                  i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                  i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                  startActivityForResult(call, i, "pickResult");
+              }
+
+              @ActivityCallback
+              private void pickResult(PluginCall call, ActivityResult result) {
+                  if (call == null) return;
+                  JSArray items = new JSArray();
+                  try {
+                      Intent d = result.getData();
+                      if (d != null) {
+                          List<Uri> uris = new ArrayList<Uri>();
+                          ClipData cd = d.getClipData();
+                          if (cd != null) {
+                              for (int k = 0; k < cd.getItemCount(); k++) uris.add(cd.getItemAt(k).getUri());
+                          } else if (d.getData() != null) {
+                              uris.add(d.getData());
+                          }
+                          ContentResolver cr = getContext().getContentResolver();
+                          for (Uri u : uris) {
+                              try {
+                                  cr.takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                              } catch (Exception e) {
+                              }
+                              String name = null;
+                              long size = 0;
+                              Cursor c = null;
+                              try {
+                                  c = cr.query(u, new String[] {OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE}, null, null, null);
+                                  if (c != null && c.moveToFirst()) {
+                                      name = c.getString(0);
+                                      size = c.getLong(1);
+                                  }
+                              } catch (Exception e) {
+                              } finally {
+                                  if (c != null) c.close();
+                              }
+                              if (name == null) name = String.valueOf(u.getLastPathSegment());
+                              name = name.replaceAll("\\.[^.]+$", "");
+                              JSObject o = new JSObject();
+                              o.put("uri", u.toString());
+                              o.put("name", name);
+                              o.put("size", size);
+                              items.put(o);
+                          }
+                      }
+                  } catch (Exception e) {
+                  }
+                  JSObject r = new JSObject();
+                  r.put("items", items);
+                  call.resolve(r);
+              }
+
+              @PluginMethod
+              public void setQueue(PluginCall call) {
+                  try {
+                      JSArray arr = call.getArray("items");
+                      String cur = (MusicService.IDX >= 0 && MusicService.IDX < MusicService.URIS.size()) ? MusicService.URIS.get(MusicService.IDX) : null;
+                      List<String> u = new ArrayList<String>();
+                      List<String> n = new ArrayList<String>();
+                      if (arr != null) {
+                          for (int i = 0; i < arr.length(); i++) {
+                              JSONObject o = arr.getJSONObject(i);
+                              u.add(o.getString("uri"));
+                              n.add(o.optString("name", ""));
+                          }
+                      }
+                      int newIdx = cur == null ? -1 : u.indexOf(cur);
+                      MusicService.URIS.clear();
+                      MusicService.URIS.addAll(u);
+                      MusicService.NAMES.clear();
+                      MusicService.NAMES.addAll(n);
+                      MusicService.IDX = newIdx;
+                      if (cur != null && newIdx < 0 && MusicService.inst != null) MusicService.inst.command("stop", -1, 0);
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+
+              @PluginMethod
+              public void setMode(PluginCall call) {
+                  JSObject d = call.getData();
+                  MusicService.SHUF = d.optBoolean("shuffle", false);
+                  MusicService.REP = d.optString("repeat", "all");
+                  call.resolve();
+              }
+
+              @PluginMethod
+              public void setVolume(PluginCall call) {
+                  float v = (float) call.getData().optDouble("v", 0.7);
+                  MusicService.VOL = Math.max(0f, Math.min(1f, v));
+                  if (MusicService.inst != null) MusicService.inst.applyVolume();
+                  call.resolve();
+              }
+
+              @PluginMethod
+              public void cmd(PluginCall call) {
+                  try {
+                      JSObject d = call.getData();
+                      String c = d.optString("cmd", "toggle");
+                      int index = d.optInt("index", -1);
+                      long ms = d.optLong("ms", 0);
+                      MusicService s = MusicService.inst;
+                      if (s != null) {
+                          s.command(c, index, ms);
+                      } else if (!"pause".equals(c) && !"stop".equals(c) && !"seek".equals(c)) {
+                          Context ctx = getContext();
+                          Intent i = new Intent(ctx, MusicService.class);
+                          i.putExtra("cmd", c);
+                          i.putExtra("index", index);
+                          i.putExtra("ms", ms);
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                              ctx.startForegroundService(i);
+                          } else {
+                              ctx.startService(i);
+                          }
+                      }
+                      call.resolve();
+                  } catch (Exception e) {
+                      MusicService.ERR = "start: " + e;
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+
+              @PluginMethod
+              public void state(PluginCall call) {
+                  JSObject r = new JSObject();
+                  MusicService s = MusicService.inst;
+                  r.put("playing", s != null && s.isPlayingNow());
+                  r.put("idx", MusicService.IDX);
+                  r.put("pos", s != null ? s.positionMs() : 0L);
+                  r.put("dur", s != null ? s.durationMs() : 0L);
+                  r.put("svc", s != null);
+                  r.put("err", MusicService.ERR);
+                  call.resolve(r);
+              }
+
+              @PluginMethod
+              public void openSettings(PluginCall call) {
+                  try {
+                      String t = call.getData().optString("type", "app");
+                      Context ctx = getContext();
+                      Intent i;
+                      if ("battery".equals(t)) {
+                          i = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                      } else {
+                          i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                      }
+                      i.setData(Uri.parse("package:" + ctx.getPackageName()));
+                      i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                      ctx.startActivity(i);
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+          }
+          JAVA
+          cat > $A/java/com/dousob/bamgio/NotifActionReceiver.java <<'JAVA'
+          package com.dousob.bamgio;
+
+          import android.app.NotificationManager;
+          import android.content.BroadcastReceiver;
+          import android.content.Context;
+          import android.content.Intent;
+
+          public class NotifActionReceiver extends BroadcastReceiver {
+              @Override
+              public void onReceive(Context ctx, Intent i) {
+                  String act = i.getStringExtra("act");
+                  String key = i.getStringExtra("key");
+                  int id = i.getIntExtra("id", 0);
+                  if (act == null) return;
+                  NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+                  TimerNotifPlugin p = TimerNotifPlugin.instance;
+                  if (p != null) {
+                      if ("off".equals(act)) nm.cancel(id);
+                      p.emitAction(key == null ? "" : key, act);
+                      return;
+                  }
+                  nm.cancel(id);
+                  ctx.getSharedPreferences("bg_pending", Context.MODE_PRIVATE).edit()
+                      .putString("key", key == null ? "" : key)
+                      .putString("act", act)
+                      .apply();
+              }
+          }
+          JAVA
+          mkdir -p $A/res/layout
+          cat > $A/res/layout/notif_timer.xml <<'XML'
+          <?xml version="1.0" encoding="utf-8"?>
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:gravity="center_vertical"
+              android:orientation="horizontal">
+
+              <Chronometer
+                  android:id="@+id/nt_time"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textColor="?android:attr/textColorPrimary"
+                  android:textSize="30sp"
+                  android:textStyle="bold" />
+
+              <TextView
+                  android:id="@+id/nt_static"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textColor="?android:attr/textColorPrimary"
+                  android:textSize="30sp"
+                  android:textStyle="bold"
+                  android:visibility="gone" />
+
+              <TextView
+                  android:id="@+id/nt_title"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginLeft="10dp"
+                  android:layout_marginStart="10dp"
+                  android:layout_weight="1"
+                  android:ellipsize="end"
+                  android:maxLines="2"
+                  android:textColor="?android:attr/textColorSecondary"
+                  android:textSize="12sp" />
+
+              <ImageView
+                  android:id="@+id/nt_a"
+                  android:layout_width="40dp"
+                  android:layout_height="40dp"
+                  android:contentDescription="@null"
+                  android:padding="9dp"
+                  android:scaleType="fitCenter" />
+
+              <ImageView
+                  android:id="@+id/nt_b"
+                  android:layout_width="40dp"
+                  android:layout_height="40dp"
+                  android:contentDescription="@null"
+                  android:padding="9dp"
+                  android:scaleType="fitCenter" />
+
+              <ImageView
+                  android:id="@+id/nt_c"
+                  android:layout_width="40dp"
+                  android:layout_height="40dp"
+                  android:contentDescription="@null"
+                  android:padding="9dp"
+                  android:scaleType="fitCenter" />
+          </LinearLayout>
+          XML
+          cat > $A/res/drawable/ic_nt_pause.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="24dp" android:height="24dp"
+              android:viewportWidth="24" android:viewportHeight="24">
+            <path android:fillColor="#FFFFFFFF" android:pathData="M6,19h4V5H6v14zM14,5v14h4V5h-4z"/>
+          </vector>
+          XML
+          cat > $A/res/drawable/ic_nt_play.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="24dp" android:height="24dp"
+              android:viewportWidth="24" android:viewportHeight="24">
+            <path android:fillColor="#FFFFFFFF" android:pathData="M8,5v14l11,-7z"/>
+          </vector>
+          XML
+          cat > $A/res/drawable/ic_nt_next.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="24dp" android:height="24dp"
+              android:viewportWidth="24" android:viewportHeight="24">
+            <path android:fillColor="#FFFFFFFF" android:pathData="M6,18l8.5,-6L6,6v12zM16,6v12h2V6h-2z"/>
+          </vector>
+          XML
+          cat > $A/res/drawable/ic_nt_close.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="24dp" android:height="24dp"
+              android:viewportWidth="24" android:viewportHeight="24">
+            <path android:fillColor="#FFFFFFFF" android:pathData="M19,6.41L17.59,5 12,10.59 6.41,5 5,6.41 10.59,12 5,17.59 6.41,19 12,13.41 17.59,19 19,17.59 13.41,12z"/>
+          </vector>
+          XML
+          cat > $A/res/drawable/ic_nt_flag.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="24dp" android:height="24dp"
+              android:viewportWidth="24" android:viewportHeight="24">
+            <path android:fillColor="#FFFFFFFF" android:pathData="M14.4,6L14,4H5v17h2v-7h5.6l0.4,2h7V6z"/>
+          </vector>
+          XML
+          cat > $A/res/drawable/ic_nt_prev.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="24dp" android:height="24dp"
+              android:viewportWidth="24" android:viewportHeight="24">
+            <path android:fillColor="#FFFFFFFF" android:pathData="M6,6h2v12H6zM9.5,12l8.5,6V6z"/>
+          </vector>
+          XML
+          cat > $A/java/com/dousob/bamgio/MainActivity.java <<'JAVA'
+          package com.dousob.bamgio;
+
+          import android.os.Bundle;
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  registerPlugin(TimerNotifPlugin.class);
+                  registerPlugin(MusicPlugin.class);
+                  super.onCreate(savedInstanceState);
+              }
+          }
+          JAVA
+          cat > $A/java/com/dousob/bamgio/TimerNotifPlugin.java <<'JAVA'
+          package com.dousob.bamgio;
+
+          import android.app.Notification;
+          import android.app.NotificationChannel;
+          import android.app.NotificationManager;
+          import android.app.PendingIntent;
+          import android.content.Context;
+          import android.content.Intent;
+          import android.content.SharedPreferences;
+          import android.content.pm.ActivityInfo;
+          import android.content.res.Configuration;
+          import android.media.AudioAttributes;
+          import android.net.Uri;
+          import android.os.Build;
+          import android.os.SystemClock;
+          import android.speech.tts.TextToSpeech;
+          import java.util.Locale;
+          import android.view.View;
+          import android.view.Window;
+          import android.view.WindowManager;
+          import android.widget.RemoteViews;
+          import androidx.core.app.NotificationCompat;
+          import androidx.core.view.WindowCompat;
+          import androidx.core.view.WindowInsetsCompat;
+          import androidx.core.view.WindowInsetsControllerCompat;
+          import com.getcapacitor.JSObject;
+          import com.getcapacitor.Plugin;
+          import com.getcapacitor.PluginCall;
+          import com.getcapacitor.PluginMethod;
+          import com.getcapacitor.annotation.CapacitorPlugin;
+
+          @CapacitorPlugin(name = "TimerNotif")
+          public class TimerNotifPlugin extends Plugin {
+              private static final String CH = "running2";
+              static TimerNotifPlugin instance;
+              private TextToSpeech tts;
+              private boolean ttsReady = false;
+              private boolean ttsLangOk = false;
+              private String ttsPending = null;
+              private String ttsLang = "vi-VN";
+
+              @Override
+              public void load() {
+                  instance = this;
+              }
+
+              private void ttsSetLang(String lang) {
+                  try {
+                      int r = tts.setLanguage(Locale.forLanguageTag(lang));
+                      ttsLangOk = (r != TextToSpeech.LANG_MISSING_DATA && r != TextToSpeech.LANG_NOT_SUPPORTED);
+                  } catch (Exception e) {
+                      ttsLangOk = false;
+                  }
+              }
+
+              @PluginMethod
+              public void speak(PluginCall call) {
+                  try {
+                      final String text = call.getData().optString("text", "");
+                      final String lang = call.getData().optString("lang", "vi-VN");
+                      if (text.length() == 0) {
+                          call.resolve();
+                          return;
+                      }
+                      ttsLang = lang;
+                      if (tts == null) {
+                          ttsPending = text;
+                          tts = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
+                              @Override
+                              public void onInit(int status) {
+                                  if (status == TextToSpeech.SUCCESS) {
+                                      ttsReady = true;
+                                      ttsSetLang(ttsLang);
+                                      if (ttsPending != null) {
+                                          tts.speak(ttsPending, TextToSpeech.QUEUE_FLUSH, null, "bg");
+                                          ttsPending = null;
+                                      }
+                                  }
+                              }
+                          });
+                      } else if (ttsReady) {
+                          ttsSetLang(lang);
+                          tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "bg");
+                      }
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+
+              @PluginMethod
+              public void ttsInfo(PluginCall call) {
+                  JSObject r = new JSObject();
+                  r.put("ready", ttsReady);
+                  r.put("langOk", ttsLangOk);
+                  call.resolve(r);
+              }
+
+              @PluginMethod
+              public void brightness(final PluginCall call) {
+                  final float v = (float) call.getData().optDouble("v", -1);
+                  getActivity().runOnUiThread(new Runnable() {
+                      @Override
+                      public void run() {
+                          try {
+                              Window w = getActivity().getWindow();
+                              WindowManager.LayoutParams p = w.getAttributes();
+                              p.screenBrightness = v < 0 ? WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE : Math.max(0.01f, Math.min(1f, v));
+                              w.setAttributes(p);
+                              call.resolve();
+                          } catch (Exception e) {
+                              call.reject(String.valueOf(e.getMessage()));
+                          }
+                      }
+                  });
+              }
+
+              @Override
+              protected void handleOnDestroy() {
+                  if (instance == this) instance = null;
+                  try {
+                      if (tts != null) {
+                          tts.stop();
+                          tts.shutdown();
+                      }
+                  } catch (Exception e) {
+                  }
+                  tts = null;
+                  ttsReady = false;
+              }
+
+              void emitAction(String key, String act) {
+                  JSObject o = new JSObject();
+                  o.put("key", key);
+                  o.put("act", act);
+                  notifyListeners("action", o, true);
+              }
+
+              private int rid(Context ctx, String type, String name) {
+                  return ctx.getResources().getIdentifier(name, type, ctx.getPackageName());
+              }
+
+              private PendingIntent actionIntent(Context ctx, int id, String key, String act, int n) {
+                  Intent i = new Intent(ctx, NotifActionReceiver.class);
+                  i.setAction("com.dousob.bamgio.ACT");
+                  i.putExtra("key", key);
+                  i.putExtra("act", act);
+                  i.putExtra("id", id);
+                  return PendingIntent.getBroadcast(ctx, id * 4 + n, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+              }
+
+              private void button(RemoteViews rv, Context ctx, String viewName, String icon, String act, int id, String key, int n, int tint) {
+                  int v = rid(ctx, "id", viewName);
+                  rv.setViewVisibility(v, View.VISIBLE);
+                  rv.setImageViewResource(v, rid(ctx, "drawable", icon));
+                  rv.setInt(v, "setColorFilter", tint);
+                  rv.setOnClickPendingIntent(v, actionIntent(ctx, id, key, act, n));
+              }
+
+              private RemoteViews buildViews(Context ctx, int id, String key, String title, String text, long when,
+                                             boolean countdown, boolean paused, String st, boolean pauseOn, String next) {
+                  RemoteViews rv = new RemoteViews(ctx.getPackageName(), rid(ctx, "layout", "notif_timer"));
+                  boolean night = (ctx.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+                  int tint = night ? 0xFFEDEDED : 0xFF303030;
+                  rv.setTextViewText(rid(ctx, "id", "nt_title"), text.length() > 0 ? title + "\n" + text : title);
+                  int t = rid(ctx, "id", "nt_time");
+                  int s = rid(ctx, "id", "nt_static");
+                  if (paused) {
+                      rv.setViewVisibility(t, View.GONE);
+                      rv.setViewVisibility(s, View.VISIBLE);
+                      rv.setTextViewText(s, st);
+                  } else {
+                      rv.setViewVisibility(s, View.GONE);
+                      rv.setViewVisibility(t, View.VISIBLE);
+                      long base = SystemClock.elapsedRealtime() + (when - System.currentTimeMillis());
+                      rv.setChronometer(t, base, null, true);
+                      if (Build.VERSION.SDK_INT >= 24) rv.setChronometerCountDown(t, countdown);
+                  }
+                  button(rv, ctx, "nt_a", pauseOn ? "ic_nt_pause" : "ic_nt_play", "pause", id, key, 0, tint);
+                  if (next.length() > 0) {
+                      button(rv, ctx, "nt_b", next.equals("lap") ? "ic_nt_flag" : "ic_nt_next", "next", id, key, 1, tint);
+                  } else {
+                      rv.setViewVisibility(rid(ctx, "id", "nt_b"), View.GONE);
+                  }
+                  button(rv, ctx, "nt_c", "ic_nt_close", "off", id, key, 2, tint);
+                  return rv;
+              }
+
+              @PluginMethod
+              public void show(PluginCall call) {
+                  try {
+                      Context ctx = getContext();
+                      JSObject d = call.getData();
+                      int id = d.optInt("id", 9001);
+                      String key = d.optString("key", "");
+                      String title = d.optString("title", "");
+                      String text = d.optString("text", "");
+                      long when = d.optLong("when", System.currentTimeMillis());
+                      boolean countdown = d.optBoolean("countdown", false);
+                      long timeout = d.optLong("timeout", 0);
+                      boolean paused = d.optBoolean("paused", false);
+                      String st = d.optString("st", "");
+                      boolean pauseOn = d.optBoolean("pauseOn", true);
+                      String next = d.optString("next", "");
+
+                      NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                          NotificationChannel ch = new NotificationChannel(CH, "\u0110\u1ed3ng h\u1ed3 \u0111ang ch\u1ea1y", NotificationManager.IMPORTANCE_DEFAULT);
+                          ch.setSound(null, null);
+                          ch.enableVibration(false);
+                          ch.setShowBadge(false);
+                          ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                          nm.createNotificationChannel(ch);
+                      }
+                      Intent open = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
+                      if (open == null) open = new Intent();
+                      PendingIntent pi = PendingIntent.getActivity(ctx, 0, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                      int icon = rid(ctx, "drawable", "ic_stat_timer");
+                      if (icon == 0) icon = ctx.getApplicationInfo().icon;
+
+                      NotificationCompat.Builder b = new NotificationCompat.Builder(ctx, CH)
+                          .setSmallIcon(icon)
+                          .setContentTitle(title)
+                          .setContentText(text)
+                          .setContentIntent(pi)
+                          .setOngoing(true)
+                          .setOnlyAlertOnce(true)
+                          .setShowWhen(false)
+                          .setColor(0xFF2DBE9D)
+                          .setCategory(NotificationCompat.CATEGORY_PROGRESS)
+                          .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                          .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                          .setCustomContentView(buildViews(ctx, id, key, title, text, when, countdown, paused, st, pauseOn, next))
+                          .setCustomBigContentView(buildViews(ctx, id, key, title, text, when, countdown, paused, st, pauseOn, next));
+                      if (countdown && !paused && timeout > 0) b.setTimeoutAfter(timeout);
+                      nm.notify(id, b.build());
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+
+              @PluginMethod
+              public void cancel(PluginCall call) {
+                  try {
+                      NotificationManager nm = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                      nm.cancel(call.getData().optInt("id", 9001));
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+
+              @PluginMethod
+              public void cancelAll(PluginCall call) {
+                  try {
+                      NotificationManager nm = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                      for (int i = 9001; i < 9200; i++) nm.cancel(i);
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+
+              @PluginMethod
+              public void takePending(PluginCall call) {
+                  try {
+                      SharedPreferences sp = getContext().getSharedPreferences("bg_pending", Context.MODE_PRIVATE);
+                      JSObject r = new JSObject();
+                      r.put("key", sp.getString("key", ""));
+                      r.put("act", sp.getString("act", ""));
+                      sp.edit().clear().apply();
+                      call.resolve(r);
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+
+              private void makeAlarmChannel(Context ctx, NotificationManager nm, String id, String name, String rawName) {
+                  NotificationChannel ch = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_HIGH);
+                  ch.setDescription("Chu\u00f4ng b\u00e1o khi h\u1ebft gi\u1edd");
+                  ch.enableVibration(true);
+                  ch.setVibrationPattern(new long[] {0, 500, 250, 500, 250, 500});
+                  ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                  int raw = rid(ctx, "raw", rawName);
+                  if (raw != 0) {
+                      AudioAttributes aa = new AudioAttributes.Builder()
+                          .setUsage(AudioAttributes.USAGE_ALARM)
+                          .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                          .build();
+                      ch.setSound(Uri.parse("android.resource://" + ctx.getPackageName() + "/" + raw), aa);
+                  }
+                  nm.createNotificationChannel(ch);
+              }
+
+              @PluginMethod
+              public void alarmChannel(PluginCall call) {
+                  try {
+                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                          Context ctx = getContext();
+                          NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+                          makeAlarmChannel(ctx, nm, "alarm3", "H\u1ebft gi\u1edd", "alarm");
+                          makeAlarmChannel(ctx, nm, "alarm_beep", "H\u1ebft gi\u1edd: B\u00edp", "alarm_beep");
+                          makeAlarmChannel(ctx, nm, "alarm_bell", "H\u1ebft gi\u1edd: Chu\u00f4ng", "alarm_bell");
+                          makeAlarmChannel(ctx, nm, "alarm_horn", "H\u1ebft gi\u1edd: C\u00f2i", "alarm_horn");
+                          makeAlarmChannel(ctx, nm, "alarm_soft", "H\u1ebft gi\u1edd: Nh\u1eb9", "alarm_soft");
+                      }
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+
+              @PluginMethod
+              public void keepAwake(final PluginCall call) {
+                  final boolean on = call.getData().optBoolean("on", true);
+                  getActivity().runOnUiThread(new Runnable() {
+                      @Override
+                      public void run() {
+                          try {
+                              Window w = getActivity().getWindow();
+                              if (on) {
+                                  w.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                              } else {
+                                  w.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                              }
+                              call.resolve();
+                          } catch (Exception e) {
+                              call.reject(String.valueOf(e.getMessage()));
+                          }
+                      }
+                  });
+              }
+
+              @PluginMethod
+              public void immersive(final PluginCall call) {
+                  final boolean on = call.getData().optBoolean("on", true);
+                  final boolean land = call.getData().optBoolean("landscape", false);
+                  getActivity().runOnUiThread(new Runnable() {
+                      @Override
+                      public void run() {
+                          try {
+                              Window w = getActivity().getWindow();
+                              WindowInsetsControllerCompat c = WindowCompat.getInsetsController(w, w.getDecorView());
+                              if (on) {
+                                  if (Build.VERSION.SDK_INT >= 28) {
+                                      WindowManager.LayoutParams p = w.getAttributes();
+                                      p.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+                                      w.setAttributes(p);
+                                  }
+                                  c.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                                  c.hide(WindowInsetsCompat.Type.systemBars());
+                                  if (land) getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                              } else {
+                                  c.show(WindowInsetsCompat.Type.systemBars());
+                                  getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                              }
+                              call.resolve();
+                          } catch (Exception e) {
+                              call.reject(String.valueOf(e.getMessage()));
+                          }
+                      }
+                  });
+              }
+          }
+          JAVA
+
+      - name: Quyền, phiên bản và khoá ký
+        run: |
+          python3 - <<'PY'
+          import re, os
+          run = os.environ.get('RUN', '1')
+          # 1) Manifest: quyền
+          p = 'app/android/app/src/main/AndroidManifest.xml'
+          m = open(p, encoding='utf-8').read()
+          perms = ['android.permission.POST_NOTIFICATIONS', 'android.permission.USE_EXACT_ALARM', 'android.permission.RECEIVE_BOOT_COMPLETED', 'android.permission.VIBRATE', 'android.permission.FOREGROUND_SERVICE', 'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK', 'android.permission.WAKE_LOCK', 'android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS']
+          add = ''.join('    <uses-permission android:name="%s" />\n' % x for x in perms)
+          add += '    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />\n'
+          add += '    <queries>\n        <intent>\n            <action android:name="android.intent.action.TTS_SERVICE" />\n        </intent>\n    </queries>\n'
+          assert '<application' in m
+          assert '</application>' in m
+          assert '</activity>' in m
+          m = m.replace('</activity>', '    <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />\n        </activity>', 1)
+          m = m.replace('</application>', '    <receiver android:name=".NotifActionReceiver" android:exported="false" />\n    <service android:name=".MusicService" android:exported="false" android:foregroundServiceType="mediaPlayback" />\n    </application>', 1)
+          m = m.replace('<application', add + '    <application', 1)
+          open(p, 'w', encoding='utf-8').write(m)
+          # 2) build.gradle: phiên bản, ký bản release, bỏ kiểm tra lint chặn build
+          p = 'app/android/app/build.gradle'
+          g = open(p, encoding='utf-8').read()
+          g = re.sub(r'versionCode\s*=?\s*\d+', 'versionCode ' + run, g, count=1)
+          g = re.sub(r'versionName\s*=?\s*"[^"]*"', 'versionName "1.0.' + run + '"', g, count=1)
+          sign = """    signingConfigs {
+                  release {
+                      storeFile file(System.getProperty('user.home') + '/.android/debug.keystore')
+                      storePassword 'android'
+                      keyAlias 'androiddebugkey'
+                      keyPassword 'android'
+                  }
+              }
+              lint {
+                  checkReleaseBuilds = false
+                  abortOnError = false
+              }
+          """
+          if 'signingConfigs' not in g:
+              g, n = re.subn(r'(\n\s*buildTypes\s*\{)', '\n' + sign + r'\1', g, count=1)
+              print('signingConfigs chen:', n)
+          g, n2 = re.subn(r'(buildTypes\s*\{\s*release\s*\{)', r'\1\n            signingConfig signingConfigs.release', g, count=1)
+          print('signingConfig gan:', n2)
+          open(p, 'w', encoding='utf-8').write(g)
+          PY
+          grep -n "uses-permission" app/android/app/src/main/AndroidManifest.xml
+          grep -n "versionCode\|versionName\|signingConfig" app/android/app/build.gradle
+
+      - name: Icon app (lấy icon-512.png hoặc icon-192.png của web)
+        run: |
+          SRC=""
+          for f in icon-512.png icon-192.png; do
+            if [ -f "$f" ]; then SRC="$f"; break; fi
+          done
+          if [ -n "$SRC" ]; then
+            RES=app/android/app/src/main/res
+            rm -f $RES/mipmap-anydpi-v26/ic_launcher.xml $RES/mipmap-anydpi-v26/ic_launcher_round.xml
+            for d in $RES/mipmap-*dpi; do
+              cp "$SRC" "$d/ic_launcher.png"
+              cp "$SRC" "$d/ic_launcher_round.png"
+              cp "$SRC" "$d/ic_launcher_foreground.png"
+            done
+            echo "Đã dùng icon: $SRC"
+          else
+            echo "Không thấy icon, dùng icon mặc định"
+          fi
+
+      - name: Khoá ký cố định (để lần sau cài đè được)
+        run: |
+          mkdir -p ~/.android
+          base64 -d > ~/.android/debug.keystore <<'EOF'
+          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
+          EOF
+
+      - name: Build APK
+        run: |
+          cd app/android
+          if grep -q 'signingConfig signingConfigs.release' app/build.gradle; then
+            ./gradlew assembleRelease --no-daemon && OUT=app/build/outputs/apk/release/app-release.apk || { echo 'Build release lỗi, thử build debug'; ./gradlew assembleDebug --no-daemon && OUT=app/build/outputs/apk/debug/app-debug.apk; }
+          else
+            ./gradlew assembleDebug --no-daemon && OUT=app/build/outputs/apk/debug/app-debug.apk
+          fi
+          cp "$OUT" ../../Dousob.apk
+          echo "Đã tạo APK từ: $OUT"
+
+      - name: Đăng APK lên Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest Dousob.apk --title "APK mới nhất" --notes "build:${RUN} - Bản APK Android mới nhất của Bấm giờ." --latest
